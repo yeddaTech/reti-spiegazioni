@@ -739,6 +739,41 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 .dia .knee{fill:none;stroke-width:1.2;stroke-dasharray:4 4;opacity:.8}
 .dia .knee1{stroke:var(--s1)} .dia .knee2{stroke:var(--s2)}
 .ed-note{font-family:var(--font-display);font-size:.78rem;line-height:1.35;color:var(--muted);margin:.25rem 0 .7rem}
+/* vecchi temi d'esame */
+.box.esame{--tone:var(--l1)}
+.box ol.mc{list-style:lower-alpha;padding-left:1.4rem}
+details.sol{border-top:1px dashed color-mix(in srgb,var(--tone) 35%,var(--line));padding-top:.55rem}
+details.sol>summary{cursor:pointer;list-style:none;font-family:var(--font-display);font-weight:650;font-size:.92rem;color:var(--tone)}
+details.sol>summary::-webkit-details-marker{display:none}
+details.sol>summary::before{content:"+ ";font-family:var(--font-mono)}
+details.sol[open]>summary::before{content:"− "}
+.sol-in{margin-top:.6rem}
+.sol-in>*+*{margin-top:.6rem}
+.appunti{background:var(--warn-soft);border-left:3px solid var(--warn);border-radius:4px;padding:.55rem .75rem;font-size:.95rem}
+/* prova prima */
+.sol-btn{display:inline-flex}
+.pp-inline{display:flex;gap:.45rem;align-items:center;font-family:var(--font-display);font-size:.88rem;color:var(--muted);margin:.1rem 0 .9rem;cursor:pointer}
+.pp-side{display:flex;gap:.45rem;align-items:flex-start;padding:.4rem .5rem;font-family:var(--font-display);font-size:.88rem;line-height:1.35;color:var(--ink);cursor:pointer}
+.pp-inline input,.pp-side input{accent-color:var(--accent);margin:.15rem 0 0}
+/* formulario */
+.form-stampa{display:flex;flex-wrap:wrap;gap:.4rem .7rem;align-items:center;margin:.4rem 0 1rem;font-family:var(--font-display);font-size:.85rem}
+.form-tbl td,.form-tbl th{vertical-align:top}
+.form-nota{font-size:.94rem;color:var(--muted)}
+/* stampa: sempre colori chiari, niente indice né pulsanti, riquadri interi */
+@media print{
+  :root:root:root{--bg:#FFFFFF;--surface:#FFFFFF;--sunken:#E5E9ED;--ink:#15202B;--muted:#55616D;--line:#CFD6DD;--accent:#0B6A73;--accent-ink:#FFFFFF;--accent-soft:#D3E9EA;--l1:#A3542A;--l2:#277548;--l3:#2453B0;--l4:#B25C0C;--l5:#7440A3;--lsp:#77818B;--ok:#23744A;--bad:#B42318;--warn:#94570A;--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--shadow:none;color-scheme:light}
+  body{background:#fff}
+  .topbar,.sidebar,.scrim,.btn,.quiz,.pp-inline,.chart-tip{display:none!important}
+  .main{padding:0}
+  .content{max-width:none}
+  .box,figure,.catena-wrap,details.qa{break-inside:avoid}
+  .tbl-wrap{overflow:visible}
+  tr{break-inside:avoid}
+  .form-stampa{display:none!important}
+  h2,h3,h4{break-after:avoid}
+  a{color:inherit;text-decoration:none}
+  .stampa-nascosto{display:none!important}
+}
 </style>
 </head>
 <body>
@@ -773,6 +808,8 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
   <div class="toc" id="toc"></div>
   <div class="toc-extra">
     <p class="toc-ch-label">Strumenti</p>
+    <a href="#formulario3">Formulario del capitolo 3</a>
+    <label class="check pp-side"><input type="checkbox" class="pp-toggle"> Prova prima: nascondi le soluzioni degli esercizi</label>
     <a href="#glossario">Glossario dei termini</a>
     <a href="#top">Torna all'inizio</a>
   </div>
@@ -4405,6 +4442,22 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
   <p>Puoi vederlo disegnato nel widget qui sopra con il pulsante «Problema 4.14». Con la convenzione IEEE 802.3 ogni coppia si inverte.</p>
 </div>
 
+<h3 id="bb-temi" data-toc="Dai vecchi temi d'esame">Dai vecchi temi d'esame</h3>
+<p class="in-questa"><b>In questa sezione:</b> domande vere degli esami degli anni passati su questo argomento. Prova a rispondere, poi apri la soluzione.</p>
+<div class="box upd">
+  <p class="box-label">Da dove vengono queste domande</p>
+  <p>Sono prese da temi d'esame degli anni passati, che girano insieme ad appunti di studenti con le soluzioni. Alcune di quelle soluzioni sono sbagliate: qui sono rifatte da capo, e quando la soluzione degli appunti è diversa lo trovi scritto nel riquadro «Negli appunti che circolano». Le domande sugli argomenti che non abbiamo ancora studiato arriveranno con i loro capitoli. Le trovi anche in fondo agli argomenti «Multiplexing», «Efficienza del data link», «Go-Back-N», «Selective Repeat» e «CSMA e CSMA/CD».</p>
+</div>
+<div class="box esame">
+  <p class="box-label">Vecchio tema d'esame · 2010</p>
+  <p>Come si sincronizza il clock del ricevitore con quello del trasmettitore (a) nella comunicazione <b>asincrona</b>, quando arriva un carattere, e (b) nella comunicazione <b>sincrona</b>, quando arriva un frame?</p>
+  <details class="sol"><summary>Soluzione</summary><div class="sol-in">
+<p><b>(a) Asincrona.</b> I caratteri viaggiano uno alla volta, separati da pause di lunghezza qualsiasi; a riposo la linea sta al livello che rappresenta 1. Ogni carattere comincia con un <b>bit di start</b> (uno 0): la transizione da 1 a 0 avvisa il ricevitore che arriva un carattere. Da quell'istante il ricevitore fa partire il suo orologio e campiona ogni bit <b>a metà</b>: mezzo tempo di bit dopo il fronte, poi un campione per ogni tempo di bit. Dopo i bit di dati (da 5 a 8, più l'eventuale parità) uno o due <b>bit di stop</b> (1) riportano la linea a riposo. Il ricevitore si risincronizza a ogni carattere, quindi una piccola differenza tra i due orologi non si accumula: deve restare piccola solo per una decina di bit. Il prezzo sono 2 o 3 bit in più per ogni carattere.</p>
+<p><b>(b) Sincrona.</b> I bit viaggiano di seguito, a blocchi (frame), senza start e stop per ogni carattere, quindi il ricevitore deve ricavare il clock dal segnale stesso. Il frame comincia con un <b>preambolo</b> pieno di transizioni: in Ethernet sono 7 byte 10101010 più un byte di inizio frame, che con la codifica Manchester danno un'onda quadra di 6,4 µs su cui il ricevitore aggancia il suo orologio. Poi la <b>codifica di linea</b> garantisce abbastanza transizioni per tutto il frame (Manchester, 4B/5B con NRZI, scrambling): a ogni transizione il ricevitore corregge il suo orologio e resta agganciato. È quello che abbiamo visto in <a href="#bb-clock">«Recupero del clock»</a>.</p>
+<p class="appunti"><b>Negli appunti che circolano</b> la risposta alla parte (a) parla della codifica Manchester: è un meccanismo della comunicazione sincrona, non di quella asincrona.</p>
+  </div></details>
+</div>
+
 <h3 id="bb-domande" data-toc="Domande d'esame">Domande d'esame</h3>
 <div class="qa-list">
   <details class="qa"><summary>Che cos'è la modulazione digitale? Che differenza c'è tra trasmissione in banda base e in banda passante?</summary><div class="qa-a"><p>È il processo di conversione tra bit e segnali analogici che li rappresentano. In banda base i bit diventano direttamente livelli del segnale, che occupa le frequenze da 0 a un massimo dipendente dalla velocità; è tipica dei cavi. In banda passante si modulano ampiezza, fase o frequenza di una portante e il segnale occupa una banda attorno alla portante; è tipica del wireless e dei canali ottici.</p></div></details>
@@ -4810,6 +4863,17 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
   <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 41.</p>
   <p><b>Testo.</b> Che percentuale della capacità di una T1 è overhead, cioè non disponibile per i dati degli utenti? Come si confronta con l'overhead delle linee OC-1 e OC-768?</p>
   <p><b>Soluzione.</b> Se si conta solo il bit di framing: 1 bit su 193, cioè <b>0,52%</b>. Sulle vecchie T1 con segnalazione a bit rubato, però, i dati possono usare solo 7 bit su 8 per canale: gli utenti hanno 24 × 7 = 168 bit su 193, quindi l'overhead è 25/193 ≈ <b>13%</b>. Per SONET, dalla tabella del libro: OC-1 ha (51,84 − 49,536)/51,84 ≈ <b>4,4%</b> di overhead, e OC-768 (39 813,12 − 38 043,648)/39 813,12 ≈ <b>4,4%</b>. La percentuale è la stessa a ogni livello perché in ogni frame SONET 4 colonne su 90 sono di controllo.</p>
+</div>
+
+<h3 id="mux-temi" data-toc="Dai vecchi temi d'esame">Dai vecchi temi d'esame</h3>
+<p class="in-questa"><b>In questa sezione:</b> domande vere degli esami degli anni passati su questo argomento. Prova a rispondere, poi apri la soluzione.</p>
+<div class="box esame">
+  <p class="box-label">Vecchio tema d'esame · 2007</p>
+  <p>Da che cosa è composto un canale T1?</p>
+  <ol class="mc"><li>frame di 24 canali, ciascuno con un segnale campionato 8000 volte al secondo</li><li>frame di 890 canali, ciascuno campionato 125 volte al secondo</li><li>frame di 125 canali, ciascuno campionato 4000 volte al secondo</li><li>frame di 193 canali, ciascuno campionato 8000 volte al secondo</li></ol>
+  <details class="sol"><summary>Soluzione</summary><div class="sol-in">
+<p><b>Risposta: a.</b> Un frame T1 porta un campione da 8 bit per ciascuno dei 24 canali vocali, più 1 bit di framing: 24 · 8 + 1 = <b>193 bit</b>, ripetuti 8000 volte al secondo, cioè ogni 125 µs. Ogni canale è quindi campionato 8000 volte al secondo, e la portante va a 193 · 8000 = 1,544 Mbps. La risposta d confonde i 193 <b>bit</b> del frame con dei canali; b e c hanno numeri inventati.</p>
+  </div></details>
 </div>
 
 <h3 id="mux-domande" data-toc="Domande d'esame">Domande d'esame</h3>
@@ -6884,6 +6948,39 @@ T = 1101011011<span class="r">1110</span></pre>
   <p>Con 127 frame, cioè numeri di sequenza da 7 bit nel Go-Back-N, il mittente non si fermerebbe mai. Se trovi il risultato «2,092 s», sono due cifre scambiate: il conto dà 2,029 s.</p>
 </div>
 
+<h3 id="eff-temi" data-toc="Dai vecchi temi d'esame">Dai vecchi temi d'esame</h3>
+<p class="in-questa"><b>In questa sezione:</b> domande vere degli esami degli anni passati su questo argomento. Prova a rispondere, poi apri la soluzione.</p>
+<div class="box esame">
+  <p class="box-label">Vecchio tema d'esame · 2013</p>
+  <p>Un canale in fibra lungo 300 km ha velocità di 1,2 Mbps. Per quali dimensioni dei frame un protocollo Idle RQ (cioè lo stop-and-wait) raggiunge un'efficienza di almeno il 60%?</p>
+  <details class="sol"><summary>Soluzione</summary><div class="sol-in">
+<div class="catena-wrap"><div class="catena">
+  <span class="sx"><i>T<sub>p</sub></i></span><span class="rel">=</span><span class="dx">300 000 m / (2 · 10<sup>8</sup> m/s) = 1,5 ms</span><span class="perche">nella fibra il segnale va a circa 2 · 10<sup>8</sup> m/s</span>
+  <span class="sx"><i>T<sub>x</sub></i> / (<i>T<sub>x</sub></i> + 2<i>T<sub>p</sub></i>)</span><span class="rel">≥</span><span class="dx">0,6</span><span class="perche">la richiesta</span>
+  <span class="sx"><i>T<sub>x</sub></i></span><span class="rel">≥</span><span class="dx">0,6 <i>T<sub>x</sub></i> + 1,2 <i>T<sub>p</sub></i></span><span class="perche">moltiplico per <i>T<sub>x</sub></i> + 2<i>T<sub>p</sub></i>, che è positivo</span>
+  <span class="sx">0,4 <i>T<sub>x</sub></i></span><span class="rel">≥</span><span class="dx">1,2 <i>T<sub>p</sub></i></span><span class="perche">tolgo 0,6 <i>T<sub>x</sub></i></span>
+  <span class="sx"><i>T<sub>x</sub></i></span><span class="rel">≥</span><span class="dx">3 <i>T<sub>p</sub></i> = 4,5 ms</span><span class="perche">divido per 0,4</span>
+  <span class="sx"><i>L</i></span><span class="rel">≥</span><span class="dx">4,5 · 10<sup>−3</sup> s · 1,2 · 10<sup>6</sup> bit/s = 5400 bit</span><span class="perche"><i>L</i> = <i>T<sub>x</sub></i> · <i>R</i></span>
+</div></div>
+<p>Servono frame di <b>almeno 5400 bit</b> (675 byte). Più il frame è lungo, più l'efficienza è alta: la condizione dà una lunghezza minima.</p>
+<p class="appunti"><b>Negli appunti che circolano</b> la soluzione usa 3 · 10<sup>8</sup> m/s, che è la velocità nel vuoto, e trova 3600 bit chiamandoli dimensione «massima». Nella fibra il segnale è più lento, e il risultato è una dimensione minima.</p>
+  </div></details>
+</div>
+<div class="box esame">
+  <p class="box-label">Vecchio tema d'esame · 2010</p>
+  <p>Un canale in rame lungo 2 km ha velocità di 6 Mbps. Per quali dimensioni dei frame Idle RQ ha efficienza almeno del 50%?</p>
+  <ol class="mc"><li>610 bit</li><li>540 bit</li><li>120 bit</li><li>312 bit</li></ol>
+  <details class="sol"><summary>Soluzione</summary><div class="sol-in">
+<div class="catena-wrap"><div class="catena">
+  <span class="sx"><i>T<sub>p</sub></i></span><span class="rel">=</span><span class="dx">2000 m / (2 · 10<sup>8</sup> m/s) = 10 µs</span><span class="perche"><i>d</i>/<i>v</i></span>
+  <span class="sx"><i>T<sub>x</sub></i> / (<i>T<sub>x</sub></i> + 2<i>T<sub>p</sub></i>)</span><span class="rel">≥</span><span class="dx">1/2</span><span class="perche">la richiesta</span>
+  <span class="sx"><i>T<sub>x</sub></i></span><span class="rel">≥</span><span class="dx">2<i>T<sub>p</sub></i> = 20 µs</span><span class="perche">come nel problema 20 del cap. 3</span>
+  <span class="sx"><i>L</i></span><span class="rel">≥</span><span class="dx">20 · 10<sup>−6</sup> s · 6 · 10<sup>6</sup> bit/s = 120 bit</span><span class="perche"><i>L</i> = <i>T<sub>x</sub></i> · <i>R</i></span>
+</div></div>
+<p><b>Risposta: c</b>, frame di almeno 120 bit. Attenzione: anche con 312, 540 o 610 bit l'efficienza supera il 50%, perché sono più lunghi; la domanda chiede la soglia.</p>
+  </div></details>
+</div>
+
 <h3 id="eff-domande" data-toc="Domande d'esame">Domande d'esame</h3>
 <div class="qa-list">
   <details class="qa"><summary>Che differenza c'è tra tempo di trasmissione e tempo di propagazione?</summary><div class="qa-a"><p>Il tempo di trasmissione è il tempo per mettere sul canale tutti i bit di un frame: Tx = L/R, dipende dalla lunghezza del frame e dalla velocità della linea. Il tempo di propagazione è il tempo che un bit impiega a percorrere il canale: Tp = d/v, dipende dalla distanza e dal mezzo (circa 2·10⁸ m/s in rame e fibra, 3·10⁸ m/s nel vuoto).</p></div></details>
@@ -7422,6 +7519,46 @@ alla fine di ogni evento:
   <p>Lo stesso caso con il Selective Repeat è nell'argomento successivo: lì si rispedisce solo il 3.</p>
 </div>
 
+<h3 id="gbn-temi" data-toc="Dai vecchi temi d'esame">Dai vecchi temi d'esame</h3>
+<p class="in-questa"><b>In questa sezione:</b> domande vere degli esami degli anni passati su questo argomento. Prova a rispondere, poi apri la soluzione.</p>
+<div class="box esame">
+  <p class="box-label">Vecchio tema d'esame · 2013</p>
+  <p>Si consideri un Go-Back-N con finestra di 3 frame. Mostrare con un esempio perché 3 soli numeri di sequenza non bastano.</p>
+  <details class="sol"><summary>Soluzione</summary><div class="sol-in">
+<p>Con 3 numeri (0, 1, 2) succede questo:</p>
+<ol>
+  <li>il mittente invia i frame 0, 1 e 2: la finestra è piena;</li>
+  <li>arrivano tutti e tre; il destinatario li consegna, li conferma e ora aspetta il frame successivo, che porterà di nuovo il numero <b>0</b> (dopo il 2 si ricomincia);</li>
+  <li>si perdono tutte e tre le conferme; scade il timer e il mittente rispedisce il vecchio frame 0;</li>
+  <li>il destinatario aspetta proprio un frame numerato 0, quindi accetta la copia come se fosse il quarto pacchetto, e consegna un duplicato.</li>
+</ol>
+<p>Con 4 numeri (0–3) dopo i frame 0, 1, 2 il destinatario aspetta il <b>3</b>: la copia dello 0 viene riconosciuta, scartata e riconfermata. In generale nel Go-Back-N servono almeno <i>W</i> + 1 numeri, cioè <i>W</i> ≤ 2<sup><i>n</i></sup> − 1. Nel simulatore qui sopra lo scenario «W = 2ⁿ: finestra troppo grande» mostra lo stesso guaio con 4 numeri e finestra 4.</p>
+  </div></details>
+</div>
+<div class="box esame">
+  <p class="box-label">Vecchio tema d'esame · 2010</p>
+  <p>Una coppia mittente-destinatario usa al livello data link un protocollo a finestra con tecnica Go-Back-N. Se l'intestazione prevede al massimo 7 bit per il numero di sequenza, qual è la finestra di trasmissione più grande utilizzabile?</p>
+  <ol class="mc"><li>128</li><li>127</li><li>255</li><li>64</li></ol>
+  <details class="sol"><summary>Soluzione</summary><div class="sol-in">
+<p><b>Risposta: b</b>, 2<sup>7</sup> − 1 = <b>127</b>. Con 7 bit i numeri sono 128 (da 0 a 127), ma nel Go-Back-N la finestra deve essere al massimo il numero di numeri meno 1. 64 sarebbe la finestra massima del Selective Repeat con 7 bit; 128 e 255 sono sbagliate.</p>
+  </div></details>
+</div>
+<div class="box esame">
+  <p class="box-label">Vecchio tema d'esame · 2011</p>
+  <p>Un canale ha velocità di 1 Mbps e ritardo di propagazione di 2 ms. I frame usano un numero di sequenza di 2 bit. Per quale dimensione dei frame il Go-Back-N ha efficienza del 100%?</p>
+  <ol class="mc"><li>2480 bit</li><li>nessuno di questi valori</li><li>2000 bit</li><li>2500 bit</li></ol>
+  <details class="sol"><summary>Soluzione</summary><div class="sol-in">
+<div class="catena-wrap"><div class="catena">
+  <span class="sx"><i>W</i></span><span class="rel">=</span><span class="dx">2<sup>2</sup> − 1 = 3</span><span class="perche">Go-Back-N con 2 bit</span>
+  <span class="sx"><i>W</i> · <i>T<sub>x</sub></i></span><span class="rel">≥</span><span class="dx"><i>T<sub>x</sub></i> + 2<i>T<sub>p</sub></i></span><span class="perche">la finestra deve coprire l'attesa della prima conferma</span>
+  <span class="sx">(<i>W</i> − 1) · <i>T<sub>x</sub></i></span><span class="rel">≥</span><span class="dx">2<i>T<sub>p</sub></i></span><span class="perche">tolgo <i>T<sub>x</sub></i> da entrambi i lati</span>
+  <span class="sx"><i>T<sub>x</sub></i></span><span class="rel">≥</span><span class="dx">2<i>T<sub>p</sub></i> / (<i>W</i> − 1) = 4 ms / 2 = 2 ms</span><span class="perche">divido per <i>W</i> − 1 = 2</span>
+  <span class="sx"><i>L</i></span><span class="rel">≥</span><span class="dx">2 · 10<sup>−3</sup> s · 10<sup>6</sup> bit/s = 2000 bit</span><span class="perche"><i>L</i> = <i>T<sub>x</sub></i> · <i>R</i></span>
+</div></div>
+<p><b>Risposta: c</b>, 2000 bit: è la lunghezza minima. Anche con 2480 o 2500 bit l'efficienza è del 100%, quindi alla lettera sarebbero giuste anche a e d; la risposta attesa è la soglia. All'esame scrivi la condizione completa, <i>L</i> ≥ 2000 bit.</p>
+  </div></details>
+</div>
+
 <h3 id="gbn-domande" data-toc="Domande d'esame">Domande d'esame</h3>
 <div class="qa-list">
   <details class="qa"><summary>Descrivi il funzionamento del Go-Back-N.</summary><div class="qa-a"><p>Il mittente può inviare fino a W frame senza attendere conferme, conservandoli in W buffer e avviando un timer per ciascuno. Il destinatario ha finestra di ricezione 1: accetta solo il frame atteso, lo consegna e lo conferma; scarta tutti i frame successivi a uno perso o danneggiato. Le conferme sono cumulative. Quando scade il timer del frame più vecchio non confermato, il mittente torna indietro e ritrasmette in ordine tutti i frame non confermati, a partire da quello.</p></div></details>
@@ -7750,6 +7887,97 @@ alla fine di ogni evento:
   </div></div>
 </div>
 
+<h3 id="sr-temi" data-toc="Dai vecchi temi d'esame">Dai vecchi temi d'esame</h3>
+<p class="in-questa"><b>In questa sezione:</b> domande vere degli esami degli anni passati su questo argomento. Prova a rispondere, poi apri la soluzione.</p>
+<div class="box esame">
+  <p class="box-label">Vecchio tema d'esame · 2013</p>
+  <p>Si consideri un Selective Repeat con finestra 8, in cui il destinatario manda un ACK per ogni frame che riceve nella finestra. Supponendo che l'ACK del frame 2 non arrivi al mittente, descrivere il comportamento del protocollo con ACK cumulativi e con ACK selettivi.</p>
+  <details class="sol"><summary>Soluzione</summary><div class="sol-in">
+<p>Prima di tutto: con finestra 8 il Selective Repeat ha bisogno di almeno 16 numeri di sequenza, cioè <b>4 bit</b>.</p>
+<p><b>ACK cumulativi.</b> La perdita di ACK 2 non fa danni. Quando arriva il frame 3 il destinatario manda ACK 3, che vuol dire «ho ricevuto tutto fino al 3» e quindi conferma anche il 2. Il mittente ferma il timer del 2 e fa avanzare la finestra, senza ritrasmettere niente. Il 2 verrebbe rispedito solo se il suo timer scadesse prima che arrivi una conferma successiva, per esempio se fosse l'ultimo frame inviato.</p>
+<p><b>ACK selettivi.</b> Ogni ACK conferma solo il suo frame: ACK 3, ACK 4 e i successivi confermano gli altri, ma il 2 resta non confermato. Il bordo inferiore della finestra del mittente resta fermo sul 2, quindi dopo pochi frame il mittente si blocca. Quando scade il timer del 2, il mittente lo rispedisce; il destinatario lo ha già, quindi scarta la copia e lo riconferma con un nuovo ACK 2. Quando questo arriva, la finestra del mittente avanza di colpo oltre tutti i frame già confermati.</p>
+<p>Puoi provarlo nel simulatore del Selective Repeat: tocca la conferma del frame 2 per farla perdere, una volta con «Conferme: cumulative» e una con «selettive».</p>
+<p class="appunti"><b>Negli appunti che circolano</b> la risposta dice che con finestra 8 bastano 3 bit (ne servono 4) e, per il caso selettivo, parla di NAK e frame corrotti, che la domanda non prevede.</p>
+  </div></details>
+</div>
+<div class="box esame">
+  <p class="box-label">Vecchio tema d'esame · 2013</p>
+  <p>Un frame di 2 kbit va trasmesso su un canale in rame da 40 Mbps lungo 50 km. Calcolare l'utilizzo del canale se il data link usa un Selective Repeat con numeri di sequenza di 3 bit.</p>
+  <details class="sol"><summary>Soluzione</summary><div class="sol-in">
+<div class="catena-wrap"><div class="catena">
+  <span class="sx"><i>T<sub>x</sub></i></span><span class="rel">=</span><span class="dx">2000 / (40 · 10<sup>6</sup>) s = 50 µs</span><span class="perche"><i>L</i>/<i>R</i></span>
+  <span class="sx"><i>T<sub>p</sub></i></span><span class="rel">=</span><span class="dx">50 000 / (2 · 10<sup>8</sup>) s = 250 µs</span><span class="perche"><i>d</i>/<i>v</i></span>
+  <span class="sx"><i>W</i></span><span class="rel">=</span><span class="dx">2<sup>3−1</sup> = 4</span><span class="perche">Selective Repeat con 3 bit</span>
+  <span class="sx"><i>U</i></span><span class="rel">=</span><span class="dx">4 · 50 / (50 + 500) = 200 / 550 ≈ 0,364</span><span class="perche"><i>W</i> · <i>T<sub>x</sub></i> / (<i>T<sub>x</sub></i> + 2<i>T<sub>p</sub></i>), che è &lt; 1</span>
+</div></div>
+<p>L'utilizzo è circa il <b>36%</b>. Per arrivare al 100% servirebbe una finestra di almeno 1 + 2<i>a</i> = 11 frame, cioè numeri di sequenza da 5 bit.</p>
+  </div></details>
+</div>
+<div class="box esame">
+  <p class="box-label">Vecchio tema d'esame · 2008</p>
+  <p>Calcolare l'utilizzo di un protocollo data link che usa il Selective Repeat su un canale in rame lungo 100 km, da 40 Mbps, con frame di 600 bit e numeri di sequenza di 4 bit.</p>
+  <ol class="mc"><li>circa 11,8%</li><li>circa 23,6%</li><li>quasi 5%</li><li>più dell'8,6%</li></ol>
+  <details class="sol"><summary>Soluzione</summary><div class="sol-in">
+<div class="catena-wrap"><div class="catena">
+  <span class="sx"><i>T<sub>x</sub></i></span><span class="rel">=</span><span class="dx">600 / (40 · 10<sup>6</sup>) s = 15 µs</span><span class="perche"><i>L</i>/<i>R</i></span>
+  <span class="sx"><i>T<sub>p</sub></i></span><span class="rel">=</span><span class="dx">100 000 / (2 · 10<sup>8</sup>) s = 500 µs</span><span class="perche"><i>d</i>/<i>v</i></span>
+  <span class="sx"><i>W</i></span><span class="rel">=</span><span class="dx">2<sup>4−1</sup> = 8</span><span class="perche">Selective Repeat con 4 bit</span>
+  <span class="sx"><i>U</i></span><span class="rel">=</span><span class="dx">8 · 15 / (15 + 1000) = 120 / 1015 ≈ 0,118</span><span class="perche">la finestra limita</span>
+</div></div>
+<p><b>Risposta: a</b>, circa l'11,8%. La b, 23,6%, è il doppio: è quello che si ottiene sbagliando la finestra e usando 16 invece di 8. La d, «più dell'8,6%», è vera alla lettera, ma la risposta precisa è la a.</p>
+  </div></details>
+</div>
+<div class="box esame">
+  <p class="box-label">Vecchio tema d'esame · 2007</p>
+  <p>Un protocollo data link usa il Selective Repeat per inviare frame su un canale in rame lungo 8 km, da 16 Mbps. La finestra è di 5 frame. Quale dimensione dei frame dà l'utilizzo maggiore?</p>
+  <details class="sol"><summary>Soluzione</summary><div class="sol-in">
+<div class="catena-wrap"><div class="catena">
+  <span class="sx"><i>T<sub>p</sub></i></span><span class="rel">=</span><span class="dx">8000 / (2 · 10<sup>8</sup>) s = 40 µs</span><span class="perche"><i>d</i>/<i>v</i></span>
+  <span class="sx">5 <i>T<sub>x</sub></i></span><span class="rel">≥</span><span class="dx"><i>T<sub>x</sub></i> + 2<i>T<sub>p</sub></i></span><span class="perche">utilizzo del 100%: la finestra copre l'attesa</span>
+  <span class="sx"><i>T<sub>x</sub></i></span><span class="rel">≥</span><span class="dx">2<i>T<sub>p</sub></i> / 4 = 20 µs</span><span class="perche">tolgo <i>T<sub>x</sub></i> e divido per 4</span>
+  <span class="sx"><i>L</i></span><span class="rel">≥</span><span class="dx">20 · 10<sup>−6</sup> s · 16 · 10<sup>6</sup> bit/s = 320 bit</span><span class="perche"><i>L</i> = <i>T<sub>x</sub></i> · <i>R</i></span>
+</div></div>
+<p>Sotto i 320 bit l'utilizzo cresce con la lunghezza del frame; da <b>320 bit</b> in su è del 100%, senza errori. Se la linea sbaglia qualche bit, però, frame troppo lunghi falliscono più spesso: la scelta migliore è vicina alla soglia di 320 bit. Lo mostra la Figura 3.18 «al variare del frame».</p>
+<p class="appunti"><b>Negli appunti che circolano</b> la soluzione prende come finestra 16 (scambiandola per il numero di sequenza) e si perde nei conti. La finestra è data dal testo: 5 frame.</p>
+  </div></details>
+</div>
+<div class="box esame">
+  <p class="box-label">Vecchio tema d'esame · 2011</p>
+  <p>Un canale ha velocità di 1 Mbps e ritardo di propagazione di 5 ms. I frame usano numeri di sequenza di 3 bit. Per quale dimensione dei frame il Selective Repeat ha efficienza almeno dell'80%?</p>
+  <details class="sol"><summary>Soluzione</summary><div class="sol-in">
+<div class="catena-wrap"><div class="catena">
+  <span class="sx"><i>W</i></span><span class="rel">=</span><span class="dx">2<sup>3−1</sup> = 4</span><span class="perche">Selective Repeat con 3 bit</span>
+  <span class="sx">4 <i>T<sub>x</sub></i> / (<i>T<sub>x</sub></i> + 2<i>T<sub>p</sub></i>)</span><span class="rel">≥</span><span class="dx">0,8</span><span class="perche">la richiesta</span>
+  <span class="sx">4 <i>T<sub>x</sub></i></span><span class="rel">≥</span><span class="dx">0,8 <i>T<sub>x</sub></i> + 1,6 <i>T<sub>p</sub></i></span><span class="perche">moltiplico per <i>T<sub>x</sub></i> + 2<i>T<sub>p</sub></i></span>
+  <span class="sx">3,2 <i>T<sub>x</sub></i></span><span class="rel">≥</span><span class="dx">1,6 <i>T<sub>p</sub></i></span><span class="perche">tolgo 0,8 <i>T<sub>x</sub></i></span>
+  <span class="sx"><i>T<sub>x</sub></i></span><span class="rel">≥</span><span class="dx">0,5 <i>T<sub>p</sub></i> = 2,5 ms</span><span class="perche">divido per 3,2</span>
+  <span class="sx"><i>L</i></span><span class="rel">≥</span><span class="dx">2,5 · 10<sup>−3</sup> s · 10<sup>6</sup> bit/s = 2500 bit</span><span class="perche"><i>L</i> = <i>T<sub>x</sub></i> · <i>R</i></span>
+</div></div>
+<p>Servono frame di <b>almeno 2500 bit</b>. Verifica: con 2500 bit <i>T<sub>x</sub></i> = 2,5 ms e <i>U</i> = 4 · 2,5 / (2,5 + 10) = 0,8.</p>
+  </div></details>
+</div>
+<div class="box esame">
+  <p class="box-label">Vecchio tema d'esame · 2013</p>
+  <p>In un protocollo a finestra che usa ACK cumulativi, è utile avere anche un NACK?</p>
+  <details class="sol"><summary>Soluzione</summary><div class="sol-in">
+<p><b>Sì.</b> Con gli ACK cumulativi, dopo una perdita il destinatario continua a ripetere la conferma dell'ultimo frame ricevuto in ordine, e il mittente ritrasmette solo allo scadere del timer. Il timer però deve essere più lungo del caso peggiore di andata e ritorno, quindi si aspetta a lungo. Il NACK dice subito quale frame manca: il mittente lo ritrasmette circa un'andata e ritorno dopo la perdita, senza aspettare il timer. Serve soprattutto quando il tempo di risposta varia molto e il timer deve essere lungo.</p>
+<p>Nel Go-Back-N il NACK fa tornare indietro al frame mancante, nel Selective Repeat fa ritrasmettere solo quello. Se il NACK si perde non succede niente di grave: resta il timer. Nei protocolli reali esiste davvero: HDLC ha REJ, il NACK del go-back-n, e SREJ, il NACK della ripetizione selettiva.</p>
+<p class="appunti"><b>Negli appunti che circolano</b> la risposta dice «sì, perché lo prevede il formato di HDLC». Che HDLC lo preveda è un esempio, non il motivo: il motivo è che il NACK anticipa la ritrasmissione.</p>
+  </div></details>
+</div>
+<div class="box esame">
+  <p class="box-label">Vecchio tema d'esame · 2011</p>
+  <p>Considerate la politica di ritrasmissione di TCP e le due tecniche Go-Back-N e Selective Repeat. Quali analogie ci sono?</p>
+  <details class="sol"><summary>Soluzione</summary><div class="sol-in">
+<p>TCP si studia al livello di trasporto, ma la risposta si costruisce con quello che sappiamo: TCP è un <a href="#sr-soloack">protocollo con soli riscontri positivi</a>, l'ibrido tra i due.</p>
+<ul>
+  <li><b>Come il Go-Back-N</b>: le conferme sono cumulative (TCP conferma il prossimo byte atteso, quindi tutti quelli prima), non ci sono NACK espliciti, e il timer riguarda il segmento più vecchio non confermato.</li>
+  <li><b>Come il Selective Repeat</b>: il destinatario di solito tiene nel buffer i segmenti arrivati fuori ordine invece di scartarli, e allo scadere del timer TCP ritrasmette solo il primo segmento non confermato, non tutta la finestra. Con l'opzione SACK può anche confermare i blocchi ricevuti fuori ordine, come le conferme selettive.</li>
+  <li><b>Un NACK nascosto</b>: tre conferme duplicate (lo stesso ACK ripetuto) fanno ritrasmettere subito il segmento mancante, prima del timer. È la ritrasmissione veloce.</li>
+</ul>
+  </div></details>
+</div>
+
 <h3 id="sr-domande" data-toc="Domande d'esame">Domande d'esame</h3>
 <div class="qa-list">
   <details class="qa"><summary>Descrivi il funzionamento del Selective Repeat.</summary><div class="qa-a"><p>Mittente e destinatario hanno finestre della stessa dimensione W. Il destinatario ha un buffer per ogni numero della finestra con un bit arrived: accetta e conserva ogni frame integro che cade nella finestra e non è già arrivato, anche se fuori ordine, e lo consegna al livello di rete solo quando sono stati consegnati tutti i precedenti. Il mittente ritrasmette solo il frame il cui timer scade o che viene chiesto con un NAK. Il destinatario manda un NAK quando arriva un frame danneggiato o diverso da quello atteso, una sola volta per frame (variabile no_nak).</p></div></details>
@@ -7776,6 +8004,134 @@ alla fine di ogni evento:
 ]</script></div>
 
 <div class="topic-end"><button class="btn studied-btn" type="button" data-topic="selective" aria-pressed="false">Segna come studiato</button></div>
+</div><!-- /prose -->
+</section>
+
+<!-- ===================== FORMULARIO DEL CAPITOLO 3 ===================== -->
+<section class="topic" id="formulario3" data-num="§3" data-short="Formulario del capitolo 3">
+<header class="topic-head">
+  <span class="topic-num">Capitolo 3 · riepilogo</span>
+  <h2>Formulario del capitolo 3</h2>
+  <div class="topic-meta">
+    <span class="chip pdf">tutte le formule del data link in una pagina</span>
+    <button class="btn small studied-btn" type="button" data-topic="formulario3" aria-pressed="false">Segna come studiato</button>
+  </div>
+</header>
+
+<div class="prose">
+
+<p class="in-questa"><b>In questa pagina:</b> le formule del capitolo 3 raccolte in tabelle, con i simboli dei due libri e, per ognuna, il link alla sezione dove è spiegata. Serve per ripassare e per controllare un esercizio, non per impararle: se una formula non ti è chiara, segui il link.</p>
+<div class="form-stampa">
+  <button class="btn small primary stampa-btn" type="button" data-stampa="formulario3">Stampa il formulario</button>
+  <span class="muted">Stampa solo questa pagina, sempre a colori chiari. Per salvarla come PDF scegli «Salva come PDF» nella finestra di stampa.</span>
+</div>
+
+<h3 id="form-simboli" data-toc="Simboli">I simboli</h3>
+<div class="tbl-wrap">
+  <table class="tbl form-tbl">
+    <thead><tr><th>Simbolo</th><th>Che cosa indica</th><th>Nel secondo testo</th></tr></thead>
+    <tbody>
+      <tr><td><i>L</i>, <i>L</i><sub>ack</sub></td><td>lunghezza del frame e della conferma, in bit</td><td><i>L</i><sub>u</sub>, <i>L</i><sub>a</sub></td></tr>
+      <tr><td><i>R</i></td><td>velocità della linea, in bit/s</td><td><i>C</i></td></tr>
+      <tr><td><i>d</i>, <i>v</i></td><td>distanza; velocità del segnale (2 · 10<sup>8</sup> m/s in rame e fibra, 3 · 10<sup>8</sup> m/s nel vuoto e via radio)</td><td><i>d</i>, <i>v</i></td></tr>
+      <tr><td><i>T<sub>x</sub></i></td><td>tempo di trasmissione del frame, <i>L</i>/<i>R</i></td><td><i>T</i><sub>u</sub></td></tr>
+      <tr><td><i>T</i><sub>ack</sub></td><td>tempo di trasmissione della conferma, <i>L</i><sub>ack</sub>/<i>R</i></td><td><i>T</i><sub>a</sub></td></tr>
+      <tr><td><b><i>T<sub>p</sub></i></b></td><td><b>tempo di propagazione</b>, <i>d</i>/<i>v</i></td><td><b><i>τ</i></b></td></tr>
+      <tr><td><i>T</i><sub>el</sub></td><td><b>tempo di elaborazione</b> di un frame o di una conferma</td><td><b><i>T</i><sub>p</sub></b> (attenzione!)</td></tr>
+      <tr><td><i>a</i></td><td>propagazione in tempi di frame, <i>T<sub>p</sub></i>/<i>T<sub>x</sub></i> (= <i>BD</i>)</td><td><i>a</i> = <i>τ</i>/<i>T</i><sub>u</sub></td></tr>
+      <tr><td><i>W</i></td><td>finestra di invio (e di ricezione)</td><td><i>W</i><sub>s</sub> (e <i>W</i><sub>r</sub>)</td></tr>
+      <tr><td><i>n</i></td><td>bit del numero di sequenza; i numeri sono 2<sup><i>n</i></sup></td><td><i>b</i>; <i>N</i> = 2<sup><i>b</i></sup></td></tr>
+      <tr><td><i>p</i>, <i>P</i></td><td>probabilità di errore su un bit e su un tentativo (frame o conferma)</td><td><i>p</i>, <i>P</i></td></tr>
+      <tr><td><i>U</i></td><td>utilizzazione (o efficienza, o utilizzo del canale)</td><td><i>η</i></td></tr>
+      <tr><td><i>T</i><sub>o</sub></td><td>durata del timer, contata dalla fine della trasmissione</td><td><i>T</i><sub>o</sub></td></tr>
+    </tbody>
+  </table>
+</div>
+<p class="form-nota">Il dizionario completo, con le altre corrispondenze, è in <a href="#eff-simboli">«Efficienza del data link»</a>.</p>
+
+<h3 id="form-tempi" data-toc="Tempi e utilizzazione">Tempi e utilizzazione, senza errori</h3>
+<div class="tbl-wrap">
+  <table class="tbl form-tbl">
+    <thead><tr><th>Formula</th><th>Che cosa dà</th><th>Dove</th></tr></thead>
+    <tbody>
+      <tr><td><i>T<sub>x</sub></i> = <i>L</i>/<i>R</i> &nbsp; <i>T<sub>p</sub></i> = <i>d</i>/<i>v</i></td><td>i due tempi da non confondere</td><td><a href="#eff-tempi">§3.4</a></td></tr>
+      <tr><td><i>a</i> = <i>T<sub>p</sub></i>/<i>T<sub>x</sub></i> = <i>R</i> · <i>T<sub>p</sub></i>/<i>L</i></td><td>quanti frame stanno nel collegamento in una direzione (prodotto banda-ritardo in frame)</td><td><a href="#eff-bd">§3.4</a></td></tr>
+      <tr><td><i>T</i><sub>1</sub> = <i>T<sub>x</sub></i> + <i>T</i><sub>ack</sub> + 2<i>T</i><sub>el</sub> + 2<i>T<sub>p</sub></i> ≈ <i>T<sub>x</sub></i> + 2<i>T<sub>p</sub></i></td><td>durata di un ciclo dello stop-and-wait</td><td><a href="#eff-sw">§3.4</a></td></tr>
+      <tr><td><i>U</i> = <i>T<sub>x</sub></i>/<i>T</i><sub>1</sub> ≈ 1/(1 + 2<i>a</i>)</td><td>utilizzazione dello stop-and-wait (Idle RQ)</td><td><a href="#eff-sw">§3.4</a></td></tr>
+      <tr><td><i>T</i><sub>tot</sub> = <i>N</i> · <i>T</i><sub>1</sub></td><td>tempo per <i>N</i> frame con lo stop-and-wait</td><td><a href="#eff-sw">§3.4</a></td></tr>
+      <tr><td><i>W</i> ≥ 1 + 2<i>a</i> &nbsp; (esatta: <i>W</i> · <i>T<sub>x</sub></i> ≥ <i>T<sub>x</sub></i> + <i>T</i><sub>ack</sub> + 2<i>T<sub>p</sub></i>)</td><td>finestra per non fermarsi mai</td><td><a href="#eff-finestra">§3.4</a></td></tr>
+      <tr><td><i>U</i> = min(1, <i>W</i>/(1 + 2<i>a</i>)) = min(1, <i>W</i> · <i>T<sub>x</sub></i>/(<i>T<sub>x</sub></i> + 2<i>T<sub>p</sub></i>))</td><td>utilizzazione con finestra <i>W</i></td><td><a href="#eff-finestra">§3.4</a></td></tr>
+      <tr><td><i>T</i><sub>tot</sub> = <i>N</i> · <i>T<sub>x</sub></i> + <i>T</i><sub>ack</sub> + 2<i>T<sub>p</sub></i></td><td>tempo per <i>N</i> frame a trasmissione continua (finestra sufficiente)</td><td><a href="#eff-finestra">§3.4</a></td></tr>
+      <tr><td><i>U</i> · <i>R</i></td><td>throughput, i bit utili al secondo (<i>THR</i> = <i>η</i> · <i>C</i>)</td><td><a href="#eff-sw">§3.4</a></td></tr>
+      <tr><td><i>L</i> ≥ 2<i>u</i> · <i>R</i> · <i>T<sub>p</sub></i> / (<i>W</i> − <i>u</i>)</td><td>frame più corto che dà utilizzazione almeno <i>u</i> con finestra <i>W</i> (stop-and-wait: <i>W</i> = 1). Con <i>u</i> = 1: <i>L</i> ≥ 2<i>R</i> · <i>T<sub>p</sub></i>/(<i>W</i> − 1)</td><td><a href="#eff-temi">esami</a></td></tr>
+    </tbody>
+  </table>
+</div>
+<p class="form-nota">L'ultima riga viene da <i>W</i> · <i>T<sub>x</sub></i>/(<i>T<sub>x</sub></i> + 2<i>T<sub>p</sub></i>) ≥ <i>u</i>: si moltiplica per il denominatore, si raccoglie <i>T<sub>x</sub></i>, si ottiene <i>T<sub>x</sub></i> ≥ 2<i>u</i> · <i>T<sub>p</sub></i>/(<i>W</i> − <i>u</i>) e infine <i>L</i> = <i>T<sub>x</sub></i> · <i>R</i>. Nei temi d'esame è la domanda più frequente; all'esame scrivi i passaggi.</p>
+
+<h3 id="form-errori" data-toc="Errori e ritrasmissioni">Errori e ritrasmissioni</h3>
+<div class="tbl-wrap">
+  <table class="tbl form-tbl">
+    <thead><tr><th>Formula</th><th>Che cosa dà</th><th>Dove</th></tr></thead>
+    <tbody>
+      <tr><td><i>P</i> = 1 − (1 − <i>p</i>)<sup><i>L</i> + <i>L</i><sub>ack</sub></sup> ≈ (<i>L</i> + <i>L</i><sub>ack</sub>) · <i>p</i></td><td>probabilità che un tentativo fallisca (l'approssimazione vale se il risultato è piccolo)</td><td><a href="#eff-errori">§3.4</a></td></tr>
+      <tr><td><i>N</i><sub>s</sub> = 1/(1 − <i>P</i>)</td><td>trasmissioni medie per frame, stop-and-wait e Selective Repeat</td><td><a href="#eff-errori">§3.4</a></td></tr>
+      <tr><td><i>T</i><sub>o</sub> ≥ <i>T</i><sub>ack</sub> + 2<i>T</i><sub>el</sub> + 2<i>T<sub>p</sub></i> ≈ 2<i>T<sub>p</sub></i></td><td>timer minimo, contato dalla fine della trasmissione</td><td><a href="#eff-errori">§3.4</a></td></tr>
+      <tr><td><i>T</i><sub>tot</sub> = (<i>N</i><sub>s</sub> − 1)(<i>T<sub>x</sub></i> + <i>T</i><sub>o</sub>) + <i>T</i><sub>1</sub></td><td>tempo medio per far arrivare un frame con lo stop-and-wait</td><td><a href="#eff-errori">§3.4</a></td></tr>
+      <tr><td><i>U</i> = <i>T<sub>x</sub></i>(1 − <i>P</i>) / [<i>T<sub>x</sub></i> + <i>T</i><sub>o</sub><i>P</i> + (<i>T</i><sub>ack</sub> + 2<i>T</i><sub>el</sub> + 2<i>T<sub>p</sub></i>)(1 − <i>P</i>)]</td><td>utilizzazione dello stop-and-wait con errori; con il timer minimo ≈ (1 − <i>P</i>)/(1 + 2<i>a</i>)</td><td><a href="#eff-errori">§3.4</a></td></tr>
+      <tr><td><i>K</i> = 2 + 2<i>a</i> &nbsp; (oppure <i>K</i> = <i>W</i> se <i>W</i> &lt; 1 + 2<i>a</i>)</td><td>frame da ritrasmettere per ogni errore nel Go-Back-N</td><td><a href="#gbn-eff">Go-Back-N</a></td></tr>
+      <tr><td><i>N</i><sub>s</sub> = [1 + (<i>K</i> − 1)<i>P</i>] / (1 − <i>P</i>)</td><td>trasmissioni medie per frame nel Go-Back-N</td><td><a href="#gbn-eff">Go-Back-N</a></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h3 id="form-eff" data-toc="Efficienza dei tre protocolli">Efficienza dei tre protocolli</h3>
+<div class="tbl-wrap">
+  <table class="tbl form-tbl">
+    <thead><tr><th>Protocollo</th><th>Finestra sufficiente: <i>W</i> ≥ 1 + 2<i>a</i></th><th>Finestra che limita: <i>W</i> &lt; 1 + 2<i>a</i></th></tr></thead>
+    <tbody>
+      <tr><th>Stop-and-wait (<i>W</i> = 1)</th><td colspan="2">(1 − <i>P</i>) / (1 + 2<i>a</i>)</td></tr>
+      <tr><th>Go-Back-N</th><td>(1 − <i>P</i>) / (1 + <i>P</i> + 2<i>aP</i>)</td><td><i>W</i>(1 − <i>P</i>) / [(1 + 2<i>a</i>)(1 + (<i>W</i> − 1)<i>P</i>)]</td></tr>
+      <tr><th>Selective Repeat</th><td>1 − <i>P</i></td><td><i>W</i>(1 − <i>P</i>) / (1 + 2<i>a</i>)</td></tr>
+      <tr><th>Senza errori (<i>P</i> = 0)</th><td>1</td><td><i>W</i> / (1 + 2<i>a</i>)</td></tr>
+    </tbody>
+  </table>
+</div>
+<p class="form-nota">Conferme ed elaborazione trascurabili. La finestra comincia a limitare quando <i>a</i> supera (<i>W</i> − 1)/2. Altri testi usano <i>K</i> = 1 + 2<i>a</i> e trovano per il Go-Back-N (1 − <i>P</i>)/(1 + 2<i>aP</i>). Il confronto in un grafico è la <a href="#sr-confronto">Figura 3.18</a>.</p>
+
+<h3 id="form-finestre" data-toc="Finestre e numeri di sequenza">Finestre e numeri di sequenza</h3>
+<div class="tbl-wrap">
+  <table class="tbl form-tbl">
+    <thead><tr><th>Regola</th><th>Che cosa dice</th><th>Dove</th></tr></thead>
+    <tbody>
+      <tr><td><i>N</i> = 2<sup><i>n</i></sup> numeri, da 0 a <code>MAX_SEQ</code> = 2<sup><i>n</i></sup> − 1</td><td>dopo l'ultimo si ricomincia da 0 (modulo <i>N</i>)</td><td><a href="#fin-idea">finestra scorrevole</a></td></tr>
+      <tr><td><i>W</i><sub>s</sub> + <i>W</i><sub>r</sub> ≤ <i>N</i></td><td>regola generale: niente copie vecchie prese per nuove</td><td><a href="#fin-strategie">finestra scorrevole</a></td></tr>
+      <tr><td>Go-Back-N: <i>W</i> ≤ 2<sup><i>n</i></sup> − 1</td><td>finestra di ricezione 1; servono almeno <i>W</i> + 1 numeri</td><td><a href="#gbn-max">Go-Back-N</a></td></tr>
+      <tr><td>Selective Repeat: <i>W</i> ≤ 2<sup><i>n</i>−1</sup></td><td>finestre uguali, <i>W</i><sub>s</sub> = <i>W</i><sub>r</sub> = <i>N</i>/2; servono almeno 2<i>W</i> numeri</td><td><a href="#sr-max">Selective Repeat</a></td></tr>
+      <tr><td>buffer e timer</td><td>Go-Back-N: <i>W</i> buffer al mittente; Selective Repeat: <i>W</i> al mittente e <i>W</i> al destinatario; un timer per frame in volo</td><td><a href="#sr-buffer">Selective Repeat</a></td></tr>
+      <tr><td><i>n</i> minimo</td><td>con <i>W</i> = ⌈1 + 2<i>a</i>⌉: il più piccolo <i>n</i> con 2<sup><i>n</i></sup> − 1 ≥ <i>W</i> (Go-Back-N) o 2<sup><i>n</i>−1</sup> ≥ <i>W</i> (Selective Repeat)</td><td><a href="#eff-ricetta">ricetta</a></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h3 id="form-codici" data-toc="Codici e framing">Codici (approfondimento) e framing</h3>
+<div class="tbl-wrap">
+  <table class="tbl form-tbl">
+    <thead><tr><th>Regola</th><th>Che cosa dice</th><th>Dove</th></tr></thead>
+    <tbody>
+      <tr><td>distanza di Hamming</td><td>numero di bit in cui due parole differiscono (gli 1 del loro XOR); la distanza di un codice è la minima tra due parole valide</td><td><a href="#cod-distanza">§3.2</a></td></tr>
+      <tr><td>rilevare <i>d</i> errori: distanza <i>d</i> + 1; correggerne <i>d</i>: distanza 2<i>d</i> + 1</td><td>le due regole fondamentali</td><td><a href="#cod-distanza">§3.2</a></td></tr>
+      <tr><td>(<i>m</i> + <i>r</i> + 1) ≤ 2<sup><i>r</i></sup></td><td>bit di controllo <i>r</i> per correggere un errore su <i>m</i> bit di dati (Hamming: controlli nelle posizioni potenze di 2; la sindrome dà la posizione dell'errore)</td><td><a href="#cod-hamming">§3.2</a></td></tr>
+      <tr><td>bit di parità</td><td>distanza 2: rileva gli errori su un numero dispari di bit; con la parità per colonne su <i>n</i> colonne rileva una raffica fino a <i>n</i> bit</td><td><a href="#cod-parita">§3.2</a></td></tr>
+      <tr><td>checksum di Internet</td><td>somma in complemento a uno di parole da 16 bit; si trasmette il complemento della somma</td><td><a href="#cod-checksum">§3.2</a></td></tr>
+      <tr><td>CRC con <i>G</i>(<i>x</i>) di grado <i>r</i></td><td>si aggiungono <i>r</i> bit, il resto di <i>x</i><sup><i>r</i></sup><i>M</i>(<i>x</i>) diviso <i>G</i>(<i>x</i>). Rileva gli errori singoli, i doppi (se <i>G</i> non divide <i>x</i><sup><i>k</i></sup> + 1), quelli su un numero dispari di bit (se <i>x</i> + 1 divide <i>G</i>), le raffiche fino a <i>r</i> bit; una raffica di <i>r</i> + 1 bit sfugge con probabilità 1/2<sup><i>r</i>−1</sup>, una più lunga con 1/2<sup><i>r</i></sup></td><td><a href="#cod-crc">§3.2</a></td></tr>
+      <tr><td>byte stuffing</td><td>FLAG all'inizio e alla fine, ESC davanti a ogni FLAG o ESC nei dati; caso peggiore: overhead del 100%</td><td><a href="#dl-framing">§3.1</a></td></tr>
+      <tr><td>bit stuffing</td><td>flag 01111110; dopo cinque 1 consecutivi nei dati si inserisce uno 0; caso peggiore (tutti 1): un bit ogni 5, il 20%</td><td><a href="#dl-framing">§3.1</a></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="topic-end"><button class="btn studied-btn" type="button" data-topic="formulario3" aria-pressed="false">Segna come studiato</button></div>
 </div><!-- /prose -->
 </section>
 
@@ -8350,6 +8706,38 @@ alla fine di ogni evento:
     <span class="sx">l'ultimo bit dell'ack arriva</span><span class="rel">:</span><span class="dx">5 µs</span><span class="perche">propagazione</span>
   </div></div>
   <p>In tutto 58,8 µs per 256 − 32 = 224 bit di dati: 224 / 58,8 µs ≈ <b>3,8 Mbps</b>, poco più di un terzo dei 10 Mbps nominali.</p>
+</div>
+
+<h3 id="csma-temi" data-toc="Dai vecchi temi d'esame">Dai vecchi temi d'esame</h3>
+<p class="in-questa"><b>In questa sezione:</b> domande vere degli esami degli anni passati su questo argomento. Prova a rispondere, poi apri la soluzione.</p>
+<div class="box esame">
+  <p class="box-label">Vecchio tema d'esame · 2010</p>
+  <p>Per quale ragione la dimensione minima di un frame Ethernet è fissata a 64 byte?</p>
+  <details class="sol"><summary>Soluzione</summary><div class="sol-in">
+<p>Per <b>rilevare le collisioni</b>. Una stazione si accorge di una collisione solo se sta ancora trasmettendo quando il rumore torna indietro, e nel caso peggiore questo avviene dopo 2<i>τ</i> (sezione <a href="#csma-cd">«CSMA/CD»</a>). Quindi ogni frame deve durare almeno 2<i>τ</i>: un frame più corto potrebbe finire prima, e la stazione crederebbe di averlo consegnato anche se è stato distrutto.</p>
+<p>I numeri di Ethernet classica (§4.3 del libro, che vedremo più avanti): rete lunga al massimo 2500 m con 4 ripetitori, andata e ritorno nel caso peggiore quasi 50 µs. A 10 Mbps un bit dura 100 ns, quindi servono almeno 500 bit; con un margine di sicurezza si arriva a <b>512 bit = 64 byte</b>, cioè 51,2 µs. Se i dati sono meno di 46 byte, il campo PAD riempie il frame fino al minimo. Un minimo aiuta anche a distinguere i frame veri dai pezzi di frame troncati dalle collisioni.</p>
+<p class="appunti"><b>Negli appunti che circolano</b> la soluzione chiama 512 bit la dimensione «massima»: è la minima.</p>
+  </div></details>
+</div>
+<div class="box esame">
+  <p class="box-label">Vecchio tema d'esame · 2010</p>
+  <p>Come viene calcolato il valore dello slot time usato da Ethernet?</p>
+  <details class="sol"><summary>Soluzione</summary><div class="sol-in">
+<p>Lo slot time è il tempo di andata e ritorno <b>2<i>τ</i></b> nel caso peggiore, cioè tra le due stazioni più lontane della rete più grande permessa, contando anche il ritardo dei ripetitori, più un margine di sicurezza. Per Ethernet classica a 10 Mbps vale <b>51,2 µs</b>, il tempo di 512 bit: è lo stesso numero del frame minimo, e non per caso. Come abbiamo visto, il periodo di contesa del CSMA/CD si comporta come uno slotted ALOHA con slot di 2<i>τ</i>; Ethernet usa questo slot come unità per le attese casuali dopo una collisione (il backoff esponenziale binario, nel §4.3).</p>
+  </div></details>
+</div>
+<div class="box esame">
+  <p class="box-label">Vecchio tema d'esame · 2013</p>
+  <p>Se si volesse una rete CSMA/CD a 40 Mbps compatibile con i frame di IEEE 802.3, quale vincolo dello standard andrebbe cambiato?</p>
+  <details class="sol"><summary>Soluzione</summary><div class="sol-in">
+<div class="catena-wrap"><div class="catena">
+  <span class="sx">frame minimo</span><span class="rel">=</span><span class="dx">512 bit</span><span class="perche">resta uguale: è la compatibilità dei frame</span>
+  <span class="sx">durata a 10 Mbps</span><span class="rel">=</span><span class="dx">512 / 10<sup>7</sup> s = 51,2 µs</span><span class="perche"></span>
+  <span class="sx">durata a 40 Mbps</span><span class="rel">=</span><span class="dx">512 / (4 · 10<sup>7</sup>) s = 12,8 µs</span><span class="perche">quattro volte meno</span>
+  <span class="sx">2<i>τ</i></span><span class="rel">≤</span><span class="dx">12,8 µs</span><span class="perche">il frame deve durare almeno 2<i>τ</i></span>
+</div></div>
+<p>Il tempo di andata e ritorno deve diventare quattro volte più piccolo, quindi va ridotta di quattro volte la <b>lunghezza massima della rete</b> (la distanza tra le due stazioni più lontane): da 2500 m a circa 625 m. L'alternativa sarebbe un frame minimo quattro volte più lungo, ma i frame non sarebbero più compatibili. È la stessa scelta fatta da Fast Ethernet a 100 Mbps, che ha diviso per 10 la distanza massima.</p>
+  </div></details>
 </div>
 
 <h3 id="csma-domande" data-toc="Domande d'esame">Domande d'esame</h3>
@@ -10995,6 +11383,65 @@ alla fine di ogni evento:
     redraws.push(draw);
     compute();
   });
+
+  /* ---------- prova prima: le soluzioni degli esercizi svolti si scoprono una alla volta ---------- */
+  const PP_KEY = 'reti-prova-prima';
+  const ppLeggi = () => { try { return localStorage.getItem(PP_KEY) === '1'; } catch (e) { return false; } };
+  const ppScrivi = v => { try { localStorage.setItem(PP_KEY, v ? '1' : '0'); } catch (e) { /* storage non disponibile */ } };
+  function ppApplica() {
+    const on = document.documentElement.classList.contains('prova-prima');
+    $$('.sol-body').forEach(c => { c.hidden = on && !c.classList.contains('aperta'); });
+    $$('.sol-btn').forEach(b => { b.hidden = !on; });
+    $$('.pp-toggle').forEach(cb => { cb.checked = on; });
+  }
+  // negli esercizi svolti, tutto quello che segue il «Testo.» diventa la soluzione
+  $$('.box.calc').forEach(box => {
+    const testo = Array.from(box.children).find(c => c.tagName === 'P' && c.firstElementChild && c.firstElementChild.tagName === 'B' && /^Testo\./.test(c.firstElementChild.textContent));
+    if (!testo || !testo.nextElementSibling) return;
+    const corpo = el('div', 'sol-body');
+    while (testo.nextElementSibling) corpo.append(testo.nextElementSibling);
+    const btn = el('button', 'btn small sol-btn', 'Mostra la soluzione'); btn.type = 'button';
+    btn.addEventListener('click', () => {
+      const aperta = corpo.classList.toggle('aperta');
+      btn.textContent = aperta ? 'Nascondi la soluzione' : 'Mostra la soluzione';
+      ppApplica();
+    });
+    box.append(btn, corpo);
+  });
+  // un interruttore all'inizio di ogni «Esercizi svolti», più quello nell'indice
+  $$('h3[id$="-esercizi"]').forEach(h => {
+    const lab = el('label', 'check pp-inline');
+    const cb = el('input'); cb.type = 'checkbox'; cb.className = 'pp-toggle';
+    lab.append(cb, document.createTextNode(' Prova prima: nascondi le soluzioni e scoprile una alla volta'));
+    h.insertAdjacentElement('afterend', lab);
+  });
+  $$('.pp-toggle').forEach(cb => cb.addEventListener('change', () => {
+    document.documentElement.classList.toggle('prova-prima', cb.checked);
+    ppScrivi(cb.checked);
+    ppApplica();
+  }));
+  document.documentElement.classList.toggle('prova-prima', ppLeggi());
+  ppApplica();
+
+  /* ---------- stampa: si aprono i riquadri chiusi; con «Stampa il formulario» esce solo quella sezione ---------- */
+  let chiusiPrimaDellaStampa = [];
+  window.addEventListener('beforeprint', () => {
+    chiusiPrimaDellaStampa = $$('details:not([open])');
+    chiusiPrimaDellaStampa.forEach(d => { d.open = true; });
+  });
+  window.addEventListener('afterprint', () => {
+    chiusiPrimaDellaStampa.forEach(d => { d.open = false; });
+    chiusiPrimaDellaStampa = [];
+    $$('.stampa-nascosto').forEach(x => x.classList.remove('stampa-nascosto'));
+  });
+  $$('[data-stampa]').forEach(b => b.addEventListener('click', () => {
+    const t = document.getElementById(b.dataset.stampa);
+    if (!t) return;
+    for (let n = t; n && n.parentElement && n !== document.body; n = n.parentElement) {
+      Array.from(n.parentElement.children).forEach(s => { if (s !== n && s.tagName !== 'SCRIPT' && s.tagName !== 'STYLE') s.classList.add('stampa-nascosto'); });
+    }
+    window.print();
+  }));
 
   /* ---------- glossario ---------- */
   const gsrc = $('#glossary-data');

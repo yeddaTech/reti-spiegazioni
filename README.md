@@ -21,6 +21,9 @@ I paragrafi sono quelli della 6ª edizione; ogni argomento indica anche dove tro
 - **Offline:** scarica la repo (*Code → Download ZIP*), estraila e apri `index.html`. Funziona anche senza internet (senza connessione cambiano solo i caratteri).
 - Ogni argomento comincia con un riassunto «In breve» e finisce con esercizi svolti, domande d'esame con la risposta nascosta e un quiz. I riquadri «Facoltativo» sono approfondimenti che si possono saltare.
 - Il pulsante «Segna come studiato» ricorda, in quel browser, gli argomenti già fatti.
+- **Dai vecchi temi d'esame**: in fondo agli argomenti principali ci sono domande vere degli esami degli anni passati, con la soluzione nascosta finché non la apri, rifatta da capo e corretta dove gli appunti che circolano sbagliano.
+- **Prova prima**: con l'interruttore nell'indice (o all'inizio di ogni «Esercizi svolti») le soluzioni degli esercizi svolti restano nascoste finché non premi «Mostra la soluzione».
+- **Formulario del capitolo 3**: tutte le formule del data link in una pagina, con i simboli dei due libri; il pulsante «Stampa il formulario» stampa solo quella.
 
 ## Nota
 
