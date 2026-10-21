@@ -738,6 +738,7 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 .dia .tw{paint-order:normal}
 .dia .knee{fill:none;stroke-width:1.2;stroke-dasharray:4 4;opacity:.8}
 .dia .knee1{stroke:var(--s1)} .dia .knee2{stroke:var(--s2)}
+.ed-note{font-family:var(--font-display);font-size:.78rem;line-height:1.35;color:var(--muted);margin:.25rem 0 .7rem}
 </style>
 </head>
 <body>
@@ -1113,6 +1114,7 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 <h3 id="concetto-esercizio" data-toc="Esercizio: banda e latenza">Esercizio svolto: banda e latenza</h3>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 1 del capitolo</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 1, con altri dati: un corvo al posto del cane.</p>
   <p><b>Testo.</b> Un cane San Bernardo porta una scatola con 3 nastri da 7 GB ciascuno e viaggia a 18 km/h. Entro quale distanza il cane trasferisce dati più velocemente di una linea a 150 Mbps? Che cosa cambia se (i) il cane va al doppio della velocità, (ii) i nastri hanno capacità doppia, (iii) la linea va al doppio?</p>
   <p><b>Soluzione.</b> Il cane trasporta 3 × 7 GB = 21 GB = 21 × 8 = <b>168 Gbit</b>. A 18 km/h percorre 18 000 m in 3600 s, cioè <b>5 m/s</b>, quindi per <i>x</i> km impiega 1000·<i>x</i> / 5 = <b>200·<i>x</i> secondi</b>.</p>
   <p>La sua velocità di trasferimento equivalente è 168 Gbit / (200·<i>x</i> s) = 0,84/<i>x</i> Gbps = <b>840/<i>x</i> Mbps</b>. Il cane batte la linea quando 840/<i>x</i> &gt; 150, cioè per <b><i>x</i> &lt; 5,6 km</b>.</p>
@@ -1301,6 +1303,7 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 23 del capitolo</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 35, con un'immagine da 3840 × 2160 pixel.</p>
   <p><b>Testo.</b> Un'immagine non compressa di 1600 × 1200 pixel usa 3 byte per pixel. Quanto tempo serve per trasmetterla con un modem a 56 kbps, un cable modem a 1 Mbps, Ethernet a 10 Mbps, a 100 Mbps e a 1 Gbps?</p>
   <p><b>Soluzione.</b> Dimensione: 1600 × 1200 × 3 = 5 760 000 byte = 5 760 000 × 8 = <b>46 080 000 bit</b>. Nelle reti le velocità usano potenze di 10: 1 kbps = 10<sup>3</sup> bit/s, 1 Mbps = 10<sup>6</sup> bit/s, 1 Gbps = 10<sup>9</sup> bit/s.</p>
   <div class="tbl-wrap" style="max-width:26rem">
@@ -1547,7 +1550,7 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 {"q":"Due ISP che si scambiano il traffico dei rispettivi clienti senza pagarsi fanno…","o":["transito","peering","handover"],"a":1,"e":"È il peering. Nel transito una rete paga l'altra per raggiungere tutta Internet."},
 {"q":"Lo scopo principale di una CDN è…","o":["cifrare il traffico","avvicinare copie dei contenuti agli utenti","collegare le sedi di un'azienda"],"a":1,"e":"Una CDN replica i contenuti in server vicini agli utenti per ridurre latenza e traffico sulle lunghe distanze."},
 {"q":"Secondo la legge di Metcalfe, se gli utenti di una rete raddoppiano, il suo valore…","o":["raddoppia","diventa circa quattro volte","resta uguale"],"a":1,"e":"Il valore cresce con il quadrato degli utenti: (2n)² = 4n²."},
-{"q":"Nel soft handover…","o":["il telefono si stacca dalla vecchia stazione base prima di agganciare la nuova","il telefono resta collegato per un attimo a entrambe le stazioni base","la chiamata si interrompe e riparte"],"a":1,"e":"È tipico delle reti CDMA e non provoca interruzioni. Quello descritto nella prima risposta è l'hard handover."}
+{"q":"Nel soft handover…","o":["il telefono si stacca dalla vecchia stazione base prima di agganciare la nuova","il telefono resta collegato per un attimo a entrambe le stazioni base","la chiamata si interrompe e riparte"],"a":1,"e":"È tipico delle reti CDMA e non provoca interruzioni. Staccarsi dalla vecchia stazione prima di agganciare la nuova è invece l'hard handover."}
 ]</script></div>
 
 <div class="topic-end"><button class="btn studied-btn" type="button" data-topic="tipologia" aria-pressed="false">Segna come studiato</button></div>
@@ -1794,6 +1797,7 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 9 del capitolo</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 14.</p>
   <p><b>Testo.</b> Il tempo è diviso in intervalli. In ogni intervallo ciascuno degli <i>n</i> host tenta di usare il canale con probabilità <i>p</i>. Quale frazione di intervalli va sprecata in collisioni?</p>
   <p><b>Soluzione.</b> In un intervallo possono succedere tre cose:</p>
   <ul>
@@ -1806,6 +1810,7 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 22 del capitolo</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 34.</p>
   <p><b>Testo.</b> Quanto è lungo un bit, in metri, nell'Ethernet 802.3 originale a 10 Mbps, se il segnale si propaga nel cavo coassiale a 2/3 della velocità della luce?</p>
   <p><b>Soluzione.</b> A 10 Mbps un bit dura 1 / 10<sup>7</sup> s = 100 ns. Nel frattempo il segnale percorre (2 · 10<sup>8</sup> m/s) · (10<sup>−7</sup> s) = <b>20 m</b>. In altre parole, sul cavo ogni bit «occupa» 20 metri.</p>
 </div>
@@ -1974,12 +1979,14 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 6 del capitolo</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 9.</p>
   <p><b>Testo.</b> Un sistema client-server usa una rete satellitare con il satellite a 40 000 km di altezza. Qual è il ritardo minimo con cui il client riceve la risposta a una richiesta?</p>
   <p><b>Soluzione.</b> La richiesta sale al satellite e scende al server: 2 × 40 000 = 80 000 km. La risposta fa lo stesso percorso al contrario: altri 80 000 km. In totale 160 000 km, percorsi alla velocità della luce (300 000 km/s): 160 000 / 300 000 ≈ <b>0,53 s</b>, cioè circa 533 ms, senza contare i tempi di elaborazione. È il motivo per cui il satellite ha banda alta ma latenza alta.</p>
 </div>
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 5 del capitolo</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 7, con 20 µs al posto di 10 µs.</p>
   <p><b>Testo.</b> In una rete store-and-forward ogni switch impiega 10 µs per memorizzare e inoltrare un pacchetto. Il client è a New York, il server in California. Il ritardo degli switch pesa in modo significativo sul tempo di risposta? Il segnale si propaga nel rame e nella fibra a 2/3 della velocità della luce.</p>
   <p><b>Soluzione.</b> La velocità di propagazione è 200 000 km/s, cioè 200 m/µs: in 10 µs il segnale percorre 2 km. Ogni switch equivale quindi a 2 km di cavo in più. Tra New York e la California ci sono circa 5000 km (25 ms di sola propagazione): anche attraversando 50 switch si aggiungono l'equivalente di 100 km, appena il 2%. Il ritardo di commutazione <b>non è significativo</b>; domina la propagazione.</p>
 </div>
@@ -2523,12 +2530,14 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 
 <div class="box ex">
   <p class="box-label">Vantaggi e svantaggi della stratificazione · problema 10</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª non c'è.</p>
   <p><b>Vantaggi.</b> Divide un problema enorme in parti più piccole e progettabili separatamente; ogni livello si può sostituire o far evolvere senza toccare gli altri, purché il servizio offerto non cambi; produttori diversi possono realizzare livelli diversi, o lo stesso livello, e interoperare grazie agli standard.</p>
   <p><b>Svantaggi.</b> Ogni livello aggiunge header ed elaborazione, quindi c'è un costo in prestazioni (<i>overhead</i>); alcune funzioni finiscono ripetute in più livelli; un livello non vede ciò che sanno gli altri, e questo può impedire ottimizzazioni. Per esempio, un livello di trasporto che non sa che il collegamento è wireless può scambiare per congestione una perdita dovuta a disturbi radio.</p>
 </div>
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 16 del capitolo</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 28.</p>
   <p><b>Testo.</b> Un sistema ha una gerarchia di <i>n</i> livelli. Le applicazioni generano messaggi di <i>M</i> byte e ogni livello aggiunge un header di <i>h</i> byte. Che frazione della banda è occupata dagli header?</p>
   <p><b>Soluzione.</b> In totale gli header occupano <i>n</i>·<i>h</i> byte e il messaggio trasmesso è lungo <i>M</i> + <i>n</i>·<i>h</i> byte, quindi la frazione sprecata in header è <b><i>nh</i> / (<i>M</i> + <i>nh</i>)</b>.</p>
   <p>Con <i>n</i> = 5 e <i>h</i> = 20 byte: per <i>M</i> = 1000 byte la frazione è 100/1100 ≈ <b>9%</b>; per <i>M</i> = 100 byte diventa 100/200 = <b>50%</b>. I messaggi piccoli pagano molto di più il costo della stratificazione.</p>
@@ -2629,6 +2638,7 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 15 del capitolo</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 24.</p>
   <p><b>Testo.</b> Il livello data link ritrasmette i frame danneggiati. Se la probabilità che un frame venga danneggiato è <i>p</i> e le conferme non si perdono mai, quante trasmissioni servono in media per inviare un frame?</p>
   <p><b>Soluzione.</b> Servono esattamente <i>k</i> trasmissioni se le prime <i>k</i> − 1 falliscono e la <i>k</i>-esima riesce: probabilità <i>p</i><sup><i>k</i>−1</sup>(1 − <i>p</i>). Il numero medio è</p>
   <p style="text-align:center"><b>E = Σ<sub><i>k</i>≥1</sub> <i>k</i> · <i>p</i><sup><i>k</i>−1</sup>(1 − <i>p</i>) = 1 / (1 − <i>p</i>)</b></p>
@@ -2774,6 +2784,7 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 
 <div class="box ex">
   <p class="box-label">Due domande classiche · problemi 27 e 28</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª il 27 è il 41, il 28 è il 42.</p>
   <p><b>Se cambiano gli algoritmi del livello <i>k</i></b> (cioè il suo protocollo o la sua implementazione), che effetto ha sui livelli <i>k</i> − 1 e <i>k</i> + 1? <b>Nessuno</b>, purché il servizio offerto e i servizi usati restino gli stessi: è proprio il vantaggio del disaccoppiamento.</p>
   <p><b>Se cambia il servizio</b> (l'insieme di operazioni) offerto dal livello <i>k</i>? Ne risente il livello <b><i>k</i> + 1</b>, che quel servizio lo usa e deve adattarsi. Il livello <i>k</i> − 1 non ne risente, a meno che il livello <i>k</i> non debba chiedergli servizi nuovi.</p>
 </div>
@@ -3705,6 +3716,7 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 7 del cap. 2</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 3.</p>
   <p><b>Testo.</b> Quanta banda c'è in una porzione di spettro larga 0,1 µm attorno alla lunghezza d'onda di 1 µm?</p>
   <p><b>Soluzione.</b> Frequenza e lunghezza d'onda sono legate da <i>c</i> = λ<i>f</i>. Derivando, Δ<i>f</i> ≈ <i>c</i> Δλ / λ². Quindi Δ<i>f</i> = (3 · 10<sup>8</sup> m/s × 0,1 · 10<sup>−6</sup> m) / (10<sup>−6</sup> m)² = <b>3 · 10<sup>13</sup> Hz = 30 THz</b>. Si capisce perché la fibra ha così tanta banda.</p>
 </div>
@@ -3798,6 +3810,7 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 1 del cap. 2</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 10.</p>
   <p><b>Testo.</b> Calcola i coefficienti di Fourier della funzione <i>f</i>(<i>t</i>) = <i>t</i> per 0 ≤ <i>t</i> ≤ 1.</p>
   <p><b>Soluzione.</b> Il periodo è <i>T</i> = 1, quindi <i>f</i> = 1. Si applicano le tre formule, integrando per parti:</p>
   <ul>
@@ -4062,6 +4075,7 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 2 del cap. 2</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 12, con un canale da 3 kHz.</p>
   <p><b>Testo.</b> Un canale a 4 kHz senza rumore è campionato ogni 1 ms. Qual è la velocità massima? Come cambia se il canale ha un rapporto segnale/rumore di 30 dB?</p>
   <p><b>Senza rumore.</b> La parola chiave è «senza rumore»: un canale così può trasportare una quantità di informazione <b>arbitrariamente grande</b>, comunque spesso lo si campioni, perché ogni campione può portare tanti bit quanti se ne vuole. Campionando ogni 1 ms (1000 campioni al secondo) con campioni da 16 bit si ottengono 16 kbps, con campioni da 1024 bit circa 1 Mbps. Nyquist permette fino a 2<i>B</i> = 8000 campioni al secondo: con 16 bit per campione sarebbero 128 kbps, con 1024 bit circa 8,2 Mbps. Non c'è un limite superiore.</p>
   <p><b>Con 30 dB.</b> <i>S</i>/<i>N</i> = 10<sup>30/10</sup> = 1000. Shannon: 4000 × log<sub>2</sub>(1001) ≈ 4000 × 9,97 ≈ <b>39,9 kbps</b>. Il rumore fissa un limite, e nessuna codifica lo supera.</p>
@@ -4069,12 +4083,14 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 3 del cap. 2</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 14.</p>
   <p><b>Testo.</b> I canali televisivi sono larghi 6 MHz. Quanti bit al secondo si possono inviare con segnali digitali a quattro livelli, in un canale senza rumore?</p>
   <p><b>Soluzione.</b> Nyquist: 2 × 6 · 10<sup>6</sup> × log<sub>2</sub> 4 = 2 × 6 · 10<sup>6</sup> × 2 = <b>24 Mbps</b>.</p>
 </div>
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 4 del cap. 2</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 15.</p>
   <p><b>Testo.</b> Un segnale binario è trasmesso su un canale a 3 kHz con rapporto segnale/rumore di 20 dB. Qual è la velocità massima?</p>
   <p><b>Soluzione.</b> Si calcolano i due limiti.</p>
   <ul>
@@ -4086,6 +4102,7 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 5 del cap. 2</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 38, con una linea da 1 MHz.</p>
   <p><b>Testo.</b> Quale rapporto segnale/rumore serve per far passare una portante T1 (1,544 Mbps) su una linea a 50 kHz?</p>
   <p><b>Soluzione.</b> Si inverte Shannon: 1,544 · 10<sup>6</sup> = 50 · 10<sup>3</sup> × log<sub>2</sub>(1 + <i>S</i>/<i>N</i>), quindi log<sub>2</sub>(1 + <i>S</i>/<i>N</i>) = 30,88 e <i>S</i>/<i>N</i> = 2<sup>30,88</sup> − 1 ≈ 1,98 · 10<sup>9</sup>. In decibel: 10 log<sub>10</sub>(1,98 · 10<sup>9</sup>) ≈ <b>93 dB</b>. Con il trucco: 30,88 bit/Hz × 3 ≈ 93 dB. È un SNR enorme, irrealistico per una linea vera.</p>
 </div>
@@ -4362,6 +4379,7 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 15 del cap. 2</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 19.</p>
   <p><b>Testo.</b> Qual è la banda minima per trasmettere a <i>B</i> bit/s con NRZ, MLT-3 e Manchester? Motiva la risposta.</p>
   <p><b>Soluzione.</b> Si guarda il caso peggiore, quello in cui il segnale cambia più spesso, e si conta quanti bit dura un ciclo completo dell'onda.</p>
   <ul>
@@ -4373,12 +4391,14 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 16 del cap. 2</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 20.</p>
   <p><b>Testo.</b> Dimostra che con la codifica 4B/5B c'è una transizione del segnale almeno ogni 4 bit.</p>
   <p><b>Soluzione.</b> 4B/5B si usa con NRZI, in cui ogni 1 produce una transizione: basta dimostrare che non ci sono mai più di tre 0 consecutivi. Dalla tabella: nessun codice ha più di <b>uno 0 iniziale</b> (01001, 01010, 01011, 01110, 01111) né più di <b>due 0 finali</b> (10100, 11100), e dentro un codice ci sono al massimo due 0 di fila (01001, 10010). Il caso peggiore è quindi a cavallo di due codici: due 0 finali più uno 0 iniziale, cioè <b>tre 0</b>. Dopo al massimo tre 0 arriva un 1, cioè una transizione: c'è una transizione almeno ogni <b>4 bit</b>.</p>
 </div>
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 14 del cap. 4</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 16.</p>
   <p><b>Testo.</b> Disegna la codifica Manchester del flusso 0001110101.</p>
   <p><b>Soluzione.</b> Con la convenzione del libro ogni 0 diventa basso-alto (BA) e ogni 1 alto-basso (AB):</p>
   <p class="mono">0 0 0 1 1 1 0 1 0 1 → BA BA BA AB AB AB BA AB BA AB</p>
@@ -4773,18 +4793,21 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 25 del cap. 2</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 23.</p>
   <p><b>Testo.</b> Dieci segnali, ognuno dei quali richiede 4000 Hz, sono uniti con FDM su un solo canale. Qual è la banda minima del canale, se le bande di guardia sono larghe 400 Hz?</p>
   <p><b>Soluzione.</b> Dieci segnali hanno bisogno di <b>9 bande di guardia</b>, una tra ogni coppia di segnali vicini (non servono ai bordi). Quindi 10 × 4000 + 9 × 400 = 40 000 + 3600 = <b>43 600 Hz</b>.</p>
 </div>
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 26 del cap. 2</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 37.</p>
   <p><b>Testo.</b> Perché il tempo di campionamento del PCM è stato fissato a 125 µs?</p>
   <p><b>Soluzione.</b> 125 µs corrispondono a 8000 campioni al secondo. Per il teorema di Nyquist un segnale con banda di 4 kHz, come un canale telefonico, si ricostruisce completamente con 2 × 4000 = 8000 campioni al secondo: con meno si perde informazione, con di più non se ne guadagna.</p>
 </div>
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 27 del cap. 2</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 41.</p>
   <p><b>Testo.</b> Che percentuale della capacità di una T1 è overhead, cioè non disponibile per i dati degli utenti? Come si confronta con l'overhead delle linee OC-1 e OC-768?</p>
   <p><b>Soluzione.</b> Se si conta solo il bit di framing: 1 bit su 193, cioè <b>0,52%</b>. Sulle vecchie T1 con segnalazione a bit rubato, però, i dati possono usare solo 7 bit su 8 per canale: gli utenti hanno 24 × 7 = 168 bit su 193, quindi l'overhead è 25/193 ≈ <b>13%</b>. Per SONET, dalla tabella del libro: OC-1 ha (51,84 − 49,536)/51,84 ≈ <b>4,4%</b> di overhead, e OC-768 (39 813,12 − 38 043,648)/39 813,12 ≈ <b>4,4%</b>. La percentuale è la stessa a ogni livello perché in ogni frame SONET 4 colonne su 90 sono di controllo.</p>
 </div>
@@ -5231,12 +5254,14 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 1 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 6.</p>
   <p><b>Testo.</b> Un pacchetto di un livello superiore è diviso in 10 frame, ognuno dei quali arriva integro con probabilità dell'80%. Se il livello data link non fa alcun controllo degli errori, quante volte in media va trasmesso il messaggio perché arrivi tutto intero senza errori?</p>
   <p><b>Soluzione.</b> Il messaggio arriva integro solo se arrivano integri tutti e 10 i frame: <i>p</i> = 0,8<sup>10</sup> ≈ <b>0,107</b>. Il numero di tentativi fino al primo successo ha media 1/<i>p</i>: in media servono 1/0,107 ≈ <b>9,3 trasmissioni</b> dell'intero messaggio, cioè circa 8,3 ritrasmissioni. Con la conferma frame per frame, invece, si ritrasmettono solo i frame persi: in media 10/0,8 = 12,5 invii di frame invece di circa 93. È il motivo per cui la conferma al livello 2 conviene sui canali inaffidabili.</p>
 </div>
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 2 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª non c'è.</p>
   <p><b>Testo.</b> Un protocollo data link usa questa codifica: A = 01000111, B = 11100011, FLAG = 01111110, ESC = 11100000. Scrivi in binario la sequenza trasmessa per il frame di quattro caratteri A B ESC FLAG con (a) conteggio dei byte, (b) flag byte con byte stuffing, (c) flag di inizio e fine con bit stuffing.</p>
   <p><b>(a) Conteggio.</b> Il frame ha 4 byte di dati più il conteggio, che conta anche se stesso: 5.</p>
   <p class="mono">00000101 01000111 11100011 11100000 01111110</p>
@@ -5248,6 +5273,7 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 3 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 2.</p>
   <p><b>Testo.</b> Il frammento A B ESC C ESC FLAG FLAG D si trova in mezzo a un flusso trasmesso con il byte stuffing del testo. Qual è l'uscita dopo lo stuffing?</p>
   <p><b>Soluzione.</b> Davanti a ogni ESC e a ogni FLAG dei dati va un ESC:</p>
   <p class="mono">A B ESC ESC C ESC ESC ESC FLAG ESC FLAG D</p>
@@ -5255,6 +5281,7 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problemi 4 e 6 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª il 4 è il 3, per il 6 c'è un esercizio simile con altri dati, il 4.</p>
   <p><b>Problema 4: qual è l'overhead massimo del byte stuffing?</b> Se ogni byte del payload è un FLAG o un ESC, davanti a ognuno va un ESC: la lunghezza raddoppia, overhead del <b>100%</b> (più i flag di delimitazione).</p>
   <p><b>Problema 6: la stringa 0111101111101111110 viene trasmessa con bit stuffing. Che cosa va sulla linea?</b> Dopo i primi cinque 1 consecutivi si inserisce uno 0, e lo stesso nella sequenza di sei 1:</p>
   <p class="mono">0111101111101111110 → 01111011111<b>0</b>011111<b>0</b>10</p>
@@ -5697,6 +5724,7 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 15 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 22.</p>
   <p><b>Testo.</b> Il messaggio <span class="mono">1001 1100 1010 0011</span> è trasmesso con il checksum di Internet, in versione a 4 bit. Quanto vale il checksum?</p>
   <div class="catena-wrap"><div class="catena">
     <span class="sx">1001 + 1100</span><span class="rel">=</span><span class="dx">1 0101 → 0101 + 1 = <b>0110</b></span><span class="perche">9 + 12 = 21: c'è un riporto, rientra in fondo</span>
@@ -5823,18 +5851,21 @@ T = 1101011011<span class="r">1110</span></pre>
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 7 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 7.</p>
   <p><b>Testo.</b> In quali circostanze un protocollo «a ciclo aperto», come un codice di Hamming, è preferibile ai protocolli con riscontro e ritrasmissione di questo capitolo?</p>
   <p><b>Soluzione.</b> Quando ritrasmettere è inutile o troppo lento: sui canali con molti errori, dove anche la ritrasmissione arriverebbe probabilmente sbagliata; quando il ritardo di andata e ritorno è enorme, come con una sonda spaziale; quando non c'è un canale di ritorno o i destinatari sono tanti (trasmissioni broadcast); nelle applicazioni in tempo reale, dove un dato ritrasmesso arriverebbe troppo tardi.</p>
 </div>
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 8 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 8.</p>
   <p><b>Testo.</b> Un codice usa un bit di parità per i bit in posizione dispari e uno per quelli in posizione pari. Qual è la sua distanza di Hamming?</p>
   <p><b>Soluzione.</b> Un errore singolo cambia una delle due parità, quindi viene sempre rilevato: la distanza è almeno 2. Ma se si invertono due bit in posizione dispari, la loro parità resta uguale, e lo stesso vale per quella pari: si ottiene un'altra parola valida a distanza 2. La distanza è <b>2</b>: il codice rileva errori singoli, come un solo bit di parità. In più rileva due errori se uno cade in posizione pari e l'altro in dispari.</p>
 </div>
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 9 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª non c'è.</p>
   <p><b>Testo.</b> Messaggi da 16 bit con codice di Hamming. Quanti bit di controllo servono per correggere gli errori singoli? Che cosa si trasmette per il messaggio <span class="mono">1101001100110101</span>, con parità pari?</p>
   <p><b>Quanti bit.</b> Con <i>r</i> = 4: 16 + 4 + 1 = 21 &gt; 16, non basta. Con <i>r</i> = 5: 16 + 5 + 1 = 22 ≤ 32. Servono <b>5 bit</b>, nelle posizioni 1, 2, 4, 8 e 16; la parola ha 21 bit.</p>
   <p><b>I dati</b> vanno nelle posizioni 3, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 21.</p>
@@ -5850,6 +5881,7 @@ T = 1101011011<span class="r">1110</span></pre>
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 10 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 13, con il valore 0xB4D e la parità dispari.</p>
   <p><b>Testo.</b> Arriva il codice di Hamming a 12 bit <span class="mono">0xE4F</span>. Qual era il valore originale, in esadecimale, se al massimo un bit è sbagliato?</p>
   <p><b>Soluzione.</b> In binario 0xE4F è <span class="mono">1110 0100 1111</span>, posizioni da 1 a 12. I controlli (a parità pari) danno:</p>
   <ul>
@@ -5863,6 +5895,7 @@ T = 1101011011<span class="r">1110</span></pre>
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 11 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 16.</p>
   <p><b>Testo.</b> I dati si trasmettono in blocchi di <i>n</i> righe da <i>k</i> bit, con un bit di parità per ogni riga e per ogni colonna (il bit in basso a destra controlla la sua riga e la sua colonna). Rileva tutti gli errori su 1, 2 e 3 bit? Dimostra che non rileva tutti quelli su 4 bit.</p>
   <p><b>Soluzione.</b></p>
   <ul>
@@ -5875,6 +5908,7 @@ T = 1101011011<span class="r">1110</span></pre>
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 12 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 20.</p>
   <p><b>Testo.</b> Blocchi da 1000 bit. Fino a quale tasso d'errore conviene rilevare (un bit di parità per blocco, più le ritrasmissioni) invece di correggere con un codice di Hamming?</p>
   <p><b>Soluzione.</b> Con Hamming servono 10 bit di controllo per blocco. Con la parità serve 1 bit, più in media la ritrasmissione dei blocchi sbagliati, ognuno di 1001 bit. Se il tasso d'errore per bit è <i>e</i>, piccolo, un blocco di 1001 bit è sbagliato con probabilità circa 1001·<i>e</i>.</p>
   <div class="catena-wrap"><div class="catena">
@@ -5892,6 +5926,7 @@ T = 1101011011<span class="r">1110</span></pre>
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 16 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 23.</p>
   <p><b>Testo.</b> Qual è il resto della divisione di <i>x</i><sup>7</sup> + <i>x</i><sup>5</sup> + 1 per il generatore <i>x</i><sup>3</sup> + 1? (La traduzione italiana della 5ª edizione scrive per errore «x1 + x5 + 1».)</p>
   <p><b>Soluzione.</b> <i>x</i><sup>7</sup> + <i>x</i><sup>5</sup> + 1 è <span class="mono">10100001</span>, <i>x</i><sup>3</sup> + 1 è <span class="mono">1001</span>.</p>
   <pre class="crc-out">10100001
@@ -5909,6 +5944,7 @@ T = 1101011011<span class="r">1110</span></pre>
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 17 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 24.</p>
   <p><b>Testo.</b> Si trasmette <span class="mono">10011101</span> con il CRC e generatore <i>x</i><sup>3</sup> + 1. Qual è la sequenza trasmessa? Se il terzo bit da sinistra viene invertito, come se ne accorge il destinatario? Fai un esempio di errore che non viene rilevato.</p>
   <p><b>Trasmissione.</b> Il generatore è <span class="mono">1001</span>, di grado 3: si aggiungono 3 zeri e si divide <span class="mono">10011101000</span> per <span class="mono">1001</span>. Il resto è <span class="mono">100</span>, quindi si trasmette <span class="mono">10011101<b>100</b></span>.</p>
   <p><b>Errore sul terzo bit.</b> Arriva <span class="mono">10111101100</span>. Il destinatario lo divide per <span class="mono">1001</span> e ottiene resto <span class="mono">100</span>, diverso da zero: rileva l'errore.</p>
@@ -5917,6 +5953,7 @@ T = 1101011011<span class="r">1110</span></pre>
 
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 18 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª non c'è.</p>
   <p><b>Testo.</b> Un messaggio di 1024 bit contiene 992 bit di dati e 32 di CRC, calcolato con il polinomio IEEE 802 di grado 32. Per ogni caso, l'errore viene sempre rilevato?</p>
   <ul>
     <li>(a) <b>Un bit</b>: sì, il generatore ha più di un termine.</li>
@@ -6313,11 +6350,13 @@ T = 1101011011<span class="r">1110</span></pre>
 <h3 id="el-esercizi" data-toc="Esercizi svolti">Esercizi svolti</h3>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 19 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 27.</p>
   <p><b>Testo.</b> Nella discussione del protocollo ARQ, il destinatario accetta due copie dello stesso frame perché si è perso un acknowledgement. Può accettare più copie dello stesso frame anche se non si perde <b>nessun</b> frame, né di dati né di conferma?</p>
   <p><b>Soluzione.</b> Sì, nello schema con il solo timer, senza numeri di sequenza. Basta un timer troppo corto: il timer scade prima che la conferma, che è ancora in viaggio, arrivi. Il mittente rispedisce il frame anche se nessuno l'ha perso, e il destinatario, che non può distinguere una copia da un frame nuovo, lo consegna due volte. Con il numero di sequenza del protocollo 3 la seconda copia viene riconosciuta e scartata. Puoi vederlo nel simulatore: scenario «Timer troppo corto», poi togli la spunta a «Numeri di sequenza».</p>
 </div>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 21 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 34.</p>
   <p><b>Testo.</b> Nel protocollo 3 è possibile che il mittente avvii il timer quando sta già andando? Se sì, quando? Se no, perché?</p>
   <p><b>Soluzione.</b> Sì. Il mittente chiama <code>start_timer</code> a ogni giro del ciclo, subito dopo aver trasmesso. Se arriva un acknowledgement <b>danneggiato</b> (evento <code>cksum_err</code>), il ciclo ricomincia: il frame viene rispedito e <code>start_timer</code> viene chiamata mentre il timer precedente non è ancora scaduto. Le regole lo permettono: la chiamata riavvia il timer da capo.</p>
 </div>
@@ -6784,6 +6823,7 @@ T = 1101011011<span class="r">1110</span></pre>
 </div>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 20 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 28.</p>
   <p><b>Testo.</b> Un canale va a 4 kbps con un ritardo di propagazione di 20 ms. Per quali dimensioni dei frame lo stop-and-wait ha un'efficienza di almeno il 50%?</p>
   <div class="catena-wrap"><div class="catena">
     <span class="sx"><i>T<sub>x</sub></i> / (<i>T<sub>x</sub></i> + 2<i>T<sub>p</sub></i>)</span><span class="rel">≥</span><span class="dx">1/2</span><span class="perche">la richiesta</span>
@@ -6796,6 +6836,7 @@ T = 1101011011<span class="r">1110</span></pre>
 </div>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problemi 27 e 28 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª questi problemi non ci sono.</p>
   <p><b>Testo.</b> Un pianeta lontano dista circa 9 · 10<sup>10</sup> m dalla Terra. Si usa lo stop-and-wait su un collegamento punto a punto da 64 Mbps, con frame da 32 KB e velocità della luce 3 · 10<sup>8</sup> m/s. Quanto vale l'utilizzazione? Con un protocollo a finestra, quale finestra dà il 100%?</p>
   <div class="catena-wrap"><div class="catena">
     <span class="sx"><i>T<sub>p</sub></i></span><span class="rel">=</span><span class="dx">9 · 10<sup>10</sup> / (3 · 10<sup>8</sup>) s = 300 s</span><span class="perche">5 minuti di viaggio per ogni bit</span>
@@ -6807,6 +6848,7 @@ T = 1101011011<span class="r">1110</span></pre>
 </div>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 34 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 46.</p>
   <p><b>Testo.</b> Canale satellitare da 64 kbps senza errori; frame di dati da 512 byte in una direzione e conferme cortissime nell'altra; propagazione 270 ms. Qual è il throughput massimo con finestre di 1, 7, 15 e 127 frame?</p>
   <p><b>Soluzione.</b> <i>T<sub>x</sub></i> = 512 · 8 / 64 000 = 0,064 s = 64 ms. Un ciclo dura <i>T<sub>x</sub></i> + 2<i>T<sub>p</sub></i> = 64 + 540 = 604 ms, e 1 + 2<i>a</i> = 604/64 ≈ 9,44.</p>
   <div class="tbl-wrap" style="max-width:36rem">
@@ -7096,6 +7138,7 @@ T = 1101011011<span class="r">1110</span></pre>
 </div>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 23 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 36.</p>
   <p><b>Testo.</b> Un protocollo a finestra scorrevole usa così tanti bit per i numeri di sequenza da non doverli mai riciclare. Che relazione c'è tra i quattro bordi delle finestre e la loro dimensione <i>w</i>, uguale e costante per mittente e destinatario?</p>
   <p><b>Soluzione.</b> Chiamiamo <i>S<sub>l</sub></i> e <i>S<sub>u</sub></i> il bordo inferiore e superiore della finestra di invio (il frame più vecchio non confermato e il più recente inviato), <i>R<sub>l</sub></i> e <i>R<sub>u</sub></i> quelli della finestra di ricezione.</p>
   <ul>
@@ -7344,6 +7387,7 @@ alla fine di ogni evento:
 </div>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 22 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 35.</p>
   <p><b>Testo.</b> Una dorsale T1 lunga 3000 km trasmette frame da 64 byte con il protocollo 5. La propagazione è di 6 µs per km. Quanti bit servono per i numeri di sequenza?</p>
   <div class="catena-wrap"><div class="catena">
     <span class="sx"><i>R</i></span><span class="rel">=</span><span class="dx">1,536 Mbps</span><span class="perche">24 canali da 64 kbps; con 1,544 Mbps il risultato non cambia</span>
@@ -7357,6 +7401,7 @@ alla fine di ogni evento:
 </div>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 24 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª non c'è.</p>
   <p><b>Testo.</b> Nel protocollo 5 la funzione <code>between(a, b, c)</code> controlla <i>a</i> ≤ <i>b</i> &lt; <i>c</i> (in modo circolare). Che cosa succede se controllasse <i>a</i> ≤ <i>b</i> ≤ <i>c</i>?</p>
   <p><b>Soluzione.</b> Il protocollo diventerebbe <b>scorretto</b>. <code>between(ack_expected, r.ack, next_frame_to_send)</code> serve a decidere se una conferma riguarda un frame in sospeso: <code>next_frame_to_send</code> è il prossimo frame, <b>non ancora inviato</b>, e con «≤» una conferma con quel numero verrebbe accettata. Succede davvero: all'inizio il destinatario mette nel campo <code>ack</code> il valore <code>MAX_SEQ</code> (cioè «nessun frame ricevuto»). Se il mittente ha inviato i frame da 0 a 6, <code>next_frame_to_send</code> vale 7 e un frame che arriva con ack = 7 verrebbe preso come conferma di tutto: il mittente libererebbe frame mai arrivati, e il ciclo che fa avanzare <code>ack_expected</code> non si fermerebbe più, perché ogni numero risulterebbe «tra» <code>ack_expected</code> e 7.</p>
 </div>
@@ -7654,6 +7699,7 @@ alla fine di ogni evento:
 <h3 id="sr-esercizi" data-toc="Esercizi svolti">Esercizi svolti</h3>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 32 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 44.</p>
   <p><b>Testo.</b> Frame da 1000 bit su un canale da 1 Mbps via satellite geostazionario, con 270 ms di propagazione. Le conferme viaggiano sempre in piggyback, le intestazioni sono cortissime, i numeri di sequenza hanno 3 bit. Qual è l'utilizzazione massima con (a) stop-and-wait, (b) protocollo 5, (c) protocollo 6?</p>
   <p><b>Dati comuni.</b> <i>T<sub>x</sub></i> = 1000 / 10<sup>6</sup> s = 1 ms; un ciclo dura <i>T<sub>x</sub></i> + 2<i>T<sub>p</sub></i> = 1 + 540 = 541 ms.</p>
   <ul>
@@ -7676,11 +7722,13 @@ alla fine di ogni evento:
 </div>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 31 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 43.</p>
   <p><b>Testo.</b> Nel protocollo 6, <code>MAX_SEQ</code> = 2<sup><i>n</i></sup> − 1. È solo comodo per usare bene i bit dell'intestazione, o è necessario? Il protocollo funzionerebbe con <code>MAX_SEQ</code> = 4?</p>
   <p><b>Soluzione.</b> No, non funzionerebbe. Con <code>MAX_SEQ</code> = 4 i numeri sono 5 (da 0 a 4) e i buffer (<code>MAX_SEQ</code> + 1)/2 = 2, con divisione intera. Il frame <i>i</i> va nel buffer <i>i</i> mod 2. Ma i numeri girano: dopo il 4 viene lo 0, e i frame 4 e 0, che sono consecutivi e possono stare insieme nella finestra, finiscono entrambi nel buffer 0. Il trucco «<i>i</i> mod numero di buffer» funziona solo se lo spazio dei numeri, <code>MAX_SEQ</code> + 1, è un multiplo del numero di buffer, e con una potenza di 2 questo è sempre vero.</p>
 </div>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 33 del cap. 3</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª non c'è.</p>
   <p><b>Testo.</b> Protocollo 6 su un canale satellitare da 50 kbps molto carico. I frame di dati hanno 40 bit di intestazione e 3960 bit di dati; propagazione 270 ms; non ci sono frame di ack separati; i NAK sono lunghi 40 bit; l'1% dei frame di dati arriva sbagliato, i NAK mai; numeri di sequenza da 8 bit. Che frazione della banda va persa in ridondanza (intestazioni e ritrasmissioni)?</p>
   <p><b>Soluzione.</b> Con 8 bit la finestra è 128, molto più dei circa 8 frame che servono per riempire il canale (<i>T<sub>x</sub></i> = 4000/50 000 = 80 ms, 1 + 2 · 270/80 ≈ 7,75): il canale è sempre pieno. Per ogni frame di dati utile si spendono in media:</p>
   <ul>
@@ -7851,6 +7899,7 @@ alla fine di ogni evento:
 <h3 id="all-esercizi" data-toc="Esercizi svolti">Esercizi svolti</h3>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 1 del cap. 4</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 1.</p>
   <p><b>Testo.</b> Frame di lunghezza esponenziale, in media 10 000 bit, arrivano a caso a un canale da 100 Mbps e, se lo trovano occupato, aspettano in coda. Qual è il ritardo medio, attesa più trasmissione, con 90, 900 e 9000 frame al secondo? (Serve la formula del riquadro facoltativo.)</p>
   <p><b>Soluzione.</b> Il canale smaltisce <i>μC</i> = 10<sup>8</sup>/10<sup>4</sup> = 10 000 frame/s, e <i>T</i> = 1/(10 000 − <i>λ</i>).</p>
   <ul>
@@ -8065,6 +8114,7 @@ alla fine di ogni evento:
 <h3 id="alo-esercizi" data-toc="Esercizi svolti">Esercizi svolti</h3>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 2 del cap. 4</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 2.</p>
   <p><b>Testo.</b> <i>N</i> stazioni condividono un canale ALOHA puro da 56 kbps. Ogni stazione trasmette in media un frame da 1000 bit ogni 100 secondi, anche se il precedente non è ancora partito (i frame aspettano in un buffer). Qual è il valore massimo di <i>N</i>?</p>
   <div class="catena-wrap"><div class="catena">
     <span class="sx">capacità massima</span><span class="rel">=</span><span class="dx">0,184 · 56 000 ≈ 10 304 bit/s</span><span class="perche">ALOHA puro rende al massimo 1/(2e)</span>
@@ -8075,11 +8125,13 @@ alla fine di ogni evento:
 </div>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 3 del cap. 4</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª non c'è.</p>
   <p><b>Testo.</b> A basso carico, ha meno ritardo ALOHA puro o slotted ALOHA? Perché?</p>
   <p><b>Soluzione.</b> <b>ALOHA puro.</b> A basso carico le collisioni sono rare in entrambi, quindi il ritardo dipende da quanto si aspetta prima di trasmettere. In ALOHA puro si trasmette subito; in slotted ALOHA bisogna aspettare l'inizio dello slot successivo, in media mezzo slot. Ad alto carico invece vince slotted ALOHA, perché le collisioni sono la metà.</p>
 </div>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 4 del cap. 4</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª non c'è.</p>
   <p><b>Testo.</b> Molti utenti di slotted ALOHA generano 50 richieste al secondo, comprese le ritrasmissioni; gli slot durano 40 ms. (a) Qual è la probabilità di successo al primo tentativo? (b) E di avere esattamente <i>k</i> collisioni prima di un successo? (c) Qual è il numero atteso di tentativi?</p>
   <p><b>Il carico.</b> In uno slot di 40 ms arrivano in media <i>G</i> = 50 × 0,04 = <b>2</b> richieste.</p>
   <ul>
@@ -8276,6 +8328,7 @@ alla fine di ogni evento:
 <h3 id="csma-esercizi" data-toc="Esercizi svolti">Esercizi svolti</h3>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 6 del cap. 4</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 6.</p>
   <p><b>Testo.</b> Quanto è lungo uno slot di contesa in CSMA/CD per (a) un doppino lungo 2 km, con il segnale all'82% della velocità della luce nel vuoto; (b) una fibra multimodale lunga 40 km, con il segnale al 65% della velocità della luce?</p>
   <p><b>Soluzione.</b> Lo slot di contesa dura 2τ, con τ = lunghezza / velocità.</p>
   <ul>
@@ -8285,6 +8338,7 @@ alla fine di ogni evento:
 </div>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 15 del cap. 4</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 17.</p>
   <p><b>Testo.</b> Una LAN CSMA/CD (non 802.3) da 10 Mbps è lunga 1 km e il segnale viaggia a 200 m/µs (la 5ª edizione scrive «200 m/ms»: sono microsecondi). Non ci sono ripetitori. I frame sono lunghi 256 bit, di cui 32 di intestazione, checksum e controllo. Il primo slot dopo una trasmissione riuscita è riservato al destinatario, che prende il canale e invia un acknowledgement di 32 bit. Senza collisioni, qual è la velocità effettiva dei dati, esclusi i bit di controllo?</p>
   <p><b>Soluzione.</b> La propagazione su 1 km vale 1000 / 200 = 5 µs; andata e ritorno 10 µs. Un frame con la sua conferma attraversa sei fasi:</p>
   <div class="catena-wrap"><div class="catena">
@@ -8524,6 +8578,7 @@ alla fine di ogni evento:
 <h3 id="sc-esercizi" data-toc="Esercizi svolti">Esercizi svolti</h3>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 7 del cap. 4</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 7.</p>
   <p><b>Testo.</b> In una LAN con il protocollo a mappa di bit, quanto deve aspettare nel caso peggiore una stazione <i>s</i> prima di poter trasmettere il suo frame?</p>
   <p><b>Soluzione.</b> Contiamo in slot di contesa, con <i>N</i> stazioni e frame di <i>d</i> slot. Il caso peggiore è quello in cui tutte le altre stazioni hanno sempre qualcosa da trasmettere.</p>
   <ul>
@@ -8533,11 +8588,13 @@ alla fine di ogni evento:
 </div>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 8 del cap. 4</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 8.</p>
   <p><b>Testo.</b> Nel binary countdown, come può una stazione con un numero basso restare bloccata indefinitamente?</p>
   <p><b>Soluzione.</b> A ogni turno vince la stazione pronta con l'indirizzo più alto. Se una stazione con un indirizzo più alto ha sempre un frame da trasmettere (è molto carica), si ripresenta a ogni turno e vince sempre: la stazione con l'indirizzo basso non vince mai e il suo frame aspetta all'infinito (<b>starvation</b>).</p>
 </div>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 9 del cap. 4</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª non c'è.</p>
   <p><b>Testo.</b> Sedici stazioni, numerate da 1 a 16, usano l'adaptive tree walk. Se diventano pronte insieme tutte le stazioni con numero primo, quanti slot servono per risolvere la contesa?</p>
   <p><b>Soluzione.</b> I primi fino a 16 sono 2, 3, 5, 7, 11, 13. Le foglie dell'albero sono le stazioni da 1 a 16, da sinistra; scendiamo dalla radice:</p>
   <ol>
@@ -8705,6 +8762,7 @@ alla fine di ogni evento:
 <h3 id="wl-esercizi" data-toc="Esercizi svolti">Esercizi svolti</h3>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 10 del cap. 4</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª non c'è.</p>
   <p><b>Testo.</b> Cinque stazioni wireless. A comunica con tutte le altre; B con A, C ed E; C con A, B e D; D con A, C ed E; E con A, D e B. (a) Mentre A trasmette a B, quali altre comunicazioni sono possibili? (b) E mentre B trasmette ad A? (c) E mentre B trasmette a C?</p>
   <p><b>La regola.</b> Un'altra trasmissione X → Y è possibile se Y non sente il mittente in corso (altrimenti collisione in Y) e se il destinatario in corso non sente X.</p>
   <ul>
@@ -8715,6 +8773,7 @@ alla fine di ogni evento:
 </div>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 11 del cap. 4</p>
+  <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 13.</p>
   <p><b>Testo.</b> Sei stazioni, da A a F, usano MACA. Possono avvenire due trasmissioni contemporaneamente?</p>
   <p><b>Soluzione.</b> Sì. Per esempio se le stazioni sono in fila e ognuna raggiunge solo le vicine: A può trasmettere a B mentre E trasmette a F. Gli RTS e i CTS di una coppia non arrivano all'altra, quindi nessuno è costretto a stare zitto, e i due destinatari non sentono il mittente dell'altra coppia.</p>
 </div>
@@ -9193,12 +9252,22 @@ alla fine di ogni evento:
       qz.append(box);
     });
   }
+  const mescolaQuiz = q => {
+    let h = 2166136261;
+    for (let i = 0; i < q.q.length; i++) h = Math.imul(h ^ q.q.charCodeAt(i), 16777619);
+    const rnd = () => { h = Math.imul(h ^ (h >>> 15), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909); h ^= h >>> 16; return (h >>> 0) / 4294967296; };
+    const fisse = /^(tutt[ie] e |entramb|nessun)/i;
+    const idx = q.o.map((_, i) => i), mobili = idx.filter(i => !fisse.test(q.o[i])), ferme = idx.filter(i => fisse.test(q.o[i]));
+    for (let i = mobili.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [mobili[i], mobili[j]] = [mobili[j], mobili[i]]; }
+    const ord = mobili.concat(ferme);
+    return Object.assign({}, q, { o: ord.map(i => q.o[i]), a: ord.indexOf(q.a) });
+  };
   $$('.quiz').forEach(qz => {
     const src = $('script[type="application/json"]', qz);
     if (!src) return;
     let data = [];
     try { data = JSON.parse(src.textContent); } catch (e) { return; }
-    renderQuiz(qz, data, qz.dataset.title || 'Quiz');
+    renderQuiz(qz, data.map(mescolaQuiz), qz.dataset.title || 'Quiz');
   });
 
   /* ---------- schemi passo per passo ---------- */
