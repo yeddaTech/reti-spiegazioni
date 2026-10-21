@@ -581,11 +581,11 @@ details.facolt[open]>summary{border-bottom:1px dashed var(--line)}
 
 /* passaggi allineati, una riga per passaggio, con note numerate */
 .catena-wrap{overflow-x:auto;max-width:44rem;padding:.2rem 0}
-.catena{display:inline-grid;grid-template-columns:max-content max-content max-content max-content;column-gap:.55em;row-gap:.4em;align-items:baseline;font-size:1.04rem;line-height:1.45}
+.catena{display:grid;grid-template-columns:max-content max-content max-content minmax(8em,1fr);column-gap:.55em;row-gap:.4em;align-items:baseline;font-size:1.04rem;line-height:1.45}
 .catena .sx{text-align:right;white-space:nowrap}
 .catena .rel{text-align:center}
 .catena .dx{white-space:nowrap}
-.catena .perche{font-family:var(--font-display);font-size:.84rem;color:var(--muted);white-space:nowrap;padding-left:.6em}
+.catena .perche{font-family:var(--font-display);font-size:.84rem;line-height:1.3;color:var(--muted);white-space:normal;padding-left:.6em}
 .rif{display:inline-flex;align-items:center;justify-content:center;min-width:1.3em;height:1.3em;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-family:var(--font-mono);font-size:.68rem;font-weight:600;vertical-align:.12em;margin-left:.25em}
 .spiega{border:1px dashed var(--line);border-radius:6px;padding:.7rem .9rem;background:var(--bg);max-width:44rem}
 .spiega>*+*{margin-top:.45rem}
@@ -736,6 +736,8 @@ pre.code .hl{background:var(--accent-soft);display:inline-block;width:100%}
 }
 .dia .lbl{paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round}
 .dia .tw{paint-order:normal}
+.dia .knee{fill:none;stroke-width:1.2;stroke-dasharray:4 4;opacity:.8}
+.dia .knee1{stroke:var(--s1)} .dia .knee2{stroke:var(--s2)}
 </style>
 </head>
 <body>
@@ -6245,28 +6247,38 @@ T = 1101011011<span class="r">1110</span></pre>
   <li><b>Il destinatario</b>, quando arriva un frame integro, controlla il numero di sequenza. Se è quello atteso lo consegna; se è un duplicato non lo consegna. In entrambi i casi manda la conferma dell'ultimo frame ricevuto correttamente. I frame danneggiati non vengono confermati: ci penserà il timer del mittente.</li>
 </ul>
 
+<h4>Anche le conferme portano un numero</h4>
+<p>Nel protocollo 3 il mittente accetta una conferma solo se <code>s.ack == next_frame_to_send</code>. Perché serve il numero anche sulle conferme? Il secondo testo lo spiega con questo caso (la sua Figura 3.5):</p>
+<ol>
+  <li>il mittente invia il frame 0, che arriva; la conferma ack 0 però è lenta, e il timer scade prima che arrivi;</li>
+  <li>il mittente rispedisce il frame 0; intanto arriva la prima ack 0, e il mittente passa al frame 1;</li>
+  <li>il destinatario scarta la copia del frame 0 e la riconferma con una seconda ack 0, che arriva mentre il mittente aspetta la conferma del frame 1.</li>
+</ol>
+<p>Con il numero, il mittente vede che è una conferma del frame 0 e la ignora. Senza numero la prenderebbe per la conferma del frame 1 e lo toglierebbe dal buffer: se il frame 1 si fosse perso, sarebbe perso <b>per sempre</b>. Quindi, quando il timer può scadere prima che la conferma torni (e succede, perché l'elaborazione nel destinatario non ha una durata fissa), anche le conferme vanno numerate, con lo stesso bit.</p>
+
 <h4>Quanto deve durare il timer</h4>
 <p>L'intervallo deve bastare perché il frame arrivi, venga elaborato (nel caso peggiore) e la conferma torni indietro. Solo dopo questo tempo è ragionevole pensare che il frame o la sua conferma si siano persi.</p>
 <ul>
   <li><b>Timer troppo corto</b>: il mittente rispedisce frame che erano arrivati benissimo. I duplicati vengono riconosciuti grazie al numero di sequenza, quindi il protocollo resta <b>corretto</b>, ma spreca banda: peggiorano le <b>prestazioni</b>.</li>
   <li><b>Timer troppo lungo</b>: dopo una perdita il mittente resta fermo inutilmente prima di ritrasmettere.</li>
 </ul>
-<p>Nel simulatore qui sotto, con un ritardo di propagazione di 2 tempi di frame, il ciclo completo dura 1 (trasmissione) + 2 (andata) + 0,25 (ack) + 2 (ritorno) = 5,25 tempi di frame: con un timer di 4 vedi le ritrasmissioni inutili.</p>
+<p>In formule: se il timer parte quando il frame è stato trasmesso tutto, deve valere <i>T</i><sub>o</sub> ≥ <i>T</i><sub>ack</sub> + 2<i>T</i><sub>el</sub> + 2<i>T<sub>p</sub></i>, dove <i>T</i><sub>ack</sub> è il tempo per trasmettere la conferma e <i>T</i><sub>el</sub> il tempo di elaborazione; senza conferma ed elaborazione, <i>T</i><sub>o</sub> ≥ 2<i>T<sub>p</sub></i>. Il conto completo, con gli errori, è nell'argomento <a href="#eff-errori">«Efficienza del data link»</a>.</p>
+<p>Nel simulatore qui sotto, con un ritardo di propagazione di 2 tempi di frame, il ciclo completo dura 1 (trasmissione) + 2 (andata) + 0,25 (ack) + 2 (ritorno) = 5,25 tempi di frame. Il timer parte quando il frame è stato trasmesso tutto, quindi deve durare almeno 2 + 0,25 + 2 = 4,25 tempi di frame: con un timer di 3 vedi le ritrasmissioni inutili.</p>
 
 <div class="widget arq" data-proto="sw" data-n="4" aria-labelledby="sw-t">
   <div class="widget-head"><p class="widget-title" id="sw-t">Simulatore · stop-and-wait (protocollo 3)</p></div>
   <p class="w-hint">Scegli uno scenario, oppure tocca direttamente un frame o un ack nel diagramma per farlo perdere. Un frame toccato una seconda volta arriva danneggiato (checksum sbagliato); la terza volta torna normale.</p>
   <div class="seg-ctrl" role="group" aria-label="Scenari">
-    <button class="btn small" type="button" data-arq-preset='{"tp":2,"to":6,"seq":1}'>Tutto bene</button>
-    <button class="btn small" type="button" data-arq-preset='{"tp":2,"to":6,"seq":1,"lost":["d1.1"]}'>Frame perso</button>
-    <button class="btn small" type="button" data-arq-preset='{"tp":2,"to":6,"seq":1,"dmg":["d1.1"]}'>Frame danneggiato</button>
-    <button class="btn small" type="button" data-arq-preset='{"tp":2,"to":6,"seq":1,"lost":["a1.1"]}'>Ack perso</button>
-    <button class="btn small" type="button" data-arq-preset='{"tp":2,"to":4,"seq":1}'>Timer troppo corto</button>
-    <button class="btn small" type="button" data-arq-preset='{"tp":2,"to":6,"seq":0,"lost":["a0.2"]}'>Senza numeri di sequenza</button>
+    <button class="btn small" type="button" data-arq-preset='{"tp":2,"to":5,"seq":1}'>Tutto bene</button>
+    <button class="btn small" type="button" data-arq-preset='{"tp":2,"to":5,"seq":1,"lost":["d1.1"]}'>Frame perso</button>
+    <button class="btn small" type="button" data-arq-preset='{"tp":2,"to":5,"seq":1,"dmg":["d1.1"]}'>Frame danneggiato</button>
+    <button class="btn small" type="button" data-arq-preset='{"tp":2,"to":5,"seq":1,"lost":["a1.1"]}'>Ack perso</button>
+    <button class="btn small" type="button" data-arq-preset='{"tp":2,"to":3,"seq":1}'>Timer troppo corto</button>
+    <button class="btn small" type="button" data-arq-preset='{"tp":2,"to":5,"seq":0,"lost":["a0.2"]}'>Senza numeri di sequenza</button>
   </div>
   <div class="w-grid">
     <label class="field" for="sw-tp"><span>Propagazione: <output data-for="arq-tp">2</output> tempi di frame</span><input id="sw-tp" type="range" class="arq-tp" min="0.5" max="4" step="0.5" value="2"></label>
-    <label class="field" for="sw-to"><span>Timer: <output data-for="arq-to">6</output> tempi di frame</span><input id="sw-to" type="range" class="arq-to" min="2" max="12" step="0.5" value="6"></label>
+    <label class="field" for="sw-to"><span>Timer: <output data-for="arq-to">5</output> tempi di frame</span><input id="sw-to" type="range" class="arq-to" min="1" max="12" step="0.25" value="5"></label>
     <label class="check" for="sw-seq"><input id="sw-seq" type="checkbox" class="arq-seq" checked> Numeri di sequenza</label>
   </div>
   <div class="stepper-ctrl" style="margin:.5rem 0">
@@ -6353,6 +6365,7 @@ T = 1101011011<span class="r">1110</span></pre>
   <h2>Efficienza del data link</h2>
   <div class="topic-meta">
     <span class="chip pdf">5ª ed.: <b>inizio del §3.4</b> e prima parte di <b>«Un protocollo che usa go-back-n»</b></span>
+    <span class="chip pdf">secondo testo: <b>§3.1</b> e <b>inizio del §3.2</b></span>
     <button class="btn small studied-btn" type="button" data-topic="efficienza" aria-pressed="false">Segna come studiato</button>
   </div>
 </header>
@@ -6366,6 +6379,7 @@ T = 1101011011<span class="r">1110</span></pre>
     <li>Con lo stop-and-wait il mittente lavora per <i>T<sub>x</sub></i> e poi aspetta la conferma per 2<i>T<sub>p</sub></i>: l'<b>utilizzazione</b> del collegamento è <b><i>U</i> = <i>T<sub>x</sub></i> / (<i>T<sub>x</sub></i> + 2<i>T<sub>p</sub></i>)</b>. Su un satellite a 50 kbps con frame da 1000 bit vale circa il 4%.</li>
     <li>Il <b>prodotto banda-ritardo</b> <i>BD</i> dice quanti frame «stanno» nel collegamento in una direzione: <i>BD</i> = <i>R</i>·<i>T<sub>p</sub></i>/<i>L</i> = <i>T<sub>p</sub></i>/<i>T<sub>x</sub></i>.</li>
     <li>La soluzione è il <b>pipelining</b>: lasciare in volo fino a <i>w</i> frame senza conferma. Con <b><i>w</i> ≥ 2<i>BD</i> + 1</b> il mittente non si ferma mai; altrimenti <b><i>U</i> ≤ <i>w</i>/(1 + 2<i>BD</i>)</b>.</li>
+    <li>Con gli errori ogni frame va trasmesso in media <b><i>N</i><sub>s</sub> = 1/(1 − <i>P</i>)</b> volte, dove <i>P</i> è la probabilità che un tentativo fallisca; lo stop-and-wait scende a <b>(1 − <i>P</i>)/(1 + 2<i>a</i>)</b>.</li>
     <li>Per usare bene anche il canale di ritorno, i dati viaggiano nelle due direzioni sullo stesso collegamento e le conferme salgono «in groppa» ai frame di dati: è il <b>piggybacking</b>.</li>
   </ul>
 </div>
@@ -6373,6 +6387,36 @@ T = 1101011011<span class="r">1110</span></pre>
 <div class="box upd">
   <p class="box-label">Dove si trova</p>
   <p>Nella 6ª edizione questi temi aprono il §3.4, dedicato a migliorare l'efficienza (trasmissione bidirezionale e più frame in volo). Nella 5ª edizione sono sparsi: il piggybacking all'inizio del §3.4, il calcolo dell'utilizzazione e del prodotto banda-ritardo all'inizio del paragrafo sul protocollo go-back-n. Negli esercizi d'esame si usano spesso i simboli <i>T<sub>x</sub></i>, <i>T<sub>p</sub></i> e <i>U</i>: li usiamo anche qui.</p>
+  <p>Il secondo libro di testo del programma fa gli stessi conti, con più dettagli, nel §3.1 (stop and wait) e all'inizio del §3.2 (protocolli «continuous ARQ»), ma con <b>altri simboli</b>. Prima di andare avanti guarda il dizionario qui sotto.</p>
+</div>
+
+<div class="box warn" id="eff-simboli">
+  <p class="box-label">Dizionario dei simboli · due notazioni per le stesse cose</p>
+  <p>Le formule sono le stesse nei due libri: cambiano solo i nomi. Tieni la tabella a portata di mano quando leggi un esercizio.</p>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Che cosa indica</th><th>In queste pagine</th><th>Nel secondo testo</th></tr></thead>
+      <tbody>
+        <tr><td>Il blocco di dati che si trasmette</td><td>frame</td><td>UI, «unità informativa»</td></tr>
+        <tr><td>Velocità della linea (bit/s)</td><td><i>R</i></td><td><i>C</i>, «capacità» o «frequenza di cifra»</td></tr>
+        <tr><td>Lunghezza del frame e della conferma (bit)</td><td><i>L</i> e <i>L</i><sub>ack</sub></td><td><i>L</i><sub>u</sub> e <i>L</i><sub>a</sub></td></tr>
+        <tr><td>Tempo di trasmissione del frame</td><td><i>T<sub>x</sub></i> = <i>L</i>/<i>R</i></td><td><i>T</i><sub>u</sub> = <i>L</i><sub>u</sub>/<i>C</i></td></tr>
+        <tr><td>Tempo di trasmissione della conferma</td><td><i>T</i><sub>ack</sub> = <i>L</i><sub>ack</sub>/<i>R</i></td><td><i>T</i><sub>a</sub> = <i>L</i><sub>a</sub>/<i>C</i></td></tr>
+        <tr><td><b>Tempo di propagazione</b></td><td><b><i>T<sub>p</sub></i> = <i>d</i>/<i>v</i></b></td><td><b><i>τ</i> = <i>d</i>/<i>v</i></b> (si legge «tau»)</td></tr>
+        <tr><td><b>Tempo di elaborazione</b> di un frame o di una conferma</td><td><i>T</i><sub>el</sub></td><td><b><i>T</i><sub>p</sub></b></td></tr>
+        <tr><td>Propagazione misurata in tempi di frame</td><td><i>a</i> = <i>BD</i> = <i>T<sub>p</sub></i>/<i>T<sub>x</sub></i></td><td><i>a</i> = <i>τ</i>/<i>T</i><sub>u</sub>, «tempo di propagazione normalizzato»</td></tr>
+        <tr><td>Frazione del tempo in cui la linea porta dati utili</td><td>utilizzazione <i>U</i></td><td>efficienza <i>η</i> (si legge «eta»)</td></tr>
+        <tr><td>Bit utili al secondo</td><td><i>U</i> · <i>R</i></td><td>throughput <i>THR</i> = <i>η</i> · <i>C</i></td></tr>
+        <tr><td>Finestra di invio e di ricezione</td><td><i>W</i> (o <i>w</i>) e finestra di ricezione</td><td><i>W</i><sub>s</sub> e <i>W</i><sub>r</sub></td></tr>
+        <tr><td>Bit del numero di sequenza; quanti numeri ci sono</td><td><i>n</i> bit; numeri da 0 a <code>MAX_SEQ</code> = 2<sup><i>n</i></sup> − 1</td><td><i>b</i> bit; numerazione «modulo <i>N</i>», con <i>N</i> = 2<sup><i>b</i></sup></td></tr>
+        <tr><td>Bordo inferiore della finestra di invio e di ricezione</td><td><code>ack_expected</code> e <code>frame_expected</code></td><td><i>L</i><sub>s</sub> e <i>L</i><sub>r</sub></td></tr>
+        <tr><td>Durata del timer</td><td>timer, <i>T</i><sub>o</sub></td><td>time-out, <i>T</i><sub>o</sub></td></tr>
+        <tr><td>Conferma negativa</td><td>NAK</td><td>NACK</td></tr>
+        <tr><td>Probabilità di errore</td><td colspan="2"><i>p</i> su un bit, <i>P</i> su un frame intero: stessi simboli</td></tr>
+      </tbody>
+      <caption>La trappola è <i>T</i><sub>p</sub>: qui, come negli esercizi costruiti sul Tanenbaum, è la <b>propagazione</b>; nel secondo testo è il tempo di <b>elaborazione</b>, e la propagazione si chiama <i>τ</i>. All'esame usa i simboli del testo dell'esercizio; se ne usi altri, scrivi in una riga che cosa indicano.</caption>
+    </table>
+  </div>
 </div>
 
 <h3 id="eff-tempi" data-toc="Due tempi da non confondere">Due tempi da non confondere</h3>
@@ -6462,6 +6506,115 @@ T = 1101011011<span class="r">1110</span></pre>
   <p>Il tempo <i>T<sub>x</sub></i> + 2<i>T<sub>p</sub></i> è la durata del ciclo dello stop-and-wait. Alcuni testi lo chiamano <b>RTT</b> (<i>round-trip time</i>), altri chiamano RTT solo 2<i>T<sub>p</sub></i>, il viaggio di andata e ritorno di un bit. Negli esercizi controlla sempre che cosa intende il testo; le formule con <i>T<sub>x</sub></i> e <i>T<sub>p</sub></i> non hanno ambiguità.</p>
 </div>
 
+<h4>La formula completa: conferme ed elaborazione</h4>
+<p>Finora abbiamo trascurato due tempi, che il secondo testo invece considera: la <b>trasmissione della conferma</b>, <i>T</i><sub>ack</sub> = <i>L</i><sub>ack</sub>/<i>R</i>, e il <b>tempo di elaborazione</b> <i>T</i><sub>el</sub>, che serve a ogni stazione per controllare un frame o una conferma appena arrivati. Il ciclo diventa:</p>
+<ol>
+  <li><b>t = 0</b>: il mittente comincia a trasmettere il frame; finisce a <i>T<sub>x</sub></i>.</li>
+  <li>L'ultimo bit arriva dopo altri <i>T<sub>p</sub></i>; il destinatario controlla il frame per <i>T</i><sub>el</sub>.</li>
+  <li>Il destinatario trasmette la conferma, per <i>T</i><sub>ack</sub>; l'ultimo bit della conferma arriva al mittente dopo altri <i>T<sub>p</sub></i>.</li>
+  <li>Il mittente controlla la conferma per <i>T</i><sub>el</sub>, e solo ora può cominciare il frame successivo.</li>
+</ol>
+<div class="catena-wrap"><div class="catena">
+  <span class="sx"><i>T</i><sub>1</sub></span><span class="rel">=</span><span class="dx"><i>T<sub>x</sub></i> + <i>T</i><sub>ack</sub> + 2<i>T</i><sub>el</sub> + 2<i>T<sub>p</sub></i></span><span class="perche">durata di un ciclo: la somma dei quattro passi</span>
+  <span class="sx"><i>U</i></span><span class="rel">=</span><span class="dx"><i>T<sub>x</sub></i> / <i>T</i><sub>1</sub></span><span class="perche">tempo in cui trasmette / durata del ciclo</span>
+  <span class="sx"></span><span class="rel">≈</span><span class="dx"><i>T<sub>x</sub></i> / (<i>T<sub>x</sub></i> + 2<i>T<sub>p</sub></i>) = 1 / (1 + 2<i>a</i>)</span><span class="perche">se <i>T</i><sub>ack</sub> e <i>T</i><sub>el</sub> sono trascurabili <span class="rif">1</span></span>
+  <span class="sx"><i>T</i><sub>tot</sub></span><span class="rel">=</span><span class="dx"><i>N</i> · <i>T</i><sub>1</sub></span><span class="perche">tempo per spedire <i>N</i> frame uguali <span class="rif">2</span></span>
+</div></div>
+<div class="spiega">
+  <p class="spiega-tit">Note</p>
+  <p><span class="rif">1</span>È la formula di prima: di solito le conferme sono cortissime e l'elaborazione è rapidissima. Negli esercizi tieni questi tempi solo se il testo ti dà <i>L</i><sub>ack</sub> o <i>T</i><sub>el</sub>.</p>
+  <p><span class="rif">2</span><i>T</i><sub>tot</sub> va dall'inizio del primo frame alla fine dell'elaborazione dell'ultima conferma. Il <b>throughput</b>, i bit utili al secondo, è <i>U</i> · <i>R</i>. Se i frame non sono tutti uguali, <i>U</i> si calcola come (tempo per trasmettere i soli dati) / <i>T</i><sub>tot</sub>.</p>
+</div>
+<div class="box calc">
+  <p class="box-label">Esempio svolto · frame di lunghezze diverse (dal secondo testo)</p>
+  <p><b>Testo.</b> Due stazioni a <b>100 km</b> di distanza, segnale a 200 000 km/s, linea da <b>2048 kbit/s</b>. Stop-and-wait con conferme da <b>40 byte</b>, frame lunghi al massimo <b>1540 byte</b> e <b>10 µs</b> di elaborazione per ogni frame o conferma. Quanto tempo serve per spedire <b>5260 byte</b> di dati? Quanto valgono utilizzazione e throughput?</p>
+  <p><b>Quanti frame.</b> 5260 = 3 · 1540 + 640: tre frame pieni da 1540 byte e un ultimo frame da 640 byte.</p>
+  <div class="catena-wrap"><div class="catena">
+    <span class="sx"><i>T<sub>p</sub></i></span><span class="rel">=</span><span class="dx">100 km / (200 000 km/s) = 0,5 ms</span><span class="perche"><i>d</i>/<i>v</i></span>
+    <span class="sx"><i>T<sub>x</sub></i> frame pieno</span><span class="rel">=</span><span class="dx">1540 · 8 / (2048 · 10<sup>3</sup>) s ≈ 6,016 ms</span><span class="perche"><i>L</i>/<i>R</i></span>
+    <span class="sx"><i>T<sub>x</sub></i> ultimo frame</span><span class="rel">=</span><span class="dx">640 · 8 / (2048 · 10<sup>3</sup>) s = 2,5 ms</span><span class="perche"><i>L</i>/<i>R</i></span>
+    <span class="sx"><i>T</i><sub>ack</sub></span><span class="rel">=</span><span class="dx">40 · 8 / (2048 · 10<sup>3</sup>) s ≈ 0,156 ms</span><span class="perche"><i>L</i><sub>ack</sub>/<i>R</i></span>
+    <span class="sx"><i>T</i><sub>tot</sub></span><span class="rel">=</span><span class="dx">3 · (6,016 + 0,156 + 0,02 + 1) + (2,5 + 0,156 + 0,02 + 1)</span><span class="perche">un ciclo per frame; 2<i>T</i><sub>el</sub> = 0,02 ms e 2<i>T<sub>p</sub></i> = 1 ms</span>
+    <span class="sx"></span><span class="rel">=</span><span class="dx">3 · 7,192 + 3,676 ≈ 25,25 ms</span><span class="perche">faccio i conti</span>
+    <span class="sx"><i>U</i></span><span class="rel">=</span><span class="dx">(5260 · 8 / 2 048 000 s) / 25,25 ms = 20,55 / 25,25 ≈ 0,81</span><span class="perche">tempo per i soli dati / tempo totale</span>
+    <span class="sx">throughput</span><span class="rel">=</span><span class="dx">0,81 · 2048 kbit/s ≈ 1,66 Mbit/s</span><span class="perche"><i>U</i> · <i>R</i></span>
+  </div></div>
+  <p>Il collegamento è corto (<i>a</i> = 0,5/6 ≈ 0,08), quindi lo stop-and-wait rende bene. Il testo arrotonda <i>T<sub>x</sub></i> a 6 ms e trova 25,2 ms: la differenza è solo di arrotondamento.</p>
+</div>
+
+<h3 id="eff-errori" data-toc="Stop-and-wait con gli errori">Lo stop-and-wait quando ci sono errori</h3>
+<p class="in-questa"><b>In questa sezione:</b> quante volte, in media, si trasmette un frame se la linea sbaglia qualche bit, quanto scende l'utilizzazione e quanto deve durare il timer. Gli stessi conti servono per il Go-Back-N e il Selective Repeat.</p>
+<p>Finora la linea era perfetta. Ora ogni bit può arrivare sbagliato. I protocolli ARQ <b>rilevano</b> gli errori ma non li correggono: il frame sbagliato viene scartato, la conferma non parte, scade il timer e il mittente ritrasmette. Lo stesso succede se a sbagliarsi è la conferma. Due ipotesi: ogni bit sbaglia con probabilità <i>p</i>, e gli errori sui bit sono <b>indipendenti</b> tra loro.</p>
+<div class="box def">
+  <p class="box-label">Definizioni</p>
+  <p><span class="def-term"><i>p</i></span>: probabilità che un singolo bit arrivi sbagliato.</p>
+  <p><span class="def-term"><i>P</i></span>: probabilità che un tentativo fallisca, cioè che arrivi sbagliato almeno un bit del frame <b>o</b> della sua conferma.</p>
+  <p><span class="def-term"><i>N</i><sub>s</sub></span>: numero medio di trasmissioni di un frame, contando anche l'ultima, quella che riesce.</p>
+</div>
+<h4>Quanto vale <i>P</i></h4>
+<div class="catena-wrap"><div class="catena">
+  <span class="sx">Pr[un bit arriva giusto]</span><span class="rel">=</span><span class="dx">1 − <i>p</i></span><span class="perche">evento contrario</span>
+  <span class="sx">Pr[tutti gli <i>L</i> + <i>L</i><sub>ack</sub> bit giusti]</span><span class="rel">=</span><span class="dx">(1 − <i>p</i>)<sup><i>L</i> + <i>L</i><sub>ack</sub></sup></span><span class="perche">bit indipendenti: le probabilità si moltiplicano</span>
+  <span class="sx"><i>P</i></span><span class="rel">=</span><span class="dx">1 − (1 − <i>p</i>)<sup><i>L</i> + <i>L</i><sub>ack</sub></sup></span><span class="perche">il tentativo fallisce se non sono tutti giusti</span>
+</div></div>
+<div class="box tool">
+  <p class="box-label">Attrezzo matematico · (1 − <i>p</i>)<sup><i>n</i></sup> con <i>p</i> piccolo</p>
+  <p>Quando <i>p</i> è piccolo vale (1 − <i>p</i>)<sup><i>n</i></sup> ≈ e<sup>−<i>np</i></sup>. Esempio: con <i>p</i> = 10<sup>−4</sup> e <i>n</i> = 12 640 bit, (1 − 10<sup>−4</sup>)<sup>12 640</sup> ≈ e<sup>−1,264</sup> ≈ 0,28. Se anche <i>np</i> è piccolo, e<sup>−<i>np</i></sup> ≈ 1 − <i>np</i>, e quindi <i>P</i> ≈ <i>np</i>: con 256 bit e <i>p</i> = 10<sup>−6</sup>, <i>P</i> ≈ 0,000256.</p>
+</div>
+<h4>Quante trasmissioni servono in media</h4>
+<p>Il frame passa proprio al tentativo numero <i>i</i> se i primi <i>i</i> − 1 tentativi falliscono e l'<i>i</i>-esimo no: succede con probabilità <i>P</i><sup><i>i</i>−1</sup>(1 − <i>P</i>). La media si ottiene sommando ogni valore moltiplicato per la sua probabilità:</p>
+<div class="catena-wrap"><div class="catena">
+  <span class="sx"><i>N</i><sub>s</sub></span><span class="rel">=</span><span class="dx">Σ<sub><i>i</i> ≥ 1</sub> <i>i</i> · <i>P</i><sup><i>i</i>−1</sup>(1 − <i>P</i>)</span><span class="perche">definizione di media</span>
+  <span class="sx"></span><span class="rel">=</span><span class="dx">(1 − <i>P</i>) · Σ<sub><i>i</i> ≥ 1</sub> <i>i</i> · <i>P</i><sup><i>i</i>−1</sup></span><span class="perche">1 − <i>P</i> non dipende da <i>i</i></span>
+  <span class="sx"></span><span class="rel">=</span><span class="dx">(1 − <i>P</i>) · 1 / (1 − <i>P</i>)<sup>2</sup></span><span class="perche">seconda serie dell'attrezzo qui sotto, con <i>x</i> = <i>P</i></span>
+  <span class="sx"></span><span class="rel">=</span><span class="dx">1 / (1 − <i>P</i>)</span><span class="perche">semplifico un fattore 1 − <i>P</i></span>
+</div></div>
+<div class="box tool">
+  <p class="box-label">Attrezzo matematico · la serie geometrica e la sua derivata</p>
+  <p>Per 0 ≤ <i>x</i> &lt; 1 vale 1 + <i>x</i> + <i>x</i><sup>2</sup> + … = Σ<sub><i>i</i> ≥ 0</sub> <i>x</i><sup><i>i</i></sup> = 1/(1 − <i>x</i>). Derivando i due lati rispetto a <i>x</i> si ottiene 1 + 2<i>x</i> + 3<i>x</i><sup>2</sup> + … = Σ<sub><i>i</i> ≥ 1</sub> <i>i</i> <i>x</i><sup><i>i</i>−1</sup> = 1/(1 − <i>x</i>)<sup>2</sup>. Moltiplicando per <i>x</i>: Σ<sub><i>i</i> ≥ 0</sub> <i>i</i> <i>x</i><sup><i>i</i></sup> = <i>x</i>/(1 − <i>x</i>)<sup>2</sup>, che servirà nel <a href="#gbn-eff">Go-Back-N</a>.</p>
+</div>
+<p>Il risultato è intuitivo: se fallisce un tentativo su quattro (<i>P</i> = 0,25), servono in media 1/0,75 ≈ 1,33 trasmissioni. È lo stesso conto del problema 15 del <a href="#prot-connessioni">§1.5</a>.</p>
+<h4>Tempo e utilizzazione</h4>
+<p>Ognuno degli <i>N</i><sub>s</sub> − 1 tentativi falliti costa <i>T<sub>x</sub></i> (la trasmissione) più <i>T</i><sub>o</sub> (l'attesa del timer, che parte quando la trasmissione è finita). L'ultimo tentativo, quello buono, costa un ciclo intero <i>T</i><sub>1</sub>:</p>
+<div class="catena-wrap"><div class="catena">
+  <span class="sx"><i>T</i><sub>tot</sub></span><span class="rel">=</span><span class="dx">(<i>N</i><sub>s</sub> − 1)(<i>T<sub>x</sub></i> + <i>T</i><sub>o</sub>) + <i>T<sub>x</sub></i> + <i>T</i><sub>ack</sub> + 2<i>T</i><sub>el</sub> + 2<i>T<sub>p</sub></i></span><span class="perche">tempo medio per far arrivare un frame</span>
+  <span class="sx"><i>U</i></span><span class="rel">=</span><span class="dx"><i>T<sub>x</sub></i> / <i>T</i><sub>tot</sub></span><span class="perche">solo un <i>T<sub>x</sub></i> è utile</span>
+  <span class="sx"></span><span class="rel">=</span><span class="dx"><i>T<sub>x</sub></i>(1 − <i>P</i>) / [<i>T<sub>x</sub></i> + <i>T</i><sub>o</sub><i>P</i> + (<i>T</i><sub>ack</sub> + 2<i>T</i><sub>el</sub> + 2<i>T<sub>p</sub></i>)(1 − <i>P</i>)]</span><span class="perche">moltiplico sopra e sotto per 1 − <i>P</i> <span class="rif">1</span></span>
+</div></div>
+<p>Il timer non può scadere prima che la conferma abbia avuto il tempo di tornare. Contando dalla fine della trasmissione, deve valere <b><i>T</i><sub>o</sub> ≥ <i>T</i><sub>ack</sub> + 2<i>T</i><sub>el</sub> + 2<i>T<sub>p</sub></i></b>, che senza conferma ed elaborazione diventa <i>T</i><sub>o</sub> ≥ 2<i>T<sub>p</sub></i>. Con il timer più corto possibile l'utilizzazione è la massima:</p>
+<div class="catena-wrap"><div class="catena">
+  <span class="sx"><i>U</i><sub>max</sub></span><span class="rel">=</span><span class="dx"><i>T<sub>x</sub></i>(1 − <i>P</i>) / (<i>T<sub>x</sub></i> + <i>T</i><sub>ack</sub> + 2<i>T</i><sub>el</sub> + 2<i>T<sub>p</sub></i>)</span><span class="perche">sostituisco <i>T</i><sub>o</sub> = <i>T</i><sub>ack</sub> + 2<i>T</i><sub>el</sub> + 2<i>T<sub>p</sub></i> <span class="rif">2</span></span>
+  <span class="sx"></span><span class="rel">≈</span><span class="dx">(1 − <i>P</i>) / (1 + 2<i>a</i>)</span><span class="perche">con <i>T</i><sub>ack</sub> = <i>T</i><sub>el</sub> = 0, divido per <i>T<sub>x</sub></i></span>
+</div></div>
+<div class="spiega">
+  <p class="spiega-tit">Note</p>
+  <p><span class="rif">1</span>Siccome <i>N</i><sub>s</sub>(1 − <i>P</i>) = 1, vale (<i>N</i><sub>s</sub> − 1)(1 − <i>P</i>) = 1 − (1 − <i>P</i>) = <i>P</i>. Quindi <i>T</i><sub>tot</sub>(1 − <i>P</i>) = <i>P</i>(<i>T<sub>x</sub></i> + <i>T</i><sub>o</sub>) + (1 − <i>P</i>)(<i>T<sub>x</sub></i> + <i>T</i><sub>ack</sub> + 2<i>T</i><sub>el</sub> + 2<i>T<sub>p</sub></i>), e i due termini con <i>T<sub>x</sub></i> si sommano: <i>P</i><i>T<sub>x</sub></i> + (1 − <i>P</i>)<i>T<sub>x</sub></i> = <i>T<sub>x</sub></i>.</p>
+  <p><span class="rif">2</span>Con questo timer un tentativo fallito costa quanto uno riuscito, un ciclo intero: ogni frame utile costa <i>N</i><sub>s</sub> cicli, cioè l'utilizzazione senza errori viene divisa per <i>N</i><sub>s</sub> (moltiplicata per 1 − <i>P</i>). In pratica l'elaborazione non dura sempre uguale: dipende da quanto è carico il destinatario, e un timer troppo stretto causa ritrasmissioni inutili.</p>
+</div>
+<div class="box calc">
+  <p class="box-label">Esempio svolto · lo stesso collegamento con gli errori (dal secondo testo)</p>
+  <p><b>Testo.</b> Il collegamento dell'esempio dei 5260 byte («La formula completa», qui sopra) ora sbaglia un bit con probabilità <i>p</i> = 10<sup>−4</sup>, e il timer dura <i>T</i><sub>o</sub> = 100 ms. Quanto tempo serve ora? Quanto valgono utilizzazione e throughput?</p>
+  <p><b>Frame pieni</b>: 1540 byte di dati più 40 di conferma, cioè 1580 · 8 = 12 640 bit.</p>
+  <div class="catena-wrap"><div class="catena">
+    <span class="sx"><i>P</i></span><span class="rel">=</span><span class="dx">1 − (1 − 10<sup>−4</sup>)<sup>12 640</sup> ≈ 1 − 0,2825 = 0,7175</span><span class="perche">quasi tre tentativi su quattro falliscono</span>
+    <span class="sx"><i>N</i><sub>s</sub></span><span class="rel">=</span><span class="dx">1 / 0,2825 ≈ 3,54</span><span class="perche">1/(1 − <i>P</i>)</span>
+    <span class="sx">un frame pieno</span><span class="rel">=</span><span class="dx">2,54 · (6,016 + 100) + 7,192 ≈ 276,4 ms</span><span class="perche">(<i>N</i><sub>s</sub> − 1)(<i>T<sub>x</sub></i> + <i>T</i><sub>o</sub>) + ciclo intero</span>
+  </div></div>
+  <p><b>Ultimo frame</b>: 640 + 40 byte, cioè 5440 bit.</p>
+  <div class="catena-wrap"><div class="catena">
+    <span class="sx"><i>P</i></span><span class="rel">=</span><span class="dx">1 − (1 − 10<sup>−4</sup>)<sup>5440</sup> ≈ 1 − 0,5804 = 0,4196</span><span class="perche">frame più corto, meno errori</span>
+    <span class="sx"><i>N</i><sub>s</sub></span><span class="rel">=</span><span class="dx">1 / 0,5804 ≈ 1,72</span><span class="perche">1/(1 − <i>P</i>)</span>
+    <span class="sx">ultimo frame</span><span class="rel">=</span><span class="dx">0,72 · (2,5 + 100) + 3,676 ≈ 77,8 ms</span><span class="perche">stesso schema</span>
+  </div></div>
+  <div class="catena-wrap"><div class="catena">
+    <span class="sx"><i>T</i><sub>tot</sub></span><span class="rel">=</span><span class="dx">3 · 276,4 + 77,8 ≈ 907 ms</span><span class="perche">contro 25,25 ms senza errori</span>
+    <span class="sx"><i>U</i></span><span class="rel">=</span><span class="dx">20,55 / 907 ≈ 0,023</span><span class="perche">poco più del 2%</span>
+    <span class="sx">throughput</span><span class="rel">=</span><span class="dx">0,023 · 2048 kbit/s ≈ 46 kbit/s</span><span class="perche"><i>U</i> · <i>R</i></span>
+  </div></div>
+  <p>Gli errori pesano per due motivi: con <i>p</i> = 10<sup>−4</sup> un frame da 1540 byte fallisce quasi sempre, e ogni fallimento costa un timer da 100 ms, sedici volte la durata del frame.</p>
+  <p class="muted">Se trovi <i>T</i><sub>tot</sub> = 329,2 ms (utilizzazione 0,062, throughput 127 kbit/s), è il risultato che si ottiene usando per tutti e quattro i frame il valore <i>N</i><sub>s</sub> = 1,72 del frame corto. Ma i frame pieni hanno più bit e quindi falliscono più spesso: il conto giusto dà circa 907 ms.</p>
+</div>
+
 <h3 id="eff-bd" data-toc="Il prodotto banda-ritardo">Il prodotto banda-ritardo</h3>
 <p class="in-questa"><b>In questa sezione:</b> quanti bit, e quanti frame, «stanno» nel collegamento mentre viaggiano.</p>
 <p>Pensa al collegamento come a un tubo. Mentre il primo bit viaggia verso il destinatario, il mittente continua a immetterne altri: quando il primo bit arriva, nel tubo ci sono tutti i bit trasmessi nel frattempo, cioè quelli di un tempo <i>T<sub>p</sub></i> alla velocità <i>R</i>.</p>
@@ -6511,6 +6664,44 @@ T = 1101011011<span class="r">1110</span></pre>
   <span class="fx"><span class="ft"><i>U</i> = <i>w</i> / (1 + 2<i>BD</i>) &nbsp;se <i>w</i> &lt; 1 + 2<i>BD</i>; &nbsp;&nbsp;<i>U</i> = 1 &nbsp;se <i>w</i> ≥ 1 + 2<i>BD</i></span></span>
 </div>
 <p>È un <b>limite superiore</b> (il libro scrive «utilizzazione ≤ <i>w</i>/(1 + 2<i>BD</i>)»): non tiene conto del tempo di elaborazione e tratta le conferme come se avessero lunghezza zero. Con <i>w</i> = 1 ritrovi la formula dello stop-and-wait. La formula mostra anche quando serve una finestra grande: se il ritardo è grande (satellite) la finestra si riempie presto anche con poca banda; se la banda è grande la finestra si riempie presto anche con poco ritardo.</p>
+
+<h4>Il tempo totale con la trasmissione continua</h4>
+<p>Il secondo testo chiama i protocolli con più frame in volo <b>continuous ARQ</b>, «ARQ a trasmissione continua». Se la finestra basta e non ci sono errori, il mittente trasmette gli <i>N</i> frame uno dopo l'altro, e la propagazione e la conferma pesano <b>una volta sola</b>, sull'ultimo frame:</p>
+<div class="formula" role="math" aria-label="T tot uguale a N per T x più T ack più 2 T p">
+  <span class="fx"><span class="ft"><i>T</i><sub>tot</sub> = <i>N</i> · <i>T<sub>x</sub></i> + <i>T</i><sub>ack</sub> + 2<i>T<sub>p</sub></i></span></span><span class="ftag">contro <i>N</i> · (<i>T<sub>x</sub></i> + <i>T</i><sub>ack</sub> + 2<i>T<sub>p</sub></i>) dello stop-and-wait</span>
+</div>
+<p>Con la conferma non trascurabile, la condizione per non fermarsi mai si scrive <b><i>W</i> · <i>T<sub>x</sub></i> ≥ <i>T<sub>x</sub></i> + <i>T</i><sub>ack</sub> + 2<i>T<sub>p</sub></i></b>: il tempo per trasmettere un'intera finestra deve coprire l'attesa della prima conferma. Con <i>T</i><sub>ack</sub> = 0 si ritrova <i>W</i> ≥ 1 + 2<i>a</i>.</p>
+<div class="box calc">
+  <p class="box-label">Esempio svolto · i 5260 byte con la trasmissione continua (dal secondo testo)</p>
+  <p>Riprendiamo l'esempio dei 5260 byte della sezione <a href="#eff-sw">«Quanto lavora lo stop-and-wait»</a>, senza errori ma con una finestra abbastanza grande. I tre frame pieni partono uno dopo l'altro, poi l'ultimo; solo per l'ultimo si aspettano propagazione, elaborazione e conferma.</p>
+  <div class="catena-wrap"><div class="catena">
+    <span class="sx"><i>T</i><sub>tot</sub></span><span class="rel">=</span><span class="dx">3 · 6,016 + 2,5 + 0,156 + 0,02 + 1 ≈ 21,72 ms</span><span class="perche">i frame in fila, poi conferma, elaborazione e andata e ritorno una volta</span>
+    <span class="sx"><i>U</i></span><span class="rel">=</span><span class="dx">20,55 / 21,72 ≈ 0,95</span><span class="perche">contro 0,81 dello stop-and-wait</span>
+    <span class="sx">throughput</span><span class="rel">=</span><span class="dx">0,95 · 2048 kbit/s ≈ 1,94 Mbit/s</span><span class="perche"><i>U</i> · <i>R</i></span>
+  </div></div>
+  <p>Il guadagno è piccolo perché il collegamento è corto (<i>a</i> ≈ 0,08); su un satellite sarebbe enorme. Il testo, con <i>T<sub>x</sub></i> arrotondato a 6 ms, trova 21,68 ms.</p>
+</div>
+
+<h4>Quanto deve essere grande la finestra</h4>
+<p>Scriviamo <i>a</i> con i dati del collegamento, per vedere che cosa fa crescere la finestra necessaria:</p>
+<div class="catena-wrap"><div class="catena">
+  <span class="sx"><i>W</i></span><span class="rel">≥</span><span class="dx">1 + 2<i>a</i> = 1 + 2 · <i>T<sub>p</sub></i>/<i>T<sub>x</sub></i></span><span class="perche">condizione per non fermarsi mai</span>
+  <span class="sx"></span><span class="rel">=</span><span class="dx">1 + 2 · (<i>d</i>/<i>v</i>) / (<i>L</i>/<i>R</i>) = 1 + 2<i>dR</i> / (<i>Lv</i>)</span><span class="perche">sostituisco <i>T<sub>p</sub></i> = <i>d</i>/<i>v</i> e <i>T<sub>x</sub></i> = <i>L</i>/<i>R</i></span>
+</div></div>
+<p>La finestra cresce con la <b>distanza</b> e con la <b>velocità della linea</b>, e cala solo allungando i frame, cosa che spesso non si può fare perché la lunghezza dipende dai livelli superiori. Ecco i valori per frame da 2000 byte su cavo (<i>v</i> = 2 · 10<sup>8</sup> m/s):</p>
+<div class="tbl-wrap" style="max-width:36rem">
+  <table class="tbl">
+    <thead><tr><th>Velocità della linea</th><th>10 km</th><th>100 km</th><th>1000 km</th></tr></thead>
+    <tbody>
+      <tr><th>10 Mbit/s</th><td class="num">2</td><td class="num">2</td><td class="num">8</td></tr>
+      <tr><th>100 Mbit/s</th><td class="num">2</td><td class="num">8</td><td class="num">64</td></tr>
+      <tr><th>1 Gbit/s</th><td class="num">8</td><td class="num">64</td><td class="num">626</td></tr>
+      <tr><th>10 Gbit/s</th><td class="num">64</td><td class="num">626</td><td class="num">6251</td></tr>
+    </tbody>
+    <caption>Finestra minima, in frame, per trasmettere senza sosta (arrotondata per eccesso). Bastano poche decine di frame solo su collegamenti corti o lenti; le dorsali lunghe e veloci ne richiedono centinaia o migliaia (Tabella 3.1 del secondo testo).</caption>
+  </table>
+</div>
+<p class="mono">Esempio: 1 Gbit/s, 1000 km → 1 + 2 · 10<sup>6</sup> · 10<sup>9</sup> / (16 000 · 2 · 10<sup>8</sup>) = 1 + 625 = 626 frame.</p>
 
 <div class="box def">
   <p class="box-label">Definizione</p>
@@ -6564,6 +6755,7 @@ T = 1101011011<span class="r">1110</span></pre>
   <li><b>Vantaggi.</b> Un campo <code>ack</code> costa pochi bit (nel protocollo 4 uno solo), mentre un frame di conferma separato richiede intestazione, conferma e checksum. Meno frame vuol dire anche meno interruzioni «frame arrivato» e, a seconda del software, meno buffer nel destinatario.</li>
   <li><b>Il problema.</b> Quanto deve aspettare il data link un pacchetto su cui caricare la conferma? Se aspetta più del timer del mittente, il frame viene ritrasmesso e la conferma è stata inutile. Il data link non può prevedere il futuro, quindi si usa una regola semplice: aspettare <b>pochi millisecondi</b>. Se nel frattempo arriva un pacchetto da spedire, la conferma va in groppa; altrimenti parte un frame di conferma separato. Nel protocollo 6 questo è il compito del <b>timer ausiliario</b> (<code>start_ack_timer</code>).</li>
 </ul>
+<p>Il secondo testo descrive lo stesso meccanismo con due numeri in ogni frame che va da A a B: <b>SN<sub>A</sub></b>, il numero di sequenza del frame, e <b>AN<sub>A</sub></b>, il numero dell'ultimo frame ricevuto correttamente da B. AN fa da conferma cumulativa, come il campo <code>ack</code> del libro; se A non ha dati da spedire, manda un frame di sola conferma. In alcuni protocolli AN indica invece il <b>prossimo</b> frame atteso, e quindi conferma tutti i frame fino ad AN − 1: è il caso di TCP, al livello di trasporto. Con dati nelle due direzioni ogni stazione ha due finestre: una di invio per i propri frame e una di ricezione per quelli dell'altra.</p>
 
 <h3 id="eff-ricetta" data-toc="Ricetta per gli esercizi">Ricetta per gli esercizi</h3>
 <p class="in-questa"><b>In questa sezione:</b> i passi da seguire sempre, nell'ordine.</p>
@@ -6575,6 +6767,8 @@ T = 1101011011<span class="r">1110</span></pre>
   <li><b>La finestra <i>w</i></b>: 1 per lo stop-and-wait; se il testo dà i bit <i>n</i> del numero di sequenza, 2<sup><i>n</i></sup> − 1 per il Go-Back-N e 2<sup><i>n</i>−1</sup> per il Selective Repeat (le due regole sono spiegate nei rispettivi argomenti).</li>
   <li><b><i>U</i> = min(1, <i>w</i>/(1 + 2<i>a</i>))</b>, e se serve il <b>throughput</b> <i>U</i>·<i>R</i>.</li>
   <li>Se chiede la finestra per il 100%: <b><i>w</i> ≥ 1 + 2<i>a</i></b>, arrotondato per eccesso; se chiede i bit, il minimo <i>n</i> che dà una finestra abbastanza grande.</li>
+  <li><b>Se ci sono errori</b>: <i>P</i> = 1 − (1 − <i>p</i>)<sup><i>L</i> + <i>L</i><sub>ack</sub></sup>; per lo stop-and-wait <i>U</i> ≈ (1 − <i>P</i>)/(1 + 2<i>a</i>); per Go-Back-N e Selective Repeat usa la tabella di <a href="#sr-confronto">«Go-Back-N o Selective Repeat?»</a>.</li>
+  <li>Se il testo usa <i>τ</i>, <i>T</i><sub>u</sub> o <i>η</i>, traduci con il <a href="#eff-simboli">dizionario dei simboli</a>.</li>
 </ol>
 
 <h3 id="eff-esercizi" data-toc="Esercizi svolti">Esercizi svolti</h3>
@@ -6628,6 +6822,25 @@ T = 1101011011<span class="r">1110</span></pre>
     </table>
   </div>
 </div>
+<div class="box calc">
+  <p class="box-label">Esempio svolto · satellite con finestra 5 (dal secondo testo)</p>
+  <p><b>Testo.</b> Due stazioni comunicano tramite un satellite a <b>30 000 km</b> di quota: il segnale sale e scende alla velocità della luce, 300 000 km/s. Canale da <b>10 Mbit/s</b> senza errori, frame da <b>4 kbyte</b> (4000 byte), conferme da <b>100 byte</b>, elaborazione trascurabile, finestra di invio <b>5</b>, finestra di ricezione grande quanto serve. Quanto tempo serve per spedire <b>100 kbyte</b>? Quale finestra servirebbe per non fermarsi mai?</p>
+  <div class="catena-wrap"><div class="catena">
+    <span class="sx"><i>N</i></span><span class="rel">=</span><span class="dx">100 000 / 4000 = 25 frame</span><span class="perche">dati / dati per frame</span>
+    <span class="sx"><i>T<sub>p</sub></i></span><span class="rel">=</span><span class="dx">2 · 30 000 / 300 000 s = 200 ms</span><span class="perche">salita più discesa</span>
+    <span class="sx"><i>T<sub>x</sub></i></span><span class="rel">=</span><span class="dx">4000 · 8 / 10<sup>7</sup> s = 3,2 ms</span><span class="perche"><i>L</i>/<i>R</i></span>
+    <span class="sx"><i>T</i><sub>ack</sub></span><span class="rel">=</span><span class="dx">100 · 8 / 10<sup>7</sup> s = 0,08 ms</span><span class="perche"><i>L</i><sub>ack</sub>/<i>R</i></span>
+    <span class="sx"><i>T</i><sub>1</sub></span><span class="rel">=</span><span class="dx">3,2 + 0,08 + 400 = 403,28 ms</span><span class="perche">dall'inizio di un frame all'arrivo della sua conferma</span>
+    <span class="sx"><i>W</i> · <i>T<sub>x</sub></i></span><span class="rel">=</span><span class="dx">5 · 3,2 = 16 ms &lt; 403,28 ms</span><span class="perche">la finestra si esaurisce: il mittente si ferma</span>
+  </div></div>
+  <p><b>Come va il trasferimento.</b> Il mittente spedisce i frame 1–5 e si ferma. La conferma del frame 1 arriva <i>T</i><sub>1</sub> dopo l'inizio: da lì spedisce 6–10 senza pause, perché le conferme di 2, 3, 4 e 5 arrivano una ogni 3,2 ms, mentre trasmette i frame successivi. Lo stesso succede per 11–15, 16–20 e 21–25. Dopo quattro attese di <i>T</i><sub>1</sub> restano gli ultimi cinque frame: 4<i>T<sub>x</sub></i> per i frame 21–24, più il ciclo completo <i>T</i><sub>1</sub> del frame 25.</p>
+  <div class="catena-wrap"><div class="catena">
+    <span class="sx"><i>T</i><sub>tot</sub></span><span class="rel">=</span><span class="dx">4<i>T</i><sub>1</sub> + 4<i>T<sub>x</sub></i> + <i>T</i><sub>1</sub> = 5 · 403,28 + 4 · 3,2 ≈ 2029 ms</span><span class="perche">circa 2,03 s</span>
+    <span class="sx"><i>U</i></span><span class="rel">=</span><span class="dx">25 · 3,2 / 2029 ≈ 0,039</span><span class="perche">la linea lavora il 4% del tempo</span>
+    <span class="sx"><i>W</i></span><span class="rel">≥</span><span class="dx"><i>T</i><sub>1</sub> / <i>T<sub>x</sub></i> = 403,28 / 3,2 ≈ 126,03, quindi 127</span><span class="perche">il più piccolo intero che basta</span>
+  </div></div>
+  <p>Con 127 frame, cioè numeri di sequenza da 7 bit nel Go-Back-N, il mittente non si fermerebbe mai. Se trovi il risultato «2,092 s», sono due cifre scambiate: il conto dà 2,029 s.</p>
+</div>
 
 <h3 id="eff-domande" data-toc="Domande d'esame">Domande d'esame</h3>
 <div class="qa-list">
@@ -6636,6 +6849,9 @@ T = 1101011011<span class="r">1110</span></pre>
   <details class="qa"><summary>Che cos'è il prodotto banda-ritardo e perché conta?</summary><div class="qa-a"><p>È la banda moltiplicata per il tempo di transito in una direzione, R·Tp: il numero di bit che stanno nel collegamento mentre viaggiano. Diviso per la lunghezza del frame dà BD, il numero di frame in viaggio, che è uguale a Tp/Tx. Conta perché per tenere il canale sempre occupato la finestra deve essere almeno 2BD + 1: con BD grande (satellite, o banda molto alta) lo stop-and-wait spreca quasi tutto.</p></div></details>
   <details class="qa"><summary>Perché la finestra deve essere 2BD + 1? Da dove viene il +1?</summary><div class="qa-a"><p>La conferma del primo frame arriva dopo Tx + 2Tp; trasmettendo senza sosta, nel frattempo il mittente ha inviato (Tx + 2Tp)/Tx = 1 + 2BD frame. Se la finestra li contiene tutti, la prima conferma arriva prima che la finestra si riempia e il mittente non si ferma. Detto con le parole del libro: 2BD frame stanno nel viaggio di andata e ritorno, e il +1 c'è perché la conferma parte solo dopo che è arrivato un frame completo.</p></div></details>
   <details class="qa"><summary>Scrivi la formula dell'utilizzazione con una finestra w. Perché è solo un limite superiore?</summary><div class="qa-a"><p>U = w/(1 + 2BD) = w·Tx/(Tx + 2Tp) se w &lt; 1 + 2BD, altrimenti U = 1. È un limite superiore perché ignora il tempo di elaborazione dei frame e considera le conferme di lunghezza zero; inoltre vale senza errori di trasmissione.</p></div></details>
+  <details class="qa"><summary>Ricava il numero medio di trasmissioni di un frame su una linea con errori e l'utilizzazione dello stop-and-wait.</summary><div class="qa-a"><p>Sia P la probabilità che un tentativo fallisca; con errori indipendenti sui bit, P = 1 − (1 − p)^(L + Lack). Il frame passa al tentativo i con probabilità P^(i−1)(1 − P), quindi Ns = Σ i·P^(i−1)(1 − P) = (1 − P)·1/(1 − P)² = 1/(1 − P), usando la derivata della serie geometrica. Ogni tentativo fallito costa Tx + To, quello riuscito un ciclo intero: Ttot = (Ns − 1)(Tx + To) + Tx + Tack + 2Tel + 2Tp, e U = Tx/Ttot. Con il timer minimo To = Tack + 2Tel + 2Tp e conferme ed elaborazione trascurabili, U = (1 − P)/(1 + 2a).</p></div></details>
+  <details class="qa"><summary>Quanto deve durare come minimo il timer dello stop-and-wait?</summary><div class="qa-a"><p>Contando dalla fine della trasmissione del frame, quanto serve perché il frame arrivi e venga elaborato, la conferma venga trasmessa, torni e venga elaborata: To ≥ Tack + 2Tel + 2Tp, cioè To ≥ 2Tp se conferma ed elaborazione sono trascurabili. Un timer più corto provoca ritrasmissioni inutili; uno più lungo fa aspettare troppo dopo un errore.</p></div></details>
+  <details class="qa"><summary>Quanto tempo serve per trasferire N frame con lo stop-and-wait e con un protocollo a trasmissione continua?</summary><div class="qa-a"><p>Con lo stop-and-wait ogni frame costa un ciclo intero: Ttot = N(Tx + Tack + 2Tel + 2Tp). Con un protocollo continuous ARQ, se la finestra basta (W·Tx ≥ Tx + Tack + 2Tp) e non ci sono errori, i frame partono uno dopo l'altro e propagazione e conferma si contano una volta sola: Ttot = N·Tx + Tack + 2Tp.</p></div></details>
   <details class="qa"><summary>Che cos'è il piggybacking? Quali vantaggi ha e quale problema crea?</summary><div class="qa-a"><p>È la tecnica di ritardare le conferme per caricarle, nel campo ack, sul prossimo frame di dati che va nella direzione opposta. Vantaggi: un campo ack costa pochi bit invece di un intero frame con intestazione e checksum; ci sono meno frame, meno interruzioni e meno buffer. Problema: quanto aspettare un frame su cui caricare la conferma? Se si aspetta più del timer del mittente, il frame viene ritrasmesso inutilmente; si aspetta quindi un tempo breve, e se non arriva nulla si manda una conferma separata.</p></div></details>
 </div>
 
@@ -6646,7 +6862,11 @@ T = 1101011011<span class="r">1110</span></pre>
 {"q":"Con stop-and-wait, Tx = 10 ms e Tp = 20 ms. Qual è l'utilizzazione?","o":["20%","33%","50%"],"a":0,"e":"U = 10 / (10 + 2 · 20) = 10/50 = 20%."},
 {"q":"Nel satellite del libro (BD = 12,5 frame) quale finestra serve per non fermarsi mai?","o":["13","25","26"],"a":2,"e":"w = 2BD + 1 = 26: la conferma del primo frame arriva proprio quando finisce il ventiseiesimo."},
 {"q":"Con BD = 4,5 e una finestra di 5 frame, quanto vale l'utilizzazione?","o":["50%","100%","45%"],"a":0,"e":"1 + 2BD = 10 > 5, quindi U = 5/10 = 50%."},
-{"q":"Il piggybacking consiste nel…","o":["trasmettere due frame insieme","mettere la conferma nel campo ack di un frame di dati che va nella direzione opposta","usare due canali separati per dati e conferme"],"a":1,"e":"La conferma «si fa dare un passaggio» dal frame di dati successivo, invece di viaggiare in un frame tutto suo."}
+{"q":"Il piggybacking consiste nel…","o":["trasmettere due frame insieme","mettere la conferma nel campo ack di un frame di dati che va nella direzione opposta","usare due canali separati per dati e conferme"],"a":1,"e":"La conferma «si fa dare un passaggio» dal frame di dati successivo, invece di viaggiare in un frame tutto suo."},
+{"q":"Nel secondo testo, τ e Tp indicano…","o":["propagazione ed elaborazione","trasmissione e propagazione","elaborazione e propagazione"],"a":0,"e":"τ = d/v è la propagazione, Tp il tempo di elaborazione. In queste pagine invece Tp è la propagazione: attenzione."},
+{"q":"Ogni tentativo fallisce con probabilità P = 0,2. Quante trasmissioni servono in media per frame?","o":["1,2","1,25","5"],"a":1,"e":"Ns = 1/(1 − P) = 1/0,8 = 1,25."},
+{"q":"Stop-and-wait con a = 2 e P = 0,1, timer minimo e conferme trascurabili. Utilizzazione?","o":["18%","20%","90%"],"a":0,"e":"U = (1 − P)/(1 + 2a) = 0,9/5 = 0,18."},
+{"q":"10 frame, Tx = 1 ms, Tp = 4 ms, finestra abbastanza grande, conferme trascurabili e nessun errore. Tempo totale?","o":["18 ms","90 ms","14 ms"],"a":0,"e":"Trasmissione continua: N·Tx + 2Tp = 10 + 8 = 18 ms. Con lo stop-and-wait servirebbero 10 · (1 + 8) = 90 ms."}
 ]</script></div>
 
 <div class="topic-end"><button class="btn studied-btn" type="button" data-topic="efficienza" aria-pressed="false">Segna come studiato</button></div>
@@ -6660,6 +6880,7 @@ T = 1101011011<span class="r">1110</span></pre>
   <h2>Protocolli a finestra scorrevole</h2>
   <div class="topic-meta">
     <span class="chip pdf">5ª ed.: <b>§3.4</b> e <b>§3.4.1 Un protocollo a finestra scorrevole a 1 bit</b></span>
+    <span class="chip pdf">secondo testo: <b>§3.2</b>, prima parte</span>
     <button class="btn small studied-btn" type="button" data-topic="finestra" aria-pressed="false">Segna come studiato</button>
   </div>
 </header>
@@ -6678,6 +6899,7 @@ T = 1101011011<span class="r">1110</span></pre>
 </div>
 
 <p>Nell'argomento «Efficienza del data link» abbiamo visto che lo stop-and-wait spreca il canale quando il ritardo è lungo, e che la cura è tenere più frame in volo. I protocolli che lo fanno si chiamano <b>a finestra scorrevole</b> <span class="en">(sliding window)</span>. I tre del libro (protocolli 4, 5 e 6) sono tutti <b>bidirezionali</b> e differiscono per efficienza, complessità e memoria richiesta. Qui vediamo l'idea comune e il protocollo 4; il 5 e il 6 hanno un argomento ciascuno.</p>
+<p>Il secondo testo chiama questi protocolli <b>continuous ARQ</b> e li classifica così: i protocolli <b>ARQ</b> <span class="en">(Automatic Repeat reQuest)</span> sono lo <b>stop and wait</b> e i <b>continuous ARQ</b>; questi ultimi si dividono in <b>go-back-n</b> e <b>selective repeat</b>, secondo come recuperano i frame persi. Un terzo tipo, con sole conferme positive, è descritto nel <a href="#sr-soloack">Selective Repeat</a>.</p>
 
 <h3 id="fin-idea" data-toc="L'idea della finestra">L'idea: una finestra sui numeri di sequenza</h3>
 <p class="in-questa"><b>In questa sezione:</b> i numeri di sequenza circolari, le due finestre e come si muovono, con un riquadro interattivo.</p>
@@ -6723,6 +6945,20 @@ T = 1101011011<span class="r">1110</span></pre>
     <div class="rw-info w-out" aria-live="polite"></div>
   </div>
   <div class="arq-legend"><span><i style="background:var(--accent-soft);border-color:var(--accent)"></i>inviato, in attesa di conferma</span><span><i style="border:1.5px dashed var(--accent)"></i>nella finestra, si può inviare</span></div>
+</div>
+
+<div class="box ex">
+  <p class="box-label">Le stesse finestre con i simboli del secondo testo</p>
+  <p>Il secondo testo descrive ogni finestra con due numeri: la <b>dimensione</b> (<i>W</i><sub>s</sub> per l'invio, <i>W</i><sub>r</sub> per la ricezione) e il <b>bordo inferiore</b> (<i>L</i><sub>s</sub> e <i>L</i><sub>r</sub>). Con numeri di sequenza da <i>b</i> bit si conta modulo <i>N</i> = 2<sup><i>b</i></sup>, e:</p>
+  <ul>
+    <li>il mittente può inviare i frame con numero da <i>L</i><sub>s</sub> a (<i>L</i><sub>s</sub> + <i>W</i><sub>s</sub> − 1) mod <i>N</i>; la finestra avanza di una posizione quando arriva la conferma del frame <i>L</i><sub>s</sub>;</li>
+    <li>il destinatario accetta i frame con numero da <i>L</i><sub>r</sub> a (<i>L</i><sub>r</sub> + <i>W</i><sub>r</sub> − 1) mod <i>N</i>; la finestra avanza quando arriva il frame <i>L</i><sub>r</sub>.</li>
+  </ul>
+  <div style="max-width:11rem;margin:.4rem auto">
+    <div class="ring-fig" data-mod="8" data-cols='[["N = 8",[4,5,6,7,0],[5,6]]]' data-labels="invio: Ls = 4, Ws = 5|ricezione: Lr = 5, Wr = 2" role="img" aria-label="Due cerchi con i numeri da 0 a 7: in alto la finestra di invio con 4, 5, 6, 7 e 0 evidenziati; in basso la finestra di ricezione con 5 e 6 evidenziati"></div>
+  </div>
+  <p>Nel disegno (la Figura 3.7 del secondo testo) <i>N</i> = 8. Con <i>W</i><sub>s</sub> = 5 e <i>L</i><sub>s</sub> = 4 il mittente può inviare 4, 5, 6, 7 e 0; quando arriva la conferma del 4 potrà inviare anche l'1. Con <i>W</i><sub>r</sub> = 2 e <i>L</i><sub>r</sub> = 5 il destinatario accetta il 5 e il 6; quando arriva il 5 accetterà anche il 7. I due bordi inferiori non coincidono: il destinatario ha già confermato il 4, ma la conferma è ancora in viaggio.</p>
+  <p>La finestra serve anche per il <b>controllo di flusso</b>: limitando i frame in attesa di conferma, il destinatario non viene sommerso, per esempio quando consegna lentamente i dati al livello superiore.</p>
 </div>
 
 <h3 id="fin-p4" data-toc="Protocollo 4: finestra a 1 bit">Protocollo 4: finestra scorrevole a 1 bit</h3>
@@ -6843,7 +7079,13 @@ T = 1101011011<span class="r">1110</span></pre>
   <p class="box-label">Due parole che servono subito</p>
   <p><span class="def-term">Conferma cumulativa</span> <span class="en">(cumulative acknowledgement)</span>: la conferma del frame <i>n</i> conferma automaticamente anche <i>n</i> − 1, <i>n</i> − 2 e così via. È utile soprattutto quando alcune conferme precedenti si sono perse.</p>
   <p><span class="def-term">NAK</span> <span class="en">(negative acknowledgement)</span>: un frame con cui il destinatario chiede esplicitamente la ritrasmissione di un frame, per esempio perché ne ha ricevuto uno danneggiato o fuori sequenza. Fa ripartire il frame prima che scada il timer.</p>
+  <p>Nel secondo testo: <span class="def-term">ACK <i>i</i></span> vuol dire «ho ricevuto correttamente tutti i frame fino all'<i>i</i> compreso», cioè è una conferma cumulativa; <span class="def-term">NACK <i>i</i></span> (cioè NAK) vuol dire «è arrivato un frame che segue l'<i>i</i>, che aspettavo, quindi l'<i>i</i> si è perso». Che cosa dica il NACK sui frame precedenti dipende dal protocollo.</p>
 </div>
+<p>Il secondo testo dà una regola sola per i numeri di sequenza. Con <i>N</i> = 2<sup><i>b</i></sup> numeri, le due finestre devono soddisfare:</p>
+<div class="formula" role="math" aria-label="W s più W r minore o uguale a N">
+  <span class="fx"><span class="ft"><i>W</i><sub>s</sub> + <i>W</i><sub>r</sub> ≤ <i>N</i></span></span><span class="ftag">altrimenti una copia vecchia può essere presa per un frame nuovo</span>
+</div>
+<p>Nel Go-Back-N <i>W</i><sub>r</sub> = 1, quindi <i>W</i><sub>s</sub> ≤ <i>N</i> − 1 = 2<sup><i>b</i></sup> − 1; nel Selective Repeat, con finestre uguali, <i>W</i><sub>s</sub> = <i>W</i><sub>r</sub> ≤ <i>N</i>/2 = 2<sup><i>b</i>−1</sup>. Sono i due limiti che si dimostrano nei prossimi due argomenti.</p>
 <p>Quale usare dipende da quale risorsa è più scarsa, la banda o la memoria. Il simulatore del Go-Back-N e quello del Selective Repeat, nei prossimi due argomenti, mostrano lo stesso errore gestito nei due modi.</p>
 
 <h3 id="fin-esercizi" data-toc="Esercizi svolti">Esercizi svolti</h3>
@@ -6879,7 +7121,8 @@ T = 1101011011<span class="r">1110</span></pre>
 {"q":"Una finestra di ricezione di dimensione 1 significa che il destinatario…","o":["accetta solo i frame in ordine","accetta un frame al secondo","non manda conferme"],"a":0,"e":"Può accettare solo il frame con il numero atteso; con finestre più grandi può accettarli fuori ordine, ma consegna sempre in ordine."},
 {"q":"Nel protocollo 4, che cosa contiene il campo ack di un frame?","o":["Il numero del prossimo frame che il mittente invierà","Il numero dell'ultimo frame ricevuto senza errori","Il numero di frame ricevuti finora"],"a":1,"e":"È la conferma in piggyback: s.ack = 1 − frame_expected."},
 {"q":"Nel protocollo 4 con avvio simultaneo e nessun errore…","o":["tutto funziona come nell'avvio normale","metà dei frame arrivano come duplicati","il protocollo si blocca"],"a":1,"e":"I primi frame si incrociano e ogni lato rispedisce il suo frame 0: da lì in poi un frame su due è un duplicato."},
-{"q":"Quale strategia scarta i frame corretti che seguono un frame perso?","o":["Go-Back-N","Selective Repeat","Entrambe"],"a":0,"e":"Nel Go-Back-N il destinatario ha finestra 1; nel Selective Repeat li tiene nel buffer."}
+{"q":"Quale strategia scarta i frame corretti che seguono un frame perso?","o":["Go-Back-N","Selective Repeat","Entrambe"],"a":0,"e":"Nel Go-Back-N il destinatario ha finestra 1; nel Selective Repeat li tiene nel buffer."},
+{"q":"Numeri di sequenza da 3 bit (N = 8). Quale coppia di finestre rispetta la regola Ws + Wr ≤ N?","o":["Ws = 7, Wr = 2","Ws = 5, Wr = 3","Ws = 6, Wr = 4"],"a":1,"e":"5 + 3 = 8 ≤ 8. Le altre sommano 9 e 10: il destinatario potrebbe prendere una copia vecchia per un frame nuovo."}
 ]</script></div>
 
 <div class="topic-end"><button class="btn studied-btn" type="button" data-topic="finestra" aria-pressed="false">Segna come studiato</button></div>
@@ -6893,6 +7136,7 @@ T = 1101011011<span class="r">1110</span></pre>
   <h2>Il protocollo Go-Back-N</h2>
   <div class="topic-meta">
     <span class="chip pdf">5ª ed.: <b>§3.4.2 Un protocollo che usa go-back-n</b></span>
+    <span class="chip pdf">secondo testo: <b>§3.2.1</b> e <b>§3.2.5</b></span>
     <button class="btn small studied-btn" type="button" data-topic="gobackn" aria-pressed="false">Segna come studiato</button>
   </div>
 </header>
@@ -6906,7 +7150,8 @@ T = 1101011011<span class="r">1110</span></pre>
     <li>Quando scade il timer del frame più vecchio non confermato, il mittente <b>torna indietro</b> e ritrasmette, in ordine, tutti i frame non confermati.</li>
     <li>Le conferme sono <b>cumulative</b>: la conferma di <i>n</i> vale anche per tutti i frame precedenti.</li>
     <li>Con numeri da 0 a <code>MAX_SEQ</code> (<i>n</i> bit) i frame in sospeso possono essere al massimo <b><code>MAX_SEQ</code> = 2<sup><i>n</i></sup> − 1</b>, non 2<sup><i>n</i></sup>: altrimenti il mittente non distingue «tutti arrivati» da «tutti persi».</li>
-    <li>Servono <i>W</i> buffer e un timer per frame al mittente, nessun buffer extra al destinatario. Conviene quando gli errori sono rari; con molti errori spreca banda.</li>
+    <li>Nella versione del secondo testo il destinatario manda anche un <b>NACK</b> al primo frame fuori ordine, così il mittente torna indietro senza aspettare il timer.</li>
+    <li>Servono <i>W</i> buffer e un timer per frame al mittente, nessun buffer extra al destinatario. Conviene quando gli errori sono rari; con molti errori spreca banda: con la finestra sufficiente l'efficienza è <b>(1 − <i>P</i>)/(1 + <i>P</i> + 2<i>aP</i>)</b>.</li>
   </ul>
 </div>
 
@@ -6945,6 +7190,24 @@ alla fine di ogni evento:
   <figcaption><span class="label">Figura 3.16</span>La struttura del protocollo 5 (nel libro è la Figura 3.19 della 5ª edizione, in C), riassunta evento per evento. Il controllo «r.ack conferma ack_expected» usa la funzione <code>between</code>, che verifica se un numero cade dentro la finestra tenendo conto del giro circolare.</figcaption>
 </figure>
 
+<h3 id="gbn-nack" data-toc="Con i NACK (secondo testo)">La versione del secondo testo: Go-Back-N con i NACK</h3>
+<p class="in-questa"><b>In questa sezione:</b> le regole del go-back-n come le descrive il secondo testo, con le conferme negative, e la differenza con il protocollo 5.</p>
+<p>Nel protocollo 5 il destinatario scarta in silenzio i frame fuori ordine, e il mittente scopre la perdita solo quando scade un timer. Il secondo testo aggiunge una <b>conferma negativa</b> (NACK, cioè NAK) che fa partire la ritrasmissione prima. Nel nome «go-back-n», <i>n</i> è il numero massimo di frame che si possono trasmettere senza conferma: per esempio <i>n</i> = 7 con numeri da 3 bit.</p>
+<div class="tbl-wrap">
+  <table class="tbl">
+    <thead><tr><th>Chi e quando</th><th>Che cosa fa</th></tr></thead>
+    <tbody>
+      <tr><th>Destinatario, arriva il frame atteso (<i>L</i><sub>r</sub>)</th><td>Lo accetta, manda ACK <i>L</i><sub>r</sub> e fa avanzare la finestra: <i>L</i><sub>r</sub> diventa <i>L</i><sub>r</sub> + 1.</td></tr>
+      <tr><th>Destinatario, arriva un frame fuori ordine</th><td>Lo scarta (la finestra di ricezione è 1). Se è il <b>primo</b> frame fuori ordine dopo l'ultimo accettato, manda NACK <i>L</i><sub>r</sub>; altrimenti ripete la conferma dell'ultimo accettato, ACK (<i>L</i><sub>r</sub> − 1).</td></tr>
+      <tr><th>Significato di NACK <i>j</i></th><td>Manca il frame <i>j</i>, e tutti i frame fino a <i>j</i> − 1 sono arrivati.</td></tr>
+      <tr><th>Mittente, arriva ACK <i>j</i></th><td>Considera confermati tutti i frame fino a <i>j</i> (conferma cumulativa), ferma i loro timer, e il bordo inferiore diventa <i>L</i><sub>s</sub> = <i>j</i> + 1.</td></tr>
+      <tr><th>Mittente, arriva NACK <i>j</i></th><td>Considera confermati i frame fino a <i>j</i> − 1, porta il bordo inferiore a <i>L</i><sub>s</sub> = <i>j</i> e ritrasmette dal frame <i>j</i> in poi.</td></tr>
+      <tr><th>Mittente, scade il timer del frame <i>k</i></th><td>Ritrasmette il frame <i>k</i> e, come sempre nel go-back-n, i frame che lo seguono.</td></tr>
+    </tbody>
+  </table>
+</div>
+<p>L'esempio del secondo testo (la sua Figura 3.11, finestra 7) in parole. Si perde il frame 3. Il destinatario se ne accorge quando arriva il 4: lo scarta e manda NACK 3. Scarta anche il 5 e il 6, ripetendo ACK 2. Il NACK arriva mentre il mittente trasmette il 6: una trasmissione cominciata si porta sempre a termine, quindi il mittente finisce il 6, poi torna al 3 e rispedisce 3, 4, 5 e 6. Il NACK arriva molto prima del timer, che quindi non interviene. Nel simulatore qui sotto lo scenario è il pulsante «Secondo testo: si perde il 3, con NAK».</p>
+
 <h3 id="gbn-sim" data-toc="Simulatore">Il Go-Back-N al lavoro</h3>
 <p class="in-questa"><b>In questa sezione:</b> un simulatore con lo scenario della figura del libro e i casi limite. Tocca un frame o un ack per farlo perdere.</p>
 <p>Il simulatore usa conferme separate, una per ogni frame che arriva, invece del piggybacking: è più facile da seguire e il comportamento è lo stesso. Quando scarta un frame fuori ordine, il destinatario ripete la conferma dell'ultimo frame ricevuto in ordine, come fa il campo <code>ack</code> del protocollo 5. (Nella Figura 3.18 del libro i frame scartati sono disegnati senza conferma: non cambia niente di essenziale.)</p>
@@ -6953,18 +7216,20 @@ alla fine di ogni evento:
   <div class="widget-head"><p class="widget-title" id="gbn-t">Simulatore · Go-Back-N (protocollo 5)</p></div>
   <p class="w-hint">Scegli uno scenario o cambia i parametri. Nel diagramma il tempo scende verso il basso; sotto vedi la finestra del mittente (in colore i frame in attesa di conferma) e il numero che il destinatario si aspetta.</p>
   <div class="seg-ctrl" role="group" aria-label="Scenari">
-    <button class="btn small" type="button" data-arq-preset='{"w":7,"bits":3,"tp":2.5,"to":8,"n":10,"lost":["d2.1"]}'>Figura 3.18 a: si perde il frame 2</button>
-    <button class="btn small" type="button" data-arq-preset='{"w":4,"bits":3,"tp":2,"to":7,"n":8,"lost":["a1.1"]}'>Si perde un ack</button>
-    <button class="btn small" type="button" data-arq-preset='{"w":4,"bits":3,"tp":2,"to":7,"n":8,"dmg":["d1.1"]}'>Frame danneggiato</button>
-    <button class="btn small" type="button" data-arq-preset='{"w":4,"bits":2,"tp":2,"to":6,"n":6,"lost":["a0.1","a1.1","a2.1","a3.1"]}'>W = 2ⁿ: finestra troppo grande</button>
-    <button class="btn small" type="button" data-arq-preset='{"w":3,"bits":2,"tp":2,"to":6,"n":6,"lost":["a0.1","a1.1","a2.1"]}'>W = 2ⁿ − 1: finestra giusta</button>
+    <button class="btn small" type="button" data-arq-preset='{"w":7,"bits":3,"tp":2.5,"to":7,"n":10,"nak":0,"lost":["d2.1"]}'>Figura 3.18 a: si perde il frame 2</button>
+    <button class="btn small" type="button" data-arq-preset='{"w":7,"bits":3,"tp":0.5,"to":6,"n":8,"nak":1,"lost":["d3.1"]}'>Secondo testo: si perde il 3, con NAK</button>
+    <button class="btn small" type="button" data-arq-preset='{"w":4,"bits":3,"tp":2,"to":6,"nak":0,"n":8,"lost":["a1.1"]}'>Si perde un ack</button>
+    <button class="btn small" type="button" data-arq-preset='{"w":4,"bits":3,"tp":2,"to":6,"nak":0,"n":8,"dmg":["d1.1"]}'>Frame danneggiato</button>
+    <button class="btn small" type="button" data-arq-preset='{"w":4,"bits":2,"tp":2,"to":5,"nak":0,"n":6,"lost":["a0.1","a1.1","a2.1","a3.1"]}'>W = 2ⁿ: finestra troppo grande</button>
+    <button class="btn small" type="button" data-arq-preset='{"w":3,"bits":2,"tp":2,"to":5,"nak":0,"n":6,"lost":["a0.1","a1.1","a2.1"]}'>W = 2ⁿ − 1: finestra giusta</button>
   </div>
   <div class="w-grid">
     <label class="field" for="gbn-w"><span>Finestra W: <output data-for="arq-w">7</output></span><input id="gbn-w" type="range" class="arq-w" min="1" max="8" step="1" value="7"></label>
     <label class="field" for="gbn-bits"><span>Bit del numero di sequenza</span><select id="gbn-bits" class="arq-bits"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option></select></label>
     <label class="field" for="gbn-tp"><span>Propagazione: <output data-for="arq-tp">2,5</output></span><input id="gbn-tp" type="range" class="arq-tp" min="0.5" max="5" step="0.5" value="2.5"></label>
-    <label class="field" for="gbn-to"><span>Timer: <output data-for="arq-to">8</output></span><input id="gbn-to" type="range" class="arq-to" min="2" max="20" step="0.5" value="8"></label>
+    <label class="field" for="gbn-to"><span>Timer: <output data-for="arq-to">7</output></span><input id="gbn-to" type="range" class="arq-to" min="1" max="20" step="0.25" value="7"></label>
     <label class="field" for="gbn-n"><span>Pacchetti da inviare: <output data-for="arq-n">10</output></span><input id="gbn-n" type="range" class="arq-n" min="3" max="12" step="1" value="10"></label>
+    <label class="check" for="gbnsim-nak"><input id="gbnsim-nak" type="checkbox" class="arq-nak"> Il destinatario usa i NAK (secondo testo)</label>
   </div>
   <p class="w-note arq-warn" aria-live="polite"></p>
   <div class="stepper-ctrl" style="margin:.5rem 0">
@@ -6974,12 +7239,12 @@ alla fine di ogni evento:
     <button class="btn small" type="button" data-arq="all" hidden>Vista completa</button>
   </div>
   <div class="scroll-x"><svg class="dia arq-svg" viewBox="0 0 640 400" role="img" aria-label="Diagramma temporale del Go-Back-N"></svg></div>
-  <div class="arq-legend"><span><i style="background:var(--accent)"></i>frame, prima trasmissione</span><span><i style="background:var(--l4)"></i>ritrasmissione</span><span><i style="background:var(--bad);opacity:.6"></i>danneggiato</span><span><i style="background:var(--ok);height:2px;border:0"></i>ack</span><span><i style="background:var(--warn);border-radius:50%"></i>timeout</span></div>
+  <div class="arq-legend"><span><i style="background:var(--accent)"></i>frame, prima trasmissione</span><span><i style="background:var(--l4)"></i>ritrasmissione</span><span><i style="background:var(--bad);opacity:.6"></i>danneggiato</span><span><i style="background:var(--ok);height:2px;border:0"></i>ack</span><span><i style="background:var(--bad);height:2px;border:0"></i>NAK</span><span><i style="background:var(--warn);border-radius:50%"></i>timeout</span></div>
   <p class="arq-log" aria-live="polite"></p>
   <div class="arq-win"></div>
   <p class="arq-sum"></p>
 </div>
-<p>Nello scenario della figura del libro il frame 2 si perde. Il destinatario scarta 3, 4, 5, 6, 7 e 0 perché aspetta il 2. Il mittente se ne accorge solo quando scade il timer del frame 2, e allora ritrasmette 2, 3, 4, 5, 6, 7, 0: sei frame arrivati bene vengono rispediti. È il prezzo del Go-Back-N, e cresce con il tasso d'errore e con la finestra.</p>
+<p>Nello scenario della figura del libro il frame 2 si perde. Il destinatario scarta 3, 4, 5, 6, 7 e 0 perché aspetta il 2. Il mittente se ne accorge solo quando scade il timer del frame 2, e allora ritrasmette 2, 3, 4, 5, 6, 7, 0: sei frame arrivati bene vengono rispediti. È il prezzo del Go-Back-N, e cresce con il tasso d'errore e con la finestra. Attiva la casella dei NAK con lo stesso scenario: il mittente torna indietro appena arriva il NAK 2, senza aspettare il timer.</p>
 
 <h3 id="gbn-max" data-toc="Perché al massimo 2ⁿ − 1">Perché al massimo 2<sup>n</sup> − 1 frame in sospeso</h3>
 <p class="in-questa"><b>In questa sezione:</b> lo scenario del libro che mostra perché con 8 numeri di sequenza si possono avere solo 7 frame in sospeso.</p>
@@ -7023,24 +7288,47 @@ alla fine di ogni evento:
 </div>
 
 <h3 id="gbn-eff" data-toc="Quanto rende">Quanto rende il Go-Back-N</h3>
-<p class="in-questa"><b>In questa sezione:</b> l'utilizzazione senza errori, che è quella degli esercizi, e (facoltativo) che cosa cambia con gli errori.</p>
+<p class="in-questa"><b>In questa sezione:</b> l'utilizzazione senza errori e, con le formule del secondo testo, quella con gli errori, ricavata un passo alla volta.</p>
 <p>Senza errori vale la formula dell'argomento «Efficienza del data link», con la finestra più grande che il Go-Back-N permette:</p>
 <div class="formula" role="math" aria-label="U uguale al minimo tra 1 e W su 1 più 2a, con W uguale a 2 alla n meno 1">
   <span class="fx"><span class="ft"><i>U</i> = min(1, <i>W</i> / (1 + 2<i>a</i>)), &nbsp;con <i>W</i> = 2<sup><i>n</i></sup> − 1 e <i>a</i> = <i>T<sub>p</sub></i>/<i>T<sub>x</sub></i></span></span>
 </div>
-<details class="facolt">
-  <summary>Che cosa succede quando ci sono errori</summary>
-  <div class="facolt-body">
-    <p>Queste formule non sono nel libro di Tanenbaum: sono quelle classiche dell'analisi dei protocolli ARQ, che si trovano in molti testi di reti. Se il corso le usa, confronta le lettere con quelle delle slide.</p>
-    <p>Sia <i>p</i> la probabilità che un frame (o la sua conferma) vada perso, indipendentemente dagli altri. Nel <a href="#prot-connessioni">§1.5</a>, problema 15, abbiamo visto che un frame richiede in media 1/(1 − <i>p</i>) trasmissioni.</p>
-    <ul>
-      <li><b>Stop-and-wait.</b> Ogni tentativo costa un ciclo <i>T<sub>x</sub></i> + 2<i>T<sub>p</sub></i>, quindi <i>U</i> = (1 − <i>p</i>) / (1 + 2<i>a</i>).</li>
-      <li><b>Go-Back-N.</b> Ogni errore costa la ritrasmissione di <i>K</i> frame: quelli inviati nel frattempo, cioè <i>K</i> = 1 + 2<i>a</i> se la finestra basta, altrimenti <i>K</i> = <i>W</i>. In media si trasmettono 1 + <i>K</i>·<i>p</i>/(1 − <i>p</i>) frame per ogni frame consegnato. Ne segue <i>U</i> = (1 − <i>p</i>)/(1 + 2<i>a</i>·<i>p</i>) se <i>W</i> ≥ 1 + 2<i>a</i>, e <i>U</i> = <i>W</i>(1 − <i>p</i>) / ((1 + 2<i>a</i>)(1 − <i>p</i> + <i>W</i>·<i>p</i>)) se <i>W</i> &lt; 1 + 2<i>a</i>.</li>
-      <li><b>Selective Repeat.</b> Si ritrasmette solo il frame perso: <i>U</i> = 1 − <i>p</i> se <i>W</i> ≥ 1 + 2<i>a</i>, altrimenti <i>U</i> = <i>W</i>(1 − <i>p</i>)/(1 + 2<i>a</i>).</li>
-    </ul>
-    <p><b>Esempio.</b> <i>a</i> = 10 (1 + 2<i>a</i> = 21) e finestre abbastanza grandi. Con <i>p</i> = 0,01 il Go-Back-N ottiene 0,99/1,2 ≈ 82,5% e il Selective Repeat 99%. Con <i>p</i> = 0,1 il Go-Back-N scende a 0,9/3 = 30%, il Selective Repeat resta al 90%. È la frase del libro in numeri: il Go-Back-N funziona bene se gli errori sono rari.</p>
-  </div>
-</details>
+<h4>Con gli errori</h4>
+<p>Il secondo testo calcola l'efficienza anche quando la linea sbaglia. Ipotesi: la finestra basta (<i>W</i> ≥ 1 + 2<i>a</i>), conferme ed elaborazione sono trascurabili, il mittente ha sempre frame da spedire, e <i>P</i> è la probabilità che un frame arrivi sbagliato (vedi <a href="#eff-errori">«Lo stop-and-wait quando ci sono errori»</a>). Due passi.</p>
+<ol>
+  <li><b>Il mittente non si ferma mai</b>, quindi l'unico spreco sono le ritrasmissioni. Se per ogni frame che arriva se ne trasmettono in media <i>N</i><sub>s</sub>, l'utilizzazione è <b><i>U</i> = <i>T<sub>x</sub></i> / (<i>N</i><sub>s</sub> · <i>T<sub>x</sub></i>) = 1/<i>N</i><sub>s</sub></b>.</li>
+  <li><b>Ogni errore costa <i>K</i> frame in più.</b> Il destinatario si accorge della perdita quando arriva il frame <b>successivo</b>, e risponde con un NACK. Contiamo dall'inizio del frame perso: il successivo finisce di arrivare dopo 2<i>T<sub>x</sub></i> + <i>T<sub>p</sub></i>, e il NACK torna dopo altri <i>T<sub>p</sub></i>. In quel tempo il mittente ha spedito <i>K</i> frame, tutti da rifare: <i>K</i> · <i>T<sub>x</sub></i> = 2<i>T<sub>x</sub></i> + 2<i>T<sub>p</sub></i>, cioè <b><i>K</i> = 2 + 2<i>a</i></b>.</li>
+</ol>
+<p>Un frame che fallisce <i>i</i> volte prima di passare costa <i>iK</i> + 1 trasmissioni (supponendo che i frame rispediti insieme a lui arrivino bene), e questo succede con probabilità <i>P</i><sup><i>i</i></sup>(1 − <i>P</i>):</p>
+<div class="catena-wrap"><div class="catena">
+  <span class="sx"><i>N</i><sub>s</sub></span><span class="rel">=</span><span class="dx">Σ<sub><i>i</i> ≥ 0</sub> (<i>iK</i> + 1) <i>P</i><sup><i>i</i></sup>(1 − <i>P</i>)</span><span class="perche">media: valore per probabilità</span>
+  <span class="sx"></span><span class="rel">=</span><span class="dx"><i>K</i>(1 − <i>P</i>) · Σ<sub><i>i</i> ≥ 0</sub> <i>i</i> <i>P</i><sup><i>i</i></sup> + (1 − <i>P</i>) · Σ<sub><i>i</i> ≥ 0</sub> <i>P</i><sup><i>i</i></sup></span><span class="perche">separo le due somme</span>
+  <span class="sx"></span><span class="rel">=</span><span class="dx"><i>K</i>(1 − <i>P</i>) · <i>P</i>/(1 − <i>P</i>)<sup>2</sup> + (1 − <i>P</i>) · 1/(1 − <i>P</i>)</span><span class="perche">le due serie dell'<a href="#eff-errori">attrezzo matematico</a></span>
+  <span class="sx"></span><span class="rel">=</span><span class="dx"><i>KP</i>/(1 − <i>P</i>) + 1</span><span class="perche">semplifico</span>
+  <span class="sx"></span><span class="rel">=</span><span class="dx">[1 + (<i>K</i> − 1)<i>P</i>] / (1 − <i>P</i>)</span><span class="perche">denominatore comune: <i>KP</i> + 1 − <i>P</i></span>
+</div></div>
+<div class="catena-wrap"><div class="catena">
+  <span class="sx"><i>U</i><sub>GBN</sub></span><span class="rel">=</span><span class="dx">1/<i>N</i><sub>s</sub> = (1 − <i>P</i>) / [1 + (<i>K</i> − 1)<i>P</i>]</span><span class="perche">passo 1</span>
+  <span class="sx"></span><span class="rel">=</span><span class="dx">(1 − <i>P</i>) / (1 + <i>P</i> + 2<i>aP</i>)</span><span class="perche"><i>K</i> − 1 = 1 + 2<i>a</i> <span class="rif">1</span></span>
+</div></div>
+<p><b>Se la finestra non basta</b> (<i>W</i> &lt; 1 + 2<i>a</i>), il mittente si ferma comunque ad aspettare le conferme. Senza errori l'utilizzazione sarebbe <i>W</i>/(1 + 2<i>a</i>), e gli errori la dividono ancora per <i>N</i><sub>s</sub>. Ora un errore costa al massimo la finestra intera, quindi <i>K</i> = <i>W</i>:</p>
+<div class="catena-wrap"><div class="catena">
+  <span class="sx"><i>U</i><sub>GBN</sub></span><span class="rel">=</span><span class="dx"><i>W</i>/(1 + 2<i>a</i>) · 1/<i>N</i><sub>s</sub></span><span class="perche">utilizzazione senza errori divisa per <i>N</i><sub>s</sub></span>
+  <span class="sx"></span><span class="rel">=</span><span class="dx"><i>W</i>(1 − <i>P</i>) / [(1 + 2<i>a</i>)(1 + (<i>W</i> − 1)<i>P</i>)]</span><span class="perche"><i>N</i><sub>s</sub> con <i>K</i> = <i>W</i></span>
+</div></div>
+<div class="spiega">
+  <p class="spiega-tit">Nota</p>
+  <p><span class="rif">1</span>Altri testi contano solo i frame partiti fino all'arrivo della notizia dell'errore, senza il frame successivo scartato: prendono <i>K</i> = 1 + 2<i>a</i> e ottengono <i>U</i> = (1 − <i>P</i>)/(1 + 2<i>aP</i>). Con <i>P</i> piccolo la differenza è minima. All'esame usa la versione del materiale del corso, e se usi l'altra spiega da dove viene <i>K</i>.</p>
+</div>
+<div class="box calc">
+  <p class="box-label">Esempio · quanto pesano gli errori</p>
+  <p><i>a</i> = 10, cioè 1 + 2<i>a</i> = 21, e finestre abbastanza grandi.</p>
+  <ul>
+    <li><i>P</i> = 0,01: Go-Back-N 0,99/(1 + 0,01 + 0,2) = 0,99/1,21 ≈ <b>82%</b>; Selective Repeat 1 − <i>P</i> = <b>99%</b>.</li>
+    <li><i>P</i> = 0,1: Go-Back-N 0,9/(1 + 0,1 + 2) = 0,9/3,1 ≈ <b>29%</b>; Selective Repeat <b>90%</b>.</li>
+  </ul>
+  <p>È la frase del libro in numeri: il Go-Back-N funziona bene se gli errori sono rari. Le formule del Selective Repeat e un grafico che confronta i tre protocolli sono in <a href="#sr-confronto">«Go-Back-N o Selective Repeat?»</a>.</p>
+</div>
 
 <h3 id="gbn-esercizi" data-toc="Esercizi svolti">Esercizi svolti</h3>
 <div class="box calc">
@@ -7073,11 +7361,29 @@ alla fine di ogni evento:
   <p><b>Soluzione.</b> Il protocollo diventerebbe <b>scorretto</b>. <code>between(ack_expected, r.ack, next_frame_to_send)</code> serve a decidere se una conferma riguarda un frame in sospeso: <code>next_frame_to_send</code> è il prossimo frame, <b>non ancora inviato</b>, e con «≤» una conferma con quel numero verrebbe accettata. Succede davvero: all'inizio il destinatario mette nel campo <code>ack</code> il valore <code>MAX_SEQ</code> (cioè «nessun frame ricevuto»). Se il mittente ha inviato i frame da 0 a 6, <code>next_frame_to_send</code> vale 7 e un frame che arriva con ack = 7 verrebbe preso come conferma di tutto: il mittente libererebbe frame mai arrivati, e il ciclo che fa avanzare <code>ack_expected</code> non si fermerebbe più, perché ogni numero risulterebbe «tra» <code>ack_expected</code> e 7.</p>
 </div>
 
+<div class="box calc">
+  <p class="box-label">Esempio svolto · un frame perso su un cavo di 600 km (dal secondo testo)</p>
+  <p><b>Testo.</b> Frame da 4000 byte, conferme da 100 byte, linea da 10 Mbit/s, elaborazione trascurabile; cavo lungo <b>600 km</b> (200 000 km/s). Finestra di invio 5, timer <i>T</i><sub>o</sub> = 12 ms, Go-Back-N con NACK. Si perde il terzo frame. Quanto tempo serve per spedire 100 kbyte (25 frame)? Quanti frame si trasmettono in tutto?</p>
+  <div class="catena-wrap"><div class="catena">
+    <span class="sx"><i>T<sub>p</sub></i></span><span class="rel">=</span><span class="dx">600 / 200 000 s = 3 ms</span><span class="perche"><i>d</i>/<i>v</i></span>
+    <span class="sx"><i>T<sub>x</sub></i> e <i>T</i><sub>ack</sub></span><span class="rel">=</span><span class="dx">3,2 ms e 0,08 ms</span><span class="perche">32 000 e 800 bit a 10 Mbit/s</span>
+    <span class="sx"><i>W</i> · <i>T<sub>x</sub></i></span><span class="rel">=</span><span class="dx">16 ms &gt; <i>T<sub>x</sub></i> + <i>T</i><sub>ack</sub> + 2<i>T<sub>p</sub></i> = 9,28 ms</span><span class="perche">la finestra basta: trasmissione continua</span>
+  </div></div>
+  <p><b>Che cosa succede.</b> Il frame 3 si perde. Il 4 finisce di partire a 4 · 3,2 = 12,8 ms e arriva a 15,8 ms; il destinatario lo scarta e manda NACK 3, che arriva al mittente a 15,8 + 0,08 + 3 = 18,88 ms. In quel momento il mittente sta trasmettendo il 6 (da 16 a 19,2 ms): lo finisce, poi torna indietro e rispedisce 3, 4, 5 e 6. Il timer del 3 sarebbe scaduto a 9,6 + 12 = 21,6 ms: il NACK arriva prima. Poi la trasmissione prosegue senza pause fino al 25.</p>
+  <div class="catena-wrap"><div class="catena">
+    <span class="sx">frame trasmessi</span><span class="rel">=</span><span class="dx">25 + 4 = 29</span><span class="perche">si rispediscono 3, 4, 5 e 6</span>
+    <span class="sx"><i>T</i><sub>tot</sub></span><span class="rel">=</span><span class="dx">29<i>T<sub>x</sub></i> + <i>T</i><sub>ack</sub> + 2<i>T<sub>p</sub></i> = 92,8 + 0,08 + 6 = 98,88 ms</span><span class="perche">29 frame in fila, poi l'ultima conferma</span>
+  </div></div>
+  <p>Lo stesso caso con il Selective Repeat è nell'argomento successivo: lì si rispedisce solo il 3.</p>
+</div>
+
 <h3 id="gbn-domande" data-toc="Domande d'esame">Domande d'esame</h3>
 <div class="qa-list">
   <details class="qa"><summary>Descrivi il funzionamento del Go-Back-N.</summary><div class="qa-a"><p>Il mittente può inviare fino a W frame senza attendere conferme, conservandoli in W buffer e avviando un timer per ciascuno. Il destinatario ha finestra di ricezione 1: accetta solo il frame atteso, lo consegna e lo conferma; scarta tutti i frame successivi a uno perso o danneggiato. Le conferme sono cumulative. Quando scade il timer del frame più vecchio non confermato, il mittente torna indietro e ritrasmette in ordine tutti i frame non confermati, a partire da quello.</p></div></details>
   <details class="qa"><summary>Perché con numeri di sequenza da n bit la finestra del Go-Back-N è al massimo 2^n − 1?</summary><div class="qa-a"><p>Con finestra 2^n, per esempio 8 con 3 bit, il mittente invia i frame 0–7, riceve ack 7, invia altri 8 frame 0–7 e riceve di nuovo ack 7. Non può sapere se il secondo gruppo è arrivato tutto (il destinatario conferma il suo ultimo frame, il 7) o si è perso tutto (il destinatario ripete la conferma del 7 del primo gruppo). Con finestra 7 le due situazioni producono conferme diverse (ack 5 contro ack 6), quindi il limite è MAX_SEQ = 2^n − 1.</p></div></details>
   <details class="qa"><summary>Che cos'è una conferma cumulativa e perché è utile nel Go-Back-N?</summary><div class="qa-a"><p>È una conferma che vale per il frame indicato e per tutti i precedenti: ack n conferma anche n − 1, n − 2 e così via. Nel Go-Back-N il destinatario accetta solo in ordine, quindi «ho ricevuto n» implica «ho ricevuto tutto fino a n». È utile perché se alcune conferme si perdono, una successiva le sostituisce tutte, e quando arriva il mittente libera insieme tutti i buffer interessati.</p></div></details>
+  <details class="qa"><summary>Descrivi il Go-Back-N con le conferme negative (NACK).</summary><div class="qa-a"><p>Il destinatario ha finestra di ricezione 1: accetta solo il frame atteso Lr, lo conferma con ACK Lr e fa avanzare la finestra. Un frame fuori ordine viene scartato; al primo frame fuori ordine il destinatario manda NACK Lr, che vuol dire «manca Lr, fino a Lr − 1 è tutto arrivato», agli altri ripete ACK (Lr − 1). Il mittente, con ACK j, considera confermati tutti i frame fino a j; con NACK j considera confermati quelli fino a j − 1 e ritrasmette dal frame j in poi; allo scadere di un timer ritrasmette quel frame e i successivi. Il NACK fa partire la ritrasmissione prima del timer.</p></div></details>
+  <details class="qa"><summary>Ricava l'efficienza del Go-Back-N con gli errori.</summary><div class="qa-a"><p>Con la finestra sufficiente il mittente non si ferma mai, quindi U = 1/Ns, dove Ns è il numero medio di frame trasmessi per frame arrivato. Ogni errore costa K frame: la perdita si scopre all'arrivo del frame successivo e il NACK torna dopo un'altra propagazione, quindi K·Tx = 2Tx + 2Tp, K = 2 + 2a. Un frame che fallisce i volte costa iK + 1 trasmissioni con probabilità P^i(1 − P), quindi Ns = Σ (iK + 1)P^i(1 − P) = KP/(1 − P) + 1 = [1 + (K − 1)P]/(1 − P). Ne segue U = (1 − P)/(1 + P + 2aP). Se W &lt; 1 + 2a, K = W e U = W(1 − P)/[(1 + 2a)(1 + (W − 1)P)].</p></div></details>
   <details class="qa"><summary>Come si gestiscono più timer con un solo orologio?</summary><div class="qa-a"><p>Con un orologio hardware che genera interruzioni periodiche (tick) e una lista concatenata di scadenze ordinate nel tempo: ogni nodo contiene i tick che mancano rispetto al nodo precedente, il frame a cui si riferisce e il puntatore al successivo. A ogni tick si decrementa solo il contatore in testa; quando arriva a zero scatta il timeout e il nodo si toglie. start_timer e stop_timer devono invece scorrere la lista.</p></div></details>
   <details class="qa"><summary>Quando conviene il Go-Back-N e quando no?</summary><div class="qa-a"><p>Conviene quando gli errori sono rari: il destinatario è semplice e non ha bisogno di buffer per i frame fuori ordine. Se la linea è di cattiva qualità spreca molta banda, perché ogni errore costringe a ritrasmettere tutti i frame inviati dopo quello perso, anche se erano arrivati bene; più la finestra è grande, più frame si ritrasmettono.</p></div></details>
 </div>
@@ -7089,7 +7395,9 @@ alla fine di ogni evento:
 {"q":"Il mittente ha in sospeso i frame 2, 3, 4, 5 e riceve ack 4. Che cosa resta in sospeso?","o":["Solo il 5","2, 3 e 5","Nessuno"],"a":0,"e":"La conferma è cumulativa: ack 4 conferma anche 2 e 3."},
 {"q":"Scade il timer del frame 2 e sono in sospeso 2, 3, 4, 5, 6. Che cosa ritrasmette il Go-Back-N?","o":["Solo il 2","2, 3, 4, 5, 6","Solo i frame danneggiati"],"a":1,"e":"Torna indietro al frame scaduto e ritrasmette in ordine tutti i frame non confermati."},
 {"q":"Quanti buffer per i frame fuori ordine servono al destinatario del Go-Back-N?","o":["Nessuno","Uno per frame della finestra di invio","MAX_SEQ + 1"],"a":0,"e":"Il destinatario accetta solo in ordine e scarta il resto: gli basta gestire il frame atteso. I buffer servono al mittente."},
-{"q":"Collegamento con a = Tp/Tx = 10 e Go-Back-N a 3 bit. Utilizzazione senza errori?","o":["33%","70%","100%"],"a":0,"e":"W = 7 e 1 + 2a = 21: U = 7/21 ≈ 33%."}
+{"q":"Collegamento con a = Tp/Tx = 10 e Go-Back-N a 3 bit. Utilizzazione senza errori?","o":["33%","70%","100%"],"a":0,"e":"W = 7 e 1 + 2a = 21: U = 7/21 ≈ 33%."},
+{"q":"Go-Back-N con NACK: il destinatario aspetta il 3 e riceve, nell'ordine, 4, 5 e 6. Che cosa risponde?","o":["NACK 3, ACK 2, ACK 2","NACK 3, NACK 3, NACK 3","ACK 3, ACK 4, ACK 5"],"a":0,"e":"Il NACK parte solo al primo frame fuori ordine; agli altri il destinatario ripete la conferma dell'ultimo frame accettato, il 2."},
+{"q":"Go-Back-N con finestra sufficiente, a = 2 e P = 0,1. Efficienza secondo il secondo testo?","o":["60%","90%","69%"],"a":0,"e":"(1 − P)/(1 + P + 2aP) = 0,9/(1 + 0,1 + 0,4) = 0,9/1,5 = 0,6."}
 ]</script></div>
 
 <div class="topic-end"><button class="btn studied-btn" type="button" data-topic="gobackn" aria-pressed="false">Segna come studiato</button></div>
@@ -7103,6 +7411,7 @@ alla fine di ogni evento:
   <h2>Il protocollo Selective Repeat</h2>
   <div class="topic-meta">
     <span class="chip pdf">5ª ed.: <b>§3.4.3 Un protocollo che usa la ripetizione selettiva</b></span>
+    <span class="chip pdf">secondo testo: <b>§3.2.2</b>, <b>§3.2.3</b>, <b>§3.2.5</b>, <b>§3.2.6</b></span>
     <button class="btn small studied-btn" type="button" data-topic="selective" aria-pressed="false">Segna come studiato</button>
   </div>
 </header>
@@ -7117,6 +7426,7 @@ alla fine di ogni evento:
     <li>Il destinatario manda un NAK quando sospetta un errore: un frame danneggiato o un frame diverso da quello atteso. La variabile <code>no_nak</code> evita di chiedere due volte lo stesso frame.</li>
     <li>La finestra può essere al massimo <b>metà</b> dello spazio dei numeri: (<code>MAX_SEQ</code> + 1)/2 = <b>2<sup><i>n</i>−1</sup></b>. Altrimenti la nuova finestra del destinatario si sovrappone alla vecchia e un duplicato viene preso per nuovo.</li>
     <li>Buffer e timer sono tanti quanto la <b>finestra</b>, non quanto i numeri di sequenza. Un <b>timer ausiliario</b> manda conferme separate quando non c'è traffico di ritorno.</li>
+    <li>Con gli errori e la finestra sufficiente l'efficienza è <b>1 − <i>P</i></b>: si rispedisce solo il frame sbagliato. Senza NACK, con sole conferme positive, si ottiene il protocollo ibrido alla base di TCP.</li>
   </ul>
 </div>
 
@@ -7136,21 +7446,34 @@ alla fine di ogni evento:
 </div>
 <p>Nella Figura 3.18 del libro si perde il frame 2. Quando arriva il 3, il destinatario si accorge del buco: manda NAK 2 e mette il 3 nel buffer. Fa lo stesso con 4 e 5, senza consegnarli. Il NAK arriva al mittente, che rispedisce subito il frame 2; quando il 2 arriva, il destinatario ha i frame da 2 a 5 e li consegna in ordine, poi conferma tutto fino al 5. Se il NAK si fosse perso, il mittente avrebbe ritrasmesso il 2, e solo il 2, allo scadere del suo timer, con un po' di ritardo.</p>
 
+<h4>Le regole del secondo testo</h4>
+<p>Il secondo testo descrive il selective repeat con conferme cumulative e NACK, come il protocollo 6, ma il NACK ha un significato più ristretto:</p>
+<ul>
+  <li><b>NACK <i>i</i></b> dice <b>solo</b> che manca il frame <i>i</i>: non conferma i frame precedenti. Nel protocollo 6 invece ogni frame, anche un NAK, porta il campo <code>ack</code>, quindi il NAK conferma anche i precedenti; il simulatore segue il libro.</li>
+  <li><b>ACK <i>i</i></b> è cumulativo: sono arrivati tutti i frame fino all'<i>i</i>.</li>
+  <li>Il destinatario accetta ogni frame che cade nella sua finestra. Al <b>primo</b> frame fuori ordine manda NACK <i>L</i><sub>r</sub>; agli altri frame fuori ordine risponde ripetendo ACK (<i>L</i><sub>r</sub> − 1), l'ultimo ricevuto in ordine. Un frame fuori dalla finestra viene scartato, sempre con ACK (<i>L</i><sub>r</sub> − 1).</li>
+  <li>Quando arriva il frame <i>L</i><sub>r</sub> che mancava, il destinatario consegna anche quelli già nel buffer e manda un solo ACK <i>j</i> che li copre tutti; la finestra avanza di altrettante posizioni.</li>
+  <li>Il mittente, a un NACK <i>j</i>, rispedisce solo il frame <i>j</i>; a un timeout, solo il frame scaduto.</li>
+</ul>
+<p>L'esempio del secondo testo (la sua Figura 3.14: finestre di 4, numeri da 3 bit) in parole. Si perde il frame 3. Arriva il 4 e viene accettato: parte NACK 3. Arrivano il 5 e il 6, accettati con ACK 2. Il mittente rispedisce il 3 e poi si ferma, perché ha esaurito la finestra (3, 4, 5, 6). Quando il 3 arriva, il destinatario consegna 3, 4, 5 e 6 e risponde ACK 6: le due finestre avanzano di quattro posizioni. Nel simulatore è il pulsante «Secondo testo: si perde il 3».</p>
+
 <div class="widget arq" data-proto="sr" aria-labelledby="sr-t">
   <div class="widget-head"><p class="widget-title" id="sr-t">Simulatore · Selective Repeat (protocollo 6)</p></div>
   <p class="w-hint">Confronta con il simulatore del Go-Back-N: stesso errore, molte meno ritrasmissioni. Sotto il diagramma, nella riga del destinatario, il bordo scuro indica la finestra di ricezione e il viola i frame nel buffer.</p>
   <div class="seg-ctrl" role="group" aria-label="Scenari">
-    <button class="btn small" type="button" data-arq-preset='{"w":4,"bits":3,"tp":2.5,"to":16,"n":10,"nak":1,"ack":"cum","lost":["d2.1"]}'>Figura 3.18 b: si perde il 2, con NAK</button>
-    <button class="btn small" type="button" data-arq-preset='{"w":4,"bits":3,"tp":2.5,"to":16,"n":10,"nak":0,"ack":"cum","lost":["d2.1"]}'>Stesso errore, senza NAK</button>
-    <button class="btn small" type="button" data-arq-preset='{"w":4,"bits":3,"tp":2.5,"to":10,"n":10,"nak":0,"ack":"sel","lost":["d2.1"]}'>Ack selettivi</button>
-    <button class="btn small" type="button" data-arq-preset='{"w":7,"bits":3,"tp":2,"to":8,"n":10,"nak":1,"ack":"cum","lost":["a0.1","a1.1","a2.1","a3.1","a4.1","a5.1","a6.1"]}'>W = 7 con 3 bit: si sovrappone</button>
-    <button class="btn small" type="button" data-arq-preset='{"w":4,"bits":3,"tp":2,"to":8,"n":10,"nak":1,"ack":"cum","lost":["a0.1","a1.1","a2.1","a3.1"]}'>W = 4 con 3 bit: funziona</button>
+    <button class="btn small" type="button" data-arq-preset='{"w":4,"bits":3,"tp":2.5,"to":15,"n":10,"nak":1,"ack":"cum","lost":["d2.1"]}'>Figura 3.18 b: si perde il 2, con NAK</button>
+    <button class="btn small" type="button" data-arq-preset='{"w":4,"bits":3,"tp":0.5,"to":6,"n":8,"nak":1,"ack":"cum","lost":["d3.1"]}'>Secondo testo: si perde il 3</button>
+    <button class="btn small" type="button" data-arq-preset='{"w":4,"bits":3,"tp":0.5,"to":4.25,"n":8,"nak":0,"ack":"cum","lost":["d3.1","a2.1"]}'>Soli riscontri positivi</button>
+    <button class="btn small" type="button" data-arq-preset='{"w":4,"bits":3,"tp":2.5,"to":15,"n":10,"nak":0,"ack":"cum","lost":["d2.1"]}'>Stesso errore, senza NAK</button>
+    <button class="btn small" type="button" data-arq-preset='{"w":4,"bits":3,"tp":2.5,"to":9,"n":10,"nak":0,"ack":"sel","lost":["d2.1"]}'>Ack selettivi</button>
+    <button class="btn small" type="button" data-arq-preset='{"w":7,"bits":3,"tp":2,"to":7,"n":10,"nak":1,"ack":"cum","lost":["a0.1","a1.1","a2.1","a3.1","a4.1","a5.1","a6.1"]}'>W = 7 con 3 bit: si sovrappone</button>
+    <button class="btn small" type="button" data-arq-preset='{"w":4,"bits":3,"tp":2,"to":7,"n":10,"nak":1,"ack":"cum","lost":["a0.1","a1.1","a2.1","a3.1"]}'>W = 4 con 3 bit: funziona</button>
   </div>
   <div class="w-grid">
     <label class="field" for="sr-w"><span>Finestra W: <output data-for="arq-w">4</output></span><input id="sr-w" type="range" class="arq-w" min="1" max="8" step="1" value="4"></label>
     <label class="field" for="sr-bits"><span>Bit del numero di sequenza</span><select id="sr-bits" class="arq-bits"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option></select></label>
     <label class="field" for="sr-tp"><span>Propagazione: <output data-for="arq-tp">2,5</output></span><input id="sr-tp" type="range" class="arq-tp" min="0.5" max="5" step="0.5" value="2.5"></label>
-    <label class="field" for="sr-to"><span>Timer: <output data-for="arq-to">16</output></span><input id="sr-to" type="range" class="arq-to" min="2" max="20" step="0.5" value="16"></label>
+    <label class="field" for="sr-to"><span>Timer: <output data-for="arq-to">15</output></span><input id="sr-to" type="range" class="arq-to" min="1" max="20" step="0.25" value="15"></label>
     <label class="field" for="sr-n"><span>Pacchetti da inviare: <output data-for="arq-n">10</output></span><input id="sr-n" type="range" class="arq-n" min="3" max="12" step="1" value="10"></label>
     <label class="field" for="srsim-ack"><span>Conferme</span><select id="srsim-ack" class="arq-ack"><option value="cum" selected>cumulative (libro)</option><option value="sel">selettive</option></select></label>
     <label class="check" for="srsim-nak"><input id="srsim-nak" type="checkbox" class="arq-nak" checked> Il destinatario usa i NAK</label>
@@ -7187,6 +7510,8 @@ alla fine di ogni evento:
 <div class="formula" role="math" aria-label="W minore o uguale a MAX_SEQ più 1 fratto 2 uguale a 2 alla n meno 1">
   <span class="fx"><span class="ft">Selective Repeat: &nbsp;<i>W</i> ≤ (<code>MAX_SEQ</code> + 1) / 2 = 2<sup><i>n</i>−1</sup></span></span><span class="ftag">numeri di sequenza da <i>n</i> bit</span>
 </div>
+<p>Il secondo testo ragiona con le due finestre separate e arriva alla regola generale <b><i>W</i><sub>s</sub> + <i>W</i><sub>r</sub> ≤ <i>N</i></b>: quando il destinatario ha fatto avanzare la sua finestra del massimo possibile, dopo aver ricevuto <i>W</i><sub>r</sub> frame, la nuova finestra non deve contenere numeri che il mittente potrebbe ancora ritrasmettere. Il suo esempio: <i>W</i><sub>s</sub> = <i>W</i><sub>r</sub> = 7 con 3 bit; arrivano i frame 2, 3, 4, 5, 6, 7 e 0, si perde la conferma ACK 0, scade il timer e il mittente rispedisce il 2, che cade nella nuova finestra (da 1 a 7) e viene preso per nuovo.</p>
+<p>La scelta migliore è <b><i>W</i><sub>s</sub> = <i>W</i><sub>r</sub> = <i>N</i>/2</b>. Se <i>W</i><sub>s</sub> &gt; <i>W</i><sub>r</sub>, il destinatario scarta frame corretti che arrivano fuori ordine ma oltre la sua finestra; se <i>W</i><sub>s</sub> &lt; <i>W</i><sub>r</sub>, una parte della finestra di ricezione non si usa mai.</p>
 <p>Con 3 bit la finestra è al massimo <b>4</b>. Se il destinatario ha appena accettato i frame da 0 a 3 e ha spostato la finestra su 4–7, sa con certezza che un frame con numero tra 0 e 3 è una ritrasmissione e uno tra 4 e 7 è nuovo.</p>
 
 <figure class="fig">
@@ -7222,7 +7547,19 @@ alla fine di ogni evento:
   </table>
 </div>
 
+<h3 id="sr-soloack" data-toc="Soli riscontri positivi">Il protocollo con soli riscontri positivi</h3>
+<p class="in-questa"><b>In questa sezione:</b> il terzo tipo di continuous ARQ del secondo testo, senza conferme negative, che è l'idea alla base di TCP.</p>
+<p>Go-Back-N e Selective Repeat capiscono che un frame si è perso guardando i numeri di quelli che arrivano: se dopo il 2 arriva il 4, manca il 3. Funziona perché un collegamento diretto consegna i frame <b>nell'ordine</b> in cui partono. Ma se tra le due stazioni c'è una <b>rete</b>, i pacchetti possono seguire strade diverse e arrivare in disordine: con IP succede. Un buco nei numeri non vuol più dire «perso»: forse il pacchetto è solo in ritardo. Per questo i protocolli di trasporto che usano IP lavorano con <b>sole conferme positive</b>.</p>
+<ul>
+  <li>Il destinatario ha una finestra di ricezione più grande di 1 e accetta i frame fuori ordine, come nel Selective Repeat.</li>
+  <li>A <b>ogni</b> frame che cade nella finestra risponde con un ACK cumulativo: «ho ricevuto in ordine tutto fino a <i>i</i>».</li>
+  <li>Non ci sono NACK: un frame perso si rispedisce solo quando scade il suo timer. I timer scadono nell'ordine in cui i frame sono partiti, quindi il mittente rispedisce in ordine i frame non confermati, come nel Go-Back-N.</li>
+</ul>
+<p>È quindi un <b>ibrido</b>: accetta fuori ordine come il Selective Repeat, ritrasmette in ordine come il Go-Back-N. L'esempio del secondo testo (la sua Figura 3.17: finestre di 4, numeri da 3 bit): si perdono il frame 3 e la conferma ACK 2. Il destinatario riceve il 4 e ripete ACK 2: questa volta arriva, la finestra del mittente avanza e parte il 6. Poi scadono, uno dopo l'altro, i timer di 3, 4 e 5, che vengono rispediti. Quando arriva il 3, il destinatario, che ha già 4, 5 e 6, risponde ACK 6, e il mittente riparte dal 7. Le copie di 4 e 5 arrivano dopo e vengono scartate come duplicati. Nel simulatore qui sopra è il pulsante «Soli riscontri positivi».</p>
+<p>Le conferme ripetute (lo stesso ACK che torna più volte) dicono comunque qualcosa al mittente: i frame arrivano, ma ne manca uno. Si possono usare per rispedire il frame prima che scada il timer: è l'idea della ritrasmissione veloce di TCP, al livello di trasporto.</p>
+
 <h3 id="sr-confronto" data-toc="Go-Back-N o Selective Repeat?">Go-Back-N o Selective Repeat?</h3>
+<p class="in-questa"><b>In questa sezione:</b> i tre protocolli a confronto, le formule dell'efficienza con e senza errori e un grafico per vedere quando conviene l'uno o l'altro.</p>
 <div class="tbl-wrap">
   <table class="tbl">
     <thead><tr><th></th><th>Stop-and-wait</th><th>Go-Back-N</th><th>Selective Repeat</th></tr></thead>
@@ -7233,11 +7570,52 @@ alla fine di ogni evento:
       <tr><th>Dopo un errore ritrasmette</th><td>il frame</td><td>tutti i frame dal perso in poi</td><td>solo il frame perso</td></tr>
       <tr><th>Conferme</th><td>una per frame</td><td>cumulative</td><td>cumulative o selettive, più i NAK</td></tr>
       <tr><th>Utilizzazione senza errori</th><td>1/(1 + 2<i>a</i>)</td><td>min(1, (2<sup><i>n</i></sup> − 1)/(1 + 2<i>a</i>))</td><td>min(1, 2<sup><i>n</i>−1</sup>/(1 + 2<i>a</i>))</td></tr>
+      <tr><th>Efficienza con errori, finestra sufficiente</th><td>(1 − <i>P</i>)/(1 + 2<i>a</i>)</td><td>(1 − <i>P</i>)/(1 + <i>P</i> + 2<i>aP</i>)</td><td>1 − <i>P</i></td></tr>
       <tr><th>Quando conviene</th><td>collegamenti corti (<i>a</i> piccolo)</td><td>pochi errori, poca memoria al destinatario</td><td>molti errori, memoria disponibile</td></tr>
     </tbody>
   </table>
 </div>
-<p>Una conseguenza curiosa: a parità di bit e <b>senza errori</b>, il Go-Back-N ha una finestra quasi doppia e quindi, su collegamenti lunghi, un'utilizzazione più alta. Con molti errori vince il Selective Repeat, perché non ritrasmette frame arrivati bene (vedi il riquadro facoltativo «Che cosa succede quando ci sono errori» nel Go-Back-N).</p>
+<h4>L'efficienza con gli errori</h4>
+<p>Nel Selective Repeat ogni errore costa una sola trasmissione in più, quella del frame sbagliato: come nello stop-and-wait, <i>N</i><sub>s</sub> = 1/(1 − <i>P</i>). Se la finestra basta il mittente non si ferma mai, quindi <i>U</i> = 1/<i>N</i><sub>s</sub> = 1 − <i>P</i>; se non basta, l'utilizzazione senza errori <i>W</i>/(1 + 2<i>a</i>) va moltiplicata per 1 − <i>P</i>. Ecco tutte le formule del secondo testo, con conferme ed elaborazione trascurabili (la derivazione del Go-Back-N è in <a href="#gbn-eff">«Quanto rende il Go-Back-N»</a>):</p>
+<div class="tbl-wrap">
+  <table class="tbl">
+    <thead><tr><th>Protocollo</th><th>Finestra sufficiente: <i>W</i> ≥ 1 + 2<i>a</i></th><th>Finestra che limita: <i>W</i> &lt; 1 + 2<i>a</i></th></tr></thead>
+    <tbody>
+      <tr><th>Stop-and-wait (<i>W</i> = 1)</th><td colspan="2">(1 − <i>P</i>) / (1 + 2<i>a</i>)</td></tr>
+      <tr><th>Go-Back-N</th><td>(1 − <i>P</i>) / (1 + <i>P</i> + 2<i>aP</i>)</td><td><i>W</i>(1 − <i>P</i>) / [(1 + 2<i>a</i>)(1 + (<i>W</i> − 1)<i>P</i>)]</td></tr>
+      <tr><th>Selective Repeat</th><td>1 − <i>P</i></td><td><i>W</i>(1 − <i>P</i>) / (1 + 2<i>a</i>)</td></tr>
+      <tr><th>Senza errori (<i>P</i> = 0)</th><td>1</td><td><i>W</i> / (1 + 2<i>a</i>)</td></tr>
+    </tbody>
+    <caption>Con <i>P</i> = 0 tutte le righe tornano alle formule senza errori. Nei simboli del secondo testo: <i>η</i> al posto di <i>U</i>, <i>W</i><sub>s</sub> al posto di <i>W</i>. Il ginocchio delle curve è dove <i>W</i> = 1 + 2<i>a</i>, cioè <i>a</i> = (<i>W</i> − 1)/2.</caption>
+  </table>
+</div>
+<p>Una conseguenza curiosa: a parità di bit dei numeri di sequenza il Go-Back-N ha una finestra quasi doppia (2<sup><i>n</i></sup> − 1 contro 2<sup><i>n</i>−1</sup>). Su collegamenti lunghi, dove è la finestra a limitare, e con pochi errori, il Go-Back-N può quindi rendere <b>più</b> del Selective Repeat. Con molti errori vince il Selective Repeat, perché non rispedisce frame arrivati bene. Il grafico qui sotto, costruito con le formule della tabella, rifà i confronti del secondo testo (le sue Figure 3.20–3.24).</p>
+
+<div class="widget arqcmp" aria-labelledby="cmp-t">
+  <div class="widget-head">
+    <p class="widget-title" id="cmp-t">Figura 3.18 · efficienza di stop-and-wait, Go-Back-N e Selective Repeat</p>
+    <div class="seg-ctrl" role="group" aria-label="Asse orizzontale">
+      <button class="btn small" type="button" data-cmp-x="a" aria-pressed="true">al variare di <i>a</i></button>
+      <button class="btn small" type="button" data-cmp-x="l" aria-pressed="false">al variare del frame</button>
+    </div>
+  </div>
+  <p class="w-hint">Le finestre sono le più grandi permesse dai bit dei numeri di sequenza: 2ⁿ − 1 per il Go-Back-N, 2ⁿ⁻¹ per il Selective Repeat. Passa sul grafico, o selezionalo e usa le frecce, per leggere i valori. Le linee tratteggiate segnano dove la finestra comincia a limitare.</p>
+  <div class="w-grid">
+    <label class="field" for="cmp-p"><span>Probabilità di errore sul bit <i>p</i></span><select id="cmp-p" class="cmp-p"><option value="1e-6">10⁻⁶ (linea ottima)</option><option value="1e-5">10⁻⁵</option><option value="1e-4" selected>10⁻⁴ (linea media)</option></select></label>
+    <label class="field" for="cmp-b"><span>Bit dei numeri di sequenza <i>n</i></span><select id="cmp-b" class="cmp-b"><option value="3" selected>3 (GBN 7, SR 4)</option><option value="7">7 (GBN 127, SR 64)</option></select></label>
+    <label class="field cmp-tf" for="cmp-tau" hidden><span>Collegamento (linea da 64 kbit/s)</span><select id="cmp-tau" class="cmp-t"><option value="0.005" selected>cavo di 1000 km, Tp = 5 ms</option><option value="0.25">satellite, Tp = 250 ms</option></select></label>
+  </div>
+  <div class="legend-row cmp-legend"></div>
+  <div class="chart-wrap"><svg class="dia cmp-svg" viewBox="0 0 640 300" tabindex="0" role="img" aria-label="Grafico dell'efficienza dei tre protocolli ARQ"></svg><div class="chart-tip" hidden></div></div>
+  <p class="w-note cmp-note" aria-live="polite"></p>
+  <details class="facolt cmp-tab"><summary>Tabella dei valori</summary><div class="facolt-body"><div class="tbl-wrap"><table class="tbl"></table></div></div></details>
+</div>
+<p>Che cosa mostra il grafico, con i casi del secondo testo:</p>
+<ul>
+  <li><b>Linea ottima</b> (<i>p</i> = 10<sup>−6</sup>, al variare di <i>a</i>): i due protocolli a finestra rendono quasi il 100% finché la finestra basta; oltre il ginocchio la finestra limita, e il Go-Back-N, con la finestra quasi doppia, sta sopra il Selective Repeat. Lo stop-and-wait crolla già con <i>a</i> intorno a 1.</li>
+  <li><b>Linea media</b> (<i>p</i> = 10<sup>−4</sup>): con 7 bit il Selective Repeat è sempre il migliore; con 3 bit, sui collegamenti lunghi, la finestra più grande fa ancora vincere il Go-Back-N.</li>
+  <li><b>Al variare del frame</b>: frame corti vuol dire <i>a</i> grande, quindi la finestra limita; frame lunghi vuol dire <i>P</i> grande, quindi molti errori. In mezzo c'è una lunghezza migliore. Sul satellite, dove ogni errore nel Go-Back-N costa centinaia di frame, il Selective Repeat è nettamente più efficiente.</li>
+</ul>
 
 <div class="widget effw">
   <div class="widget-head"><p class="widget-title">Calcolatrice d'esame · Go-Back-N e Selective Repeat</p></div>
@@ -7313,12 +7691,26 @@ alla fine di ogni evento:
   <p>In tutto 80,4 bit di ridondanza ogni 3960 bit di dati: 80,4 / (3960 + 80,4) ≈ <b>2%</b>.</p>
 </div>
 
+<div class="box calc">
+  <p class="box-label">Esempio svolto · lo stesso frame perso con il Selective Repeat (dal secondo testo)</p>
+  <p><b>Testo.</b> Il collegamento dell'esempio del Go-Back-N sul cavo di 600 km (<i>T<sub>x</sub></i> = 3,2 ms, <i>T</i><sub>ack</sub> = 0,08 ms, <i>T<sub>p</sub></i> = 3 ms, finestra di invio 5, timer 12 ms), ma con il Selective Repeat e il NACK. Si perde il terzo dei 25 frame. Tempo totale e frame trasmessi?</p>
+  <p><b>Che cosa succede.</b> Come prima, NACK 3 arriva a 18,88 ms, mentre il mittente trasmette il 6. Ora il mittente rispedisce <b>solo</b> il 3, da 19,2 a 22,4 ms, poi il 7, l'ultimo che la finestra permette (3, 4, 5, 6, 7), e si ferma. La conferma ACK 6, che copre il 3 e anche 4, 5 e 6 già nel buffer, arriva a 7<i>T<sub>x</sub></i> + <i>T</i><sub>ack</sub> + 2<i>T<sub>p</sub></i> = 22,4 + 0,08 + 6 = 28,48 ms. Da lì gli ultimi 18 frame, dall'8 al 25, partono senza pause.</p>
+  <div class="catena-wrap"><div class="catena">
+    <span class="sx"><i>T</i><sub>tot</sub></span><span class="rel">=</span><span class="dx">(7<i>T<sub>x</sub></i> + <i>T</i><sub>ack</sub> + 2<i>T<sub>p</sub></i>) + (18<i>T<sub>x</sub></i> + <i>T</i><sub>ack</sub> + 2<i>T<sub>p</sub></i>)</span><span class="perche">fino all'ACK 6, poi 18 frame e l'ultima conferma</span>
+    <span class="sx"></span><span class="rel">=</span><span class="dx">28,48 + 57,6 + 6,08 = 92,16 ms</span><span class="perche">contro 98,88 ms del Go-Back-N</span>
+    <span class="sx">frame trasmessi</span><span class="rel">=</span><span class="dx">25 + 1 = 26</span><span class="perche">si rispedisce solo il 3</span>
+  </div></div>
+</div>
+
 <h3 id="sr-domande" data-toc="Domande d'esame">Domande d'esame</h3>
 <div class="qa-list">
   <details class="qa"><summary>Descrivi il funzionamento del Selective Repeat.</summary><div class="qa-a"><p>Mittente e destinatario hanno finestre della stessa dimensione W. Il destinatario ha un buffer per ogni numero della finestra con un bit arrived: accetta e conserva ogni frame integro che cade nella finestra e non è già arrivato, anche se fuori ordine, e lo consegna al livello di rete solo quando sono stati consegnati tutti i precedenti. Il mittente ritrasmette solo il frame il cui timer scade o che viene chiesto con un NAK. Il destinatario manda un NAK quando arriva un frame danneggiato o diverso da quello atteso, una sola volta per frame (variabile no_nak).</p></div></details>
   <details class="qa"><summary>Perché nel Selective Repeat la finestra non può superare la metà dei numeri di sequenza?</summary><div class="qa-a"><p>Con 3 bit e finestra 7: il mittente manda 0–6, il destinatario li riceve e sposta la finestra su 7, 0, 1, …, 5; tutte le conferme si perdono; il mittente ritrasmette lo 0, che cade nella nuova finestra e viene accettato come frame nuovo; più tardi viene consegnato al posto del frame giusto. Il problema è la sovrapposizione tra la finestra vecchia e quella nuova. Con W ≤ (MAX_SEQ + 1)/2 = 2^(n−1) le due finestre sono disgiunte e il destinatario distingue sempre una ritrasmissione da un frame nuovo.</p></div></details>
   <details class="qa"><summary>Quanti buffer e quanti timer servono nel Selective Repeat?</summary><div class="qa-a"><p>Tanti quanta la dimensione della finestra, non quanti i numeri di sequenza: il destinatario non accetta mai frame fuori dalla finestra, quindi in ogni momento contiene al massimo W frame. Il frame i va nel buffer i mod W; i e i + W non sono mai nella finestra insieme. Anche i timer sono uno per buffer.</p></div></details>
   <details class="qa"><summary>A che cosa servono i NAK e il timer ausiliario del protocollo 6?</summary><div class="qa-a"><p>Il NAK chiede la ritrasmissione di un frame prima che scada il timer del mittente: utile quando il tempo di risposta varia molto e il timeout dovrebbe essere lungo. Se si perde, ci pensa il timer. Il timer ausiliario serve quando non c'è traffico di ritorno su cui caricare le conferme: allo scadere parte un frame di conferma separato. Deve essere molto più corto del timer dei dati, altrimenti frame ricevuti bene verrebbero ritrasmessi.</p></div></details>
+  <details class="qa"><summary>Che cos'è il protocollo con soli riscontri positivi e perché si usa?</summary><div class="qa-a"><p>È un continuous ARQ senza conferme negative. Il destinatario ha una finestra più grande di 1, accetta i frame fuori ordine e risponde a ogni frame nella finestra con un ACK cumulativo; il mittente rispedisce un frame solo quando scade il suo timer, quindi in ordine, come nel Go-Back-N. Si usa quando tra le due stazioni c'è una rete, come con IP, che può consegnare i pacchetti fuori ordine: un buco nei numeri non vuol dire per forza una perdita, quindi non si può mandare un NACK. È l'idea alla base di TCP.</p></div></details>
+  <details class="qa"><summary>Ricava l'efficienza del Selective Repeat con gli errori e confrontala con quella del Go-Back-N.</summary><div class="qa-a"><p>Nel Selective Repeat ogni errore costa solo la ritrasmissione del frame sbagliato, quindi Ns = 1/(1 − P). Se W ≥ 1 + 2a il mittente non si ferma mai e U = 1/Ns = 1 − P; altrimenti U = W(1 − P)/(1 + 2a). Nel Go-Back-N ogni errore costa K = 2 + 2a frame e U = (1 − P)/(1 + P + 2aP), sempre minore di 1 − P: la differenza cresce con a e con P. Con finestra che limita, però, a parità di bit il Go-Back-N ha una finestra quasi doppia e con pochi errori può rendere di più.</p></div></details>
+  <details class="qa"><summary>Perché nel Selective Repeat conviene Ws = Wr = N/2?</summary><div class="qa-a"><p>Per evitare ambiguità deve valere Ws + Wr ≤ N. Se Ws &gt; Wr, il destinatario scarta frame corretti che arrivano fuori ordine ma oltre la sua finestra; se Ws &lt; Wr, una parte della finestra di ricezione non viene mai usata. La scelta migliore divide i numeri a metà: Ws = Wr = N/2 = 2^(n−1).</p></div></details>
   <details class="qa"><summary>Confronta Go-Back-N e Selective Repeat.</summary><div class="qa-a"><p>Go-Back-N: finestra di ricezione 1, nessun buffer al destinatario, conferme cumulative, dopo un errore ritrasmette tutti i frame dal perso in poi, finestra massima 2^n − 1. Selective Repeat: finestra di ricezione uguale a quella di invio, W buffer e W timer, ritrasmette solo il frame perso, usa i NAK, finestra massima 2^(n−1). Il Go-Back-N risparmia memoria e va bene con pochi errori; il Selective Repeat risparmia banda e va meglio con molti errori.</p></div></details>
 </div>
 
@@ -7329,7 +7721,10 @@ alla fine di ogni evento:
 {"q":"Con finestra 4 e numeri a 3 bit, quanti buffer servono al destinatario?","o":["4","7","8"],"a":0,"e":"Uno per numero della finestra: i frame fuori finestra non vengono mai accettati."},
 {"q":"Il destinatario ha consegnato 0–3 e la sua finestra è 4–7. Arriva un frame con numero 2. Che cos'è?","o":["Un frame nuovo","Una ritrasmissione di un frame già ricevuto","Non si può dire"],"a":1,"e":"Con finestre che non si sovrappongono, un numero fuori dalla finestra corrente indica per forza una vecchia copia."},
 {"q":"Perché il timer ausiliario deve essere più corto di quello dei dati?","o":["Per risparmiare memoria","Perché la conferma deve partire prima che il mittente ritrasmetta un frame arrivato bene","Perché i NAK sono più corti"],"a":1,"e":"Se la conferma separata partisse dopo il timeout del mittente, il frame verrebbe ritrasmesso inutilmente."},
-{"q":"A parità di bit di sequenza e senza errori, su un collegamento lungo, quale protocollo ha l'utilizzazione più alta?","o":["Go-Back-N","Selective Repeat","Sono uguali"],"a":0,"e":"Il Go-Back-N può usare una finestra di 2ⁿ − 1, quasi il doppio di 2ⁿ⁻¹. Con molti errori invece conviene il Selective Repeat."}
+{"q":"A parità di bit di sequenza e senza errori, su un collegamento lungo, quale protocollo ha l'utilizzazione più alta?","o":["Go-Back-N","Selective Repeat","Sono uguali"],"a":0,"e":"Il Go-Back-N può usare una finestra di 2ⁿ − 1, quasi il doppio di 2ⁿ⁻¹. Con molti errori invece conviene il Selective Repeat."},
+{"q":"Nel secondo testo, nel Selective Repeat, NACK 3 significa…","o":["manca il 3, e basta","manca il 3 e fino al 2 è tutto arrivato","il 3 è arrivato due volte"],"a":0,"e":"Nel Selective Repeat del secondo testo il NACK non conferma i frame precedenti; nel Go-Back-N sì."},
+{"q":"Selective Repeat con finestra sufficiente e P = 0,05. Efficienza?","o":["95%","90%","5%"],"a":0,"e":"Si rispedisce solo il frame sbagliato: U = 1 − P = 0,95."},
+{"q":"Nel protocollo con soli riscontri positivi, quando si rispedisce un frame perso?","o":["Quando arriva un NACK","Quando scade il suo timer","Quando arriva un frame fuori ordine"],"a":1,"e":"Non ci sono conferme negative: l'unico meccanismo di ritrasmissione è il timer."}
 ]</script></div>
 
 <div class="topic-end"><button class="btn studied-btn" type="button" data-topic="selective" aria-pressed="false">Segna come studiato</button></div>
@@ -8599,6 +8994,14 @@ alla fine di ogni evento:
 {"t": "Selective Repeat (ripetizione selettiva)", "d": "Protocollo a finestra in cui il destinatario conserva i frame fuori ordine e il mittente ritrasmette solo quelli persi. Finestra massima 2^(n−1).", "r": "sr-regole"},
 {"t": "Timer ausiliario (ack timer)", "d": "Timer del protocollo 6 che fa partire una conferma separata quando non c'è traffico di ritorno; è molto più corto del timer dei dati.", "r": "sr-nak"},
 {"t": "Conferma selettiva", "d": "Conferma che vale solo per il frame indicato, non per i precedenti.", "r": "sr-ack"},
+{"t": "UI (unità informativa)", "d": "Nome che il secondo testo usa per il blocco di dati trasmesso: corrisponde al frame.", "r": "eff-simboli"},
+{"t": "Continuous ARQ", "d": "Protocolli ARQ che trasmettono più frame senza aspettare le conferme, cioè a finestra scorrevole: go-back-n, selective repeat e il protocollo con soli riscontri positivi.", "r": "finestra"},
+{"t": "Tempo di propagazione normalizzato (a)", "d": "Il tempo di propagazione diviso per il tempo di trasmissione di un frame: a = τ/Tu nel secondo testo, Tp/Tx qui. Coincide con BD.", "r": "eff-simboli"},
+{"t": "Efficienza (η)", "d": "Nel secondo testo, la frazione di tempo in cui il collegamento porta dati utili: è l'utilizzazione U di queste pagine. Il throughput è THR = η·C.", "r": "eff-simboli"},
+{"t": "Numero medio di trasmissioni (Ns)", "d": "Quante volte in media si trasmette un frame, contando quella riuscita: 1/(1 − P) per stop-and-wait e Selective Repeat, (1 + (K − 1)P)/(1 − P) per il Go-Back-N.", "r": "eff-errori"},
+{"t": "NACK", "d": "Conferma negativa, nei simboli del secondo testo (qui NAK). NACK i segnala che manca il frame i; nel Go-Back-N conferma anche i frame fino a i − 1, nel Selective Repeat del secondo testo no.", "r": "gbn-nack"},
+{"t": "Protocollo con soli riscontri positivi", "d": "Continuous ARQ senza NACK: il destinatario accetta fuori ordine e risponde a ogni frame con un ACK cumulativo, il mittente ritrasmette solo allo scadere dei timer. È l'idea di TCP.", "r": "sr-soloack"},
+{"t": "SN e AN", "d": "I due numeri che ogni frame porta nel trasferimento bidirezionale del secondo testo: il proprio numero di sequenza e il numero dell'ultimo frame ricevuto correttamente, che fa da conferma in piggyback.", "r": "eff-bidir"},
 {"t": "Canale ad accesso multiplo", "d": "Canale condiviso da più stazioni, in cui chi trasmette interferisce con gli altri; si dice anche canale ad accesso casuale (random access).", "r": "all-problema"},
 {"t": "Allocazione dinamica del canale", "d": "Il canale va a chi ne ha bisogno in quel momento, invece di essere diviso in parti fisse; è la soluzione per il traffico a raffiche dei computer.", "r": "all-statica"},
 {"t": "Traffico a raffiche (bursty)", "d": "Traffico con lunghi periodi di silenzio e brevi picchi; per i computer il rapporto tra picco e media può arrivare a 1000:1.", "r": "all-statica"},
@@ -9444,7 +9847,7 @@ alla fine di ogni evento:
   });
 
   /* ---------- simulatore ARQ: stop-and-wait, go-back-n, selective repeat ---------- */
-  /* Tempo in «tempi di frame»: trasmettere un frame dura 1. Il timer di un frame parte quando il mittente comincia a trasmetterlo. */
+  /* Tempo in «tempi di frame»: trasmettere un frame dura 1. Il timer di un frame parte quando il mittente ha finito di trasmetterlo. */
   function arqSimulate(cfg) {
     const { proto, N, Tp, To } = cfg;
     const Ta = cfg.Ta == null ? 0.25 : cfg.Ta;
@@ -9508,7 +9911,7 @@ alla fine di ogni evento:
       hi = Math.max(hi, idx + 1);
       linkFree = f.t1;
       gen[idx]++;
-      push({ t: t + To, type: 'timeout', idx, g: gen[idx] });
+      push({ t: t + 1 + To, type: 'timeout', idx, g: gen[idx] });
       say('Il mittente trasmette ' + (useSeq ? 'il frame ' + f.seq : 'un frame') + ' (' + P(idx) + (f.att > 1 ? ', ' + f.att + 'ª trasmissione' : '') + ').');
       push({ t: f.t1, type: 'txend', f });
     }
@@ -9549,13 +9952,20 @@ alla fine di ogni evento:
             const ok = deliver(f.idx, t);
             f.rx = ok ? 'del' : 'err';
             exp = (exp + 1) % MOD;
+            noNak = true;
             say(ok ? 'Il destinatario riceve il frame ' + f.seq + ', che è quello atteso: lo consegna (' + P(f.idx) + ') e risponde ack ' + f.seq + '.' : 'Il destinatario riceve il frame ' + f.seq + ' e lo crede quello atteso, ma è una vecchia copia: consegna di nuovo il ' + P(f.idx) + ' al posto del ' + P(lastWant) + '. Errore!');
             sendCtrl('ack', f.seq, t);
           } else {
             f.rx = 'disc';
             const last = (exp + MOD - 1) % MOD;
-            say('Il destinatario aspetta il frame ' + exp + ' e riceve il ' + f.seq + ': lo scarta e ripete ack ' + last + ', l\'ultimo frame ricevuto in ordine.');
-            sendCtrl('ack', last, t);
+            if (cfg.nak && noNak) {
+              noNak = false;
+              say('Il destinatario aspetta il frame ' + exp + ' e riceve il ' + f.seq + ': lo scarta e, visto che è il primo frame fuori ordine, invia NAK ' + exp + ' («manca il ' + exp + ', fino al ' + last + ' tutto bene»).');
+              sendCtrl('nak', exp, t);
+            } else {
+              say('Il destinatario aspetta il frame ' + exp + ' e riceve il ' + f.seq + ': lo scarta e ripete ack ' + last + ', l\'ultimo frame ricevuto in ordine.');
+              sendCtrl('ack', last, t);
+            }
           }
         } else {
           const o = (f.seq - exp + MOD) % MOD;
@@ -9611,7 +10021,13 @@ alla fine di ogni evento:
           const kp = findInWindow(prev);
           if (kp >= 0) ackUpTo(kp, t);
           const k = findInWindow(c.seq);
-          if (k >= 0 && !acked[k] && !queued.has(k)) { retx.push(k); queued.add(k); say('Arriva NAK ' + c.seq + ': il mittente ritrasmette subito il frame ' + c.seq + ', senza aspettare il timer.'); }
+          if (proto !== 'sr') {
+            if (k >= 0 && !acked[k]) {
+              for (let j = base; j < hi; j++) gen[j]++;
+              next = base;
+              say('Arriva NAK ' + c.seq + ': il mittente considera confermati i frame precedenti, torna indietro e, appena il canale è libero, ritrasmette dal frame ' + c.seq + ' in poi.');
+            } else say('Arriva NAK ' + c.seq + ', ma non riguarda nessun frame in sospeso: il mittente lo ignora.');
+          } else if (k >= 0 && !acked[k] && !queued.has(k)) { retx.push(k); queued.add(k); say('Arriva NAK ' + c.seq + ': il mittente ritrasmette subito il frame ' + c.seq + ', senza aspettare il timer.'); }
           else say('Arriva NAK ' + c.seq + ', ma il frame è già in ritrasmissione.');
         }
         trySend(t);
@@ -9773,7 +10189,7 @@ alla fine di ogni evento:
       if (step) {
         log.append(el('b', '', 't = ' + fmt(r.steps[step - 1].t, 2) + ' · '), document.createTextNode(r.steps[step - 1].text));
       } else {
-        log.textContent = 'Il tempo scorre verso il basso; un frame dura 1 tempo di frame e impiega ' + fmt(C.Tp, 2) + ' tempi di frame per arrivare. Tocca un frame o un ack per farlo perdere (un frame, toccato ancora, arriva danneggiato), poi segui la storia passo per passo.';
+        log.textContent = 'Il tempo scorre verso il basso; un frame dura 1 tempo di frame e impiega ' + fmt(C.Tp, 2) + ' tempi di frame per arrivare; il timer di un frame parte quando il mittente ha finito di trasmetterlo. Tocca un frame o un ack per farlo perdere (un frame, toccato ancora, arriva danneggiato), poi segui la storia passo per passo.';
       }
       sum.textContent = '';
       if (r.errors) {
@@ -9971,6 +10387,158 @@ alla fine di ogni evento:
     });
     selN.addEventListener('change', () => { lo = hi = 0; msg = ''; draw(); });
     rngW.addEventListener('input', () => { if (hi - lo > +rngW.value) hi = lo + +rngW.value; msg = ''; draw(); });
+    draw();
+  });
+
+  /* ---------- §3.4 · efficienza di stop-and-wait, Go-Back-N e Selective Repeat con gli errori ---------- */
+  const arqEff = (pr, a, P, W) => {
+    if (pr === 'sw') return (1 - P) / (1 + 2 * a);
+    if (pr === 'sr') return W >= 1 + 2 * a ? 1 - P : W * (1 - P) / (1 + 2 * a);
+    return W >= 1 + 2 * a ? (1 - P) / (1 + P + 2 * a * P) : W * (1 - P) / ((1 + 2 * a) * (1 + (W - 1) * P));
+  };
+  const SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+  const pow10 = e => '10' + String(e).replace('-', '⁻').replace(/\d/g, d => SUP[d]);
+  const sci = x => {
+    if (x === 0) return '0';
+    if (x >= 0.001) return fmt(x, x >= 0.1 ? 3 : 4);
+    const e = Math.floor(Math.log10(x)), m = x / Math.pow(10, e);
+    return Math.abs(m - 1) < 1e-9 ? pow10(e) : fmt(m, 2) + ' · ' + pow10(e);
+  };
+  $$('.arqcmp').forEach(w => {
+    const svg = $('.cmp-svg', w), tip = $('.chart-tip', w), leg = $('.cmp-legend', w), tab = $('.cmp-tab table', w), note = $('.cmp-note', w);
+    const selP = $('.cmp-p', w), selB = $('.cmp-b', w), selT = $('.cmp-t', w), fT = $('.cmp-tf', w);
+    const R = 64000, L0 = 256;
+    const SER = [['sw', 'Stop-and-wait', 3], ['gbn', 'Go-Back-N', 1], ['sr', 'Selective Repeat', 2]];
+    let mode = 'a', hoverX = null;
+    SER.forEach(([, name, c]) => { const sp = el('span'); sp.append(el('i', 'k' + c), document.createTextNode(name)); leg.append(sp); });
+    const par = () => {
+      const b = +selB.value;
+      return { p: +selP.value, W: { sw: 1, gbn: (1 << b) - 1, sr: 1 << (b - 1) }, tau: +selT.value };
+    };
+    // x è a (frame da 256 bit) oppure la lunghezza del frame L in bit
+    const point = (x, q) => {
+      const L = mode === 'a' ? L0 : x, a = mode === 'a' ? x : q.tau * R / x;
+      return { a, P: 1 - Math.pow(1 - q.p, L) };
+    };
+    const val = (k, x, q) => { const { a, P } = point(x, q); return arqEff(k, a, P, q.W[k]); };
+    const knee = (W, q) => (mode === 'a' ? (W - 1) / 2 : 2 * q.tau * R / (W - 1));
+    function geo() {
+      const W = widthOf(svg), H = 300, L = 46, Rm = 14, T = 14, Bm = 44;
+      const [lo, hi] = mode === 'a' ? [0.1, 1000] : [10, 1e5];
+      const l0 = Math.log10(lo), l1 = Math.log10(hi);
+      return {
+        W, H, L, R: Rm, T, B: Bm, lo, hi,
+        X: x => L + (Math.log10(x) - l0) / (l1 - l0) * (W - L - Rm),
+        Y: v => T + (1 - v) * (H - T - Bm),
+        inv: px => Math.pow(10, l0 + (px - L) / (W - L - Rm) * (l1 - l0))
+      };
+    }
+    const fmtX = x => (mode === 'a' ? 'a = ' + fmt(x, x < 1 ? 2 : x < 10 ? 1 : 0) : 'L = ' + fmt(x, 0) + ' bit');
+    function draw() {
+      const q = par(), g = geo();
+      fT.hidden = mode === 'a';
+      $$('[data-cmp-x]', w).forEach(b => b.setAttribute('aria-pressed', b.dataset.cmpX === mode ? 'true' : 'false'));
+      svg.setAttribute('viewBox', '0 0 ' + g.W + ' ' + g.H);
+      svg.textContent = '';
+      for (let i = 0; i <= 5; i++) {
+        const v = i / 5;
+        svg.append(sv('line', { x1: g.L, y1: g.Y(v), x2: g.W - g.R, y2: g.Y(v), class: i ? 'gridl' : 'ax' }));
+        svg.append(sv('text', { x: g.L - 6, y: g.Y(v) + 4, 'text-anchor': 'end', class: 'tms' }, fmt(v, 1)));
+      }
+      for (let e = Math.round(Math.log10(g.lo)); e <= Math.round(Math.log10(g.hi)); e++) {
+        const x = Math.pow(10, e);
+        svg.append(sv('line', { x1: g.X(x), y1: g.Y(0), x2: g.X(x), y2: g.Y(0) + 5, class: 'ax' }));
+        svg.append(sv('text', { x: g.X(x), y: g.Y(0) + 17, 'text-anchor': 'middle', class: 'tms' }, x >= 1e4 ? pow10(e) : fmt(x, 1)));
+        for (let m = 2; m <= 9 && e < Math.round(Math.log10(g.hi)); m++) svg.append(sv('line', { x1: g.X(m * x), y1: g.Y(0), x2: g.X(m * x), y2: g.Y(0) + 3, class: 'ax' }));
+      }
+      svg.append(sv('text', { x: (g.L + g.W - g.R) / 2, y: g.H - 6, 'text-anchor': 'middle', class: 'ts' }, mode === 'a' ? 'a = Tp/Tx, propagazione in tempi di frame (scala logaritmica)' : 'L, lunghezza del frame in bit (scala logaritmica)'));
+      const yc = g.T + (g.H - g.T - g.B) / 2;
+      svg.append(sv('text', { x: 12, y: yc, 'text-anchor': 'middle', class: 'ts', transform: 'rotate(-90 12 ' + yc + ')' }, 'U (η): efficienza'));
+      // dove la finestra comincia a limitare
+      SER.forEach(([k, , c]) => {
+        if (k === 'sw') return;
+        const xk = knee(q.W[k], q);
+        if (xk > g.lo && xk < g.hi) svg.append(sv('line', { x1: g.X(xk), y1: g.T, x2: g.X(xk), y2: g.Y(0), class: 'knee knee' + c }));
+      });
+      SER.forEach(([k, , c]) => {
+        let d = '';
+        for (let j = 0; j <= 360; j++) {
+          const x = Math.pow(10, Math.log10(g.lo) + j / 360 * Math.log10(g.hi / g.lo));
+          d += (j ? 'L' : 'M') + g.X(x).toFixed(1) + ',' + g.Y(Math.max(0, Math.min(1, val(k, x, q)))).toFixed(1) + ' ';
+        }
+        svg.append(sv('path', { d: d.trim(), class: 'ser ser' + c }));
+      });
+      if (hoverX != null) {
+        const hx = g.X(hoverX);
+        svg.append(sv('line', { x1: hx, y1: g.T, x2: hx, y2: g.Y(0), class: 'xh' }));
+        SER.forEach(([k, , c]) => svg.append(sv('circle', { cx: hx, cy: g.Y(Math.max(0, Math.min(1, val(k, hoverX, q)))), r: 4, class: 'dot' + c + ' ring2' })));
+      }
+      // tabella
+      tab.textContent = '';
+      const th = el('thead'), tr = el('tr');
+      tr.append(el('th', '', mode === 'a' ? 'a' : 'L (bit)'));
+      if (mode === 'l') tr.append(el('th', '', 'a'));
+      tr.append(el('th', '', 'P'));
+      SER.forEach(([k, name]) => tr.append(el('th', '', name + (k === 'sw' ? '' : ' (W = ' + q.W[k] + ')'))));
+      th.append(tr); tab.append(th);
+      const tb = el('tbody');
+      (mode === 'a' ? [0.1, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000] : [10, 30, 100, 300, 1000, 3000, 1e4, 3e4, 1e5]).forEach(x => {
+        const r = el('tr'), pt = point(x, q);
+        r.append(el('td', 'num', fmt(x, 1)));
+        if (mode === 'l') r.append(el('td', 'num', fmt(pt.a, pt.a < 10 ? 2 : 0)));
+        r.append(el('td', 'num', sci(pt.P)));
+        SER.forEach(([k]) => r.append(el('td', 'num', fmt(val(k, x, q), 3))));
+        tb.append(r);
+      });
+      tab.append(tb);
+      // nota
+      const P0 = 1 - Math.pow(1 - q.p, L0);
+      const kg = knee(q.W.gbn, q), ks = knee(q.W.sr, q);
+      note.textContent = (mode === 'a'
+        ? 'Frame da 256 bit: con p = ' + sci(q.p) + ' un frame arriva sbagliato con probabilità P ≈ ' + sci(P0) + '. '
+        : 'Linea da 64 kbit/s, Tp = ' + fmt(q.tau * 1000, 0) + ' ms: a = Tp·R/L, e P cresce con la lunghezza del frame. ')
+        + 'Finestre: ' + q.W.gbn + ' frame per il Go-Back-N e ' + q.W.sr + ' per il Selective Repeat. La finestra comincia a limitare (linee tratteggiate) '
+        + (mode === 'a' ? 'quando a supera ' + fmt(kg, 1) + ' nel Go-Back-N e ' + fmt(ks, 1) + ' nel Selective Repeat.'
+          : 'quando il frame è più corto di ' + fmt(kg, 0) + ' bit nel Go-Back-N e di ' + fmt(ks, 0) + ' bit nel Selective Repeat.');
+    }
+    function showTip(x, cx, cy) {
+      hoverX = x; draw();
+      const q = par(), pt = point(x, q);
+      tip.textContent = '';
+      tip.append(el('div', 'tip-x', fmtX(x) + (mode === 'l' ? ' · a = ' + fmt(pt.a, pt.a < 10 ? 2 : 0) : '') + ' · P = ' + sci(pt.P)));
+      SER.forEach(([k, name, c]) => {
+        const row = el('div', 'tip-row');
+        row.append(el('i', 'k' + c), el('b', '', fmt(val(k, x, q), 3)), document.createTextNode(name));
+        tip.append(row);
+      });
+      tip.hidden = false;
+      const wrap = svg.parentNode.getBoundingClientRect();
+      let left = cx - wrap.left + 14;
+      if (left + 220 > wrap.width) left = cx - wrap.left - 230;
+      tip.style.left = Math.max(0, left) + 'px';
+      tip.style.top = Math.max(0, cy - wrap.top - 10) + 'px';
+    }
+    function hide() { hoverX = null; tip.hidden = true; draw(); }
+    svg.addEventListener('pointermove', e => {
+      const g = geo(), r = svg.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width * g.W;
+      if (px < g.L || px > g.W - g.R) { hide(); return; }
+      showTip(g.inv(px), e.clientX, e.clientY);
+    });
+    svg.addEventListener('pointerleave', hide);
+    svg.addEventListener('keydown', e => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault();
+      const g = geo(), f = Math.pow(10, 0.05);
+      let x = hoverX == null ? (mode === 'a' ? 1 : 1000) : hoverX * (e.key === 'ArrowRight' ? f : 1 / f);
+      x = Math.min(g.hi, Math.max(g.lo, x));
+      const r = svg.getBoundingClientRect();
+      showTip(x, r.left + g.X(x) / g.W * r.width, r.top + r.height * 0.3);
+    });
+    svg.addEventListener('blur', hide);
+    $$('[data-cmp-x]', w).forEach(b => b.addEventListener('click', () => { mode = b.dataset.cmpX; hoverX = null; tip.hidden = true; draw(); }));
+    [selP, selB, selT].forEach(x => x.addEventListener('change', draw));
+    redraws.push(draw);
     draw();
   });
 
