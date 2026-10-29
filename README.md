@@ -11,7 +11,7 @@ Appunti di **Reti di calcolatori** sul Tanenbaum (*Reti di calcolatori*, Tanenba
 | 1 · Introduzione | concetto di rete, tipologie, classificazione (PAN, LAN, MAN, WAN) e Internet, protocolli e livelli, modelli OSI e TCP/IP, standardizzazione | §1.1–§1.7 |
 | 2 · Il livello fisico | mezzi vincolati, capacità di un canale (Nyquist e Shannon), trasmissione in banda base, multiplexing FDM, TDM e WDM | §2.1, §2.4.2–§2.4.4 |
 | 3 · Il livello data link | framing, controllo degli errori e di flusso, codici (Hamming, CRC, checksum), stop-and-wait, efficienza e prodotto banda-ritardo, finestra scorrevole, Go-Back-N con e senza NACK, Selective Repeat, protocollo con soli riscontri positivi, efficienza con gli errori | §3.1–§3.4 |
-| 4 · Il sottolivello MAC | allocazione del canale, ALOHA, CSMA e CSMA/CD, protocolli senza collisioni e a contesa limitata, terminale nascosto ed esposto, MACA | §4.1.2, §4.2 |
+| 4 · Il sottolivello MAC | allocazione del canale, ALOHA, CSMA e CSMA/CD, protocolli senza collisioni e a contesa limitata, terminale nascosto ed esposto, MACA; Ethernet classica (frame, indirizzi, backoff esponenziale binario, prestazioni), hub e switch, fast, gigabit e 10-gigabit Ethernet; commutazione a livello data link: bridge con apprendimento, spanning tree, ripetitori, hub, bridge, switch, router e gateway a confronto, VLAN e IEEE 802.1Q | §4.1.2, §4.2, §4.3, §4.7 |
 
 I paragrafi sono quelli della 6ª edizione; ogni argomento indica anche dove trovarlo nella 5ª e, per i protocolli del data link, nel secondo libro di testo del programma, con un dizionario dei simboli per passare da una notazione all'altra.
 
@@ -23,6 +23,7 @@ I paragrafi sono quelli della 6ª edizione; ogni argomento indica anche dove tro
 - Il pulsante «Segna come studiato» ricorda, in quel browser, gli argomenti già fatti.
 - **Dai vecchi temi d'esame**: in fondo agli argomenti principali ci sono domande vere degli esami degli anni passati, con la soluzione nascosta finché non la apri, rifatta da capo e corretta dove gli appunti che circolano sbagliano.
 - **Prova prima**: con l'interruttore nell'indice (o all'inizio di ogni «Esercizi svolti») le soluzioni degli esercizi svolti restano nascoste finché non premi «Mostra la soluzione».
+- **Simulatori di Ethernet e della commutazione**: calcolatrice del frame Ethernet, backoff esponenziale binario, efficienza di Ethernet classica, hub e switch a confronto, bridge con apprendimento sulla rete degli esercizi del libro, etichetta 802.1Q.
 - **Formulario del capitolo 3**: tutte le formule del data link in una pagina, con i simboli dei due libri; il pulsante «Stampa il formulario» stampa solo quella.
 
 ## Nota
