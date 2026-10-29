@@ -9384,7 +9384,7 @@ alla fine di ogni evento:
 
 <h3 id="eth-due" data-toc="Due tipi di Ethernet">Due tipi di Ethernet</h3>
 <p class="in-questa"><b>In questa sezione:</b> che cos'è Ethernet, da dove viene il nome e perché ne esistono due tipi molto diversi.</p>
-<p>Finora abbiamo visto i protocolli ad accesso multiplo in astratto. Adesso guardiamo un sistema vero, il tipo di rete più diffuso al mondo: <b>Ethernet</b>. Molte reti locali e metropolitane sono state standardizzate dall'IEEE con il nome di <b>IEEE 802</b>; i due standard sopravvissuti più importanti sono <b>802.3 (Ethernet)</b> e <b>802.11 (LAN wireless)</b>. Ethernet e IEEE 802.3 differiscono solo in piccoli dettagli che vedremo con il formato del frame, quindi, come il libro, useremo i due nomi come sinonimi.</p>
+<p>Finora abbiamo visto i protocolli ad accesso multiplo in astratto. Adesso guardiamo un sistema vero, il tipo di rete più diffuso al mondo: <b>Ethernet</b>. Molte reti locali e metropolitane sono state standardizzate dall'IEEE con il nome di <b>IEEE 802</b>; i due standard sopravvissuti più importanti sono <b>802.3 (Ethernet)</b> e <b>802.11 (LAN wireless)</b>. Ethernet e IEEE 802.3 differiscono solo in due piccoli dettagli del frame (il nome di un campo e l'ultimo byte del preambolo, che trovi nella Figura 4.13), quindi, come il libro, useremo i due nomi come sinonimi.</p>
 <div class="tbl-wrap">
   <table class="tbl">
     <thead><tr><th></th><th>Ethernet classica</th><th>Ethernet commutata (switched)</th></tr></thead>
@@ -9469,7 +9469,8 @@ alla fine di ogni evento:
   </div>
   <figcaption><span class="label">Figura 4.12</span>La rete Ethernet classica più grande permessa: cinque segmenti da 500 m uniti da quattro ripetitori (R). Le stazioni A e B, agli estremi, sono a 2,5 km.</figcaption>
 </figure>
-<p>Le due regole, <b>al massimo 2,5 km</b> tra due transceiver e <b>al massimo 4 ripetitori</b> su qualunque percorso, esistono perché il protocollo MAC funzioni: fissano il tempo di andata e ritorno nel caso peggiore, cioè il 2τ del CSMA/CD. Tra poco vedremo che da quel tempo dipende la lunghezza minima dei frame. Sul cavo i bit viaggiano con la <b>codifica Manchester</b>, vista nell'argomento <a href="#bandabase">«Trasmissione in banda base»</a>: ogni bit ha una transizione a metà, e questo permette al ricevente di tenere il passo del clock.</p>
+<p>Le due regole, <b>al massimo 2,5 km</b> tra due transceiver e <b>al massimo 4 ripetitori</b> su qualunque percorso, esistono perché il protocollo MAC, il CSMA/CD, funzioni. Ricordiamo che cosa gli serve: una stazione si accorge di una collisione solo se sta <b>ancora trasmettendo</b> quando il disturbo della collisione torna fino a lei. Chiamiamo <b>τ</b> (tau) il tempo che il segnale impiega per andare da un capo all'altro della rete; nel caso peggiore il disturbo arriva dopo <b>2τ</b>, il tempo di andata e ritorno. Fissando la lunghezza massima della rete e il numero di ripetitori (ognuno aggiunge un piccolo ritardo), lo standard fissa il 2τ nel caso peggiore. Da quel valore dipendono la lunghezza minima dei frame (sezione «Il formato del frame») e la durata delle attese dopo una collisione (sezione «CSMA/CD con backoff esponenziale binario»).</p>
+<p>Sul cavo i bit viaggiano con la <b>codifica Manchester</b>: ogni bit è diviso in due metà con livelli opposti (in Ethernet, 1 = livello basso poi alto, 0 = alto poi basso), quindi a metà di ogni bit c'è sempre una transizione, e il ricevente la usa per tenere il passo del clock del mittente. Il prezzo è che servono due intervalli di segnale per ogni bit: 10 Mbps richiedono 20 milioni di intervalli al secondo. (La codifica è spiegata per intero nell'argomento <a href="#bandabase">«Trasmissione in banda base»</a>.)</p>
 
 <h3 id="eth-frame" data-toc="Il formato del frame">Il formato del frame</h3>
 <p class="in-questa"><b>In questa sezione:</b> i campi del frame Ethernet uno per uno, la differenza tra Ethernet DIX e IEEE 802.3, gli indirizzi, e perché un frame non può essere più corto di 64 byte né avere più di 1500 byte di dati.</p>
@@ -9510,10 +9511,10 @@ alla fine di ogni evento:
       <tr><th>Preambolo</th><td class="num">8</td><td>Sette byte <span class="num">10101010</span> e un ultimo byte <span class="num">10101011</span>. Lo schema regolare di 0 e 1 produce per 6,4 µs (64 bit a 10 Mbps) un'onda quadra che permette al clock del ricevente di sincronizzarsi con quello del mittente. I due 1 finali dicono «adesso comincia il frame vero»: in 802.3 quell'ultimo byte si chiama <b>SoF</b> <span class="en">(Start of Frame delimiter)</span>.</td></tr>
       <tr><th>Indirizzo di destinazione</th><td class="num">6</td><td>A chi è destinato il frame (48 bit): una stazione, un gruppo o tutte. Viene subito, così chi riceve capisce presto se il frame lo riguarda.</td></tr>
       <tr><th>Indirizzo sorgente</th><td class="num">6</td><td>Chi l'ha mandato. Gli indirizzi sorgente sono unici al mondo.</td></tr>
-      <tr><th>Tipo (DIX) o Lunghezza (802.3)</th><td class="num">2</td><td>In DIX dice a quale protocollo del livello di rete consegnare i dati (per esempio <span class="num">0x0800</span> = IPv4). In 802.3 conteneva la lunghezza dei dati. Oggi valgono entrambi: vedi sotto.</td></tr>
+      <tr><th>Tipo (DIX) o Lunghezza (802.3)</th><td class="num">2</td><td>In DIX dice a quale protocollo del livello di rete consegnare i dati (per esempio <span class="num">0x0800</span> = IPv4). In 802.3 conteneva la lunghezza dei dati. Oggi valgono entrambi, e il ricevente li distingue dal valore: fino a 0x600 (1536) è una lunghezza, oltre è un tipo. La storia è nel paragrafo «Tipo o lunghezza?» di questa sezione.</td></tr>
       <tr><th>Dati</th><td class="num">0–1500</td><td>Il pacchetto del livello superiore.</td></tr>
       <tr><th>Pad</th><td class="num">0–46</td><td>Byte di riempimento, presenti solo se i dati sono meno di 46 byte, per arrivare alla lunghezza minima del frame.</td></tr>
-      <tr><th>Checksum</th><td class="num">4</td><td>Un CRC a 32 bit, quello dell'argomento <a href="#codici">«Codici per gli errori»</a>. Serve solo a <b>rilevare</b> gli errori: un frame sbagliato viene scartato.</td></tr>
+      <tr><th>Checksum</th><td class="num">4</td><td>Un <b>CRC</b> a 32 bit: il mittente calcola 32 bit di controllo a partire da tutti i bit del frame (con una divisione tra polinomi) e li mette in fondo; il ricevente rifà lo stesso conto e, se il risultato non coincide, sa che qualche bit è arrivato sbagliato. Serve solo a <b>rilevare</b> gli errori: un frame sbagliato viene scartato. (Il calcolo è nell'argomento <a href="#codici">«Codici per gli errori»</a>.)</td></tr>
     </tbody>
   </table>
 </div>
@@ -9551,8 +9552,44 @@ alla fine di ogni evento:
 <p>Il frame ha anche una lunghezza <b>minima</b>: almeno <b>64 byte</b> dall'indirizzo di destinazione al checksum compresi. Contando i campi fissi, 6 + 6 + 2 + 4 = 18 byte, restano almeno 64 − 18 = <b>46 byte</b> per dati e pad: se i dati sono meno di 46 byte, il <b>pad</b> riempie il resto. I motivi sono due.</p>
 <ol>
   <li><b>Distinguere i frame veri dalla spazzatura.</b> Quando rileva una collisione, un transceiver tronca il frame che stava trasmettendo: sul cavo compaiono continuamente pezzi di frame. Un frame valido è lungo almeno 64 byte, quindi un frammento più corto si riconosce e si butta.</li>
-  <li><b>Rilevare le collisioni (il motivo più importante).</b> Lo abbiamo visto nella sezione <a href="#csma-cd">«CSMA/CD»</a>, con la Figura 4.6. A comincia a trasmettere all'istante 0; la stazione più lontana, B, comincia un attimo prima che il segnale di A le arrivi, cioè a τ − ε; B si accorge subito della collisione, smette e manda un breve segnale di disturbo (il libro dice di 48 bit) per avvisare tutti; quel disturbo torna ad A solo verso l'istante 2τ. Se A ha già finito di trasmettere prima di 2τ, crede che il frame sia arrivato, anche se è stato distrutto. Quindi <b>ogni frame deve durare più di 2τ</b>.</li>
+  <li><b>Rilevare le collisioni (il motivo più importante).</b> Segui la Figura 4.6, ripetuta subito dopo questo elenco. A e B sono le due stazioni più lontane, e τ è il tempo che il segnale impiega per andare dall'una all'altra. A comincia a trasmettere all'istante 0. B comincia un attimo prima che il segnale di A le arrivi, cioè a τ − ε (ε è un tempo piccolissimo): in quell'istante sente ancora il canale libero. Appena il segnale di A le arriva, B si accorge della collisione, smette e manda un breve segnale di disturbo (il libro dice di 48 bit) per avvisare tutti. Quel disturbo deve tornare indietro fino ad A, e ci arriva solo verso l'istante 2τ. Se A a quel punto ha già finito di trasmettere, crede che il frame sia arrivato, anche se è stato distrutto. Quindi <b>ogni frame deve durare più di 2τ</b>.</li>
 </ol>
+<figure class="fig">
+  <div class="scroll-x">
+    <svg class="dia mid" viewBox="0 0 600 300" role="img" aria-label="Diagramma spazio-tempo: A trasmette all'istante t0, B comincia poco prima che il segnale di A gli arrivi, B rileva subito la collisione, A la rileva solo a t0 più 2 tau meno epsilon">
+      <text x="80" y="20" text-anchor="middle" class="tb">A</text>
+      <text x="390" y="20" text-anchor="middle" class="tb">B</text>
+      <line x1="80" y1="28" x2="80" y2="292" class="ln"/>
+      <line x1="390" y1="28" x2="390" y2="292" class="ln"/>
+      <text x="235" y="20" text-anchor="middle" class="ts">posizione lungo il cavo →</text>
+      <text x="22" y="160" class="ts" transform="rotate(-90 22 160)">tempo ↓</text>
+      <g>
+        <rect x="74" y="40" width="12" height="209" class="fr-d" style="opacity:.35"/>
+        <line x1="86" y1="40" x2="390" y2="150" class="sig"/>
+        <text x="96" y="36" class="tacc">t₀: A comincia a trasmettere</text>
+      </g>
+      <g>
+        <rect x="384" y="139" width="12" height="11" class="fr-r"/>
+        <line x1="384" y1="139" x2="86" y2="249" class="sig2"/>
+        <text x="404" y="124" class="tc4">t₀ + τ − ε: B sente libero</text>
+        <text x="404" y="138" class="tc4">e comincia a trasmettere</text>
+      </g>
+      <g>
+        <path d="M382,142 L398,158 M398,142 L382,158" class="x-mark"/>
+        <text x="404" y="168" class="tbad">t₀ + τ: arriva il segnale di A,</text>
+        <text x="404" y="182" class="tbad">B rileva la collisione e smette</text>
+      </g>
+      <g>
+        <path d="M72,241 L88,257 M88,241 L72,257" class="x-mark"/>
+        <text x="96" y="268" class="tbad">t₀ + 2τ − ε: il rumore della collisione</text>
+        <text x="96" y="282" class="tbad">arriva ad A, che solo ora se ne accorge</text>
+        <line x1="44" y1="40" x2="44" y2="249" class="ln-ink" marker-start="url(#ah-ink)" marker-end="url(#ah-ink)"/>
+        <text x="52" y="150" class="tb">2τ</text>
+      </g>
+    </svg>
+  </div>
+  <figcaption><span class="label">Figura 4.6, ripetuta</span>Il caso peggiore del CSMA/CD (la stessa figura dell'argomento CSMA). In orizzontale la posizione lungo il cavo, in verticale il tempo, che scorre verso il basso; le linee oblique sono i segnali che viaggiano. A si accorge della collisione solo a t₀ + 2τ − ε: per accorgersene deve essere ancora in trasmissione.</figcaption>
+</figure>
 <p>Il conto per la rete Ethernet classica più grande, quella della Figura 4.12 (2,5 km e 4 ripetitori):</p>
 <div class="catena-wrap"><div class="catena">
   <span class="sx">andata e ritorno, solo propagazione</span><span class="rel">≈</span><span class="dx">2 · 2500 m / (2 · 10<sup>8</sup> m/s) = 25 µs</span><span class="perche">2τ sul cavo, con il segnale a circa 2/3 della velocità della luce</span>
@@ -9562,6 +9599,15 @@ alla fine di ogni evento:
   <span class="sx">con un margine di sicurezza</span><span class="rel">→</span><span class="dx"><b>512 bit = 64 byte</b></span><span class="perche">512 bit a 10 Mbps durano 51,2 µs</span>
 </div></div>
 <p>Il primo passaggio è un nostro conto per capire da dove vengono i 50 µs: la sola propagazione ne fa circa la metà, il resto lo aggiungono i ripetitori e i transceiver. Nel libro c'è direttamente «circa 50 µs».</p>
+<div class="box ex">
+  <p class="box-label">Metodo · i conti sul frame</p>
+  <ol>
+    <li><b>Pad</b>: se i dati sono meno di 46 byte, pad = 46 − dati; altrimenti pad = 0.</li>
+    <li><b>Lunghezza del frame</b> (da destinazione a checksum) = 18 + dati + pad: sempre tra 64 e 1518 byte. Sul cavo si aggiungono gli 8 byte del preambolo.</li>
+    <li><b>Durata</b> = bit / velocità. Per esempio 64 byte = 512 bit a 10 Mbps durano 512 / 10<sup>7</sup> s = 51,2 µs.</li>
+    <li><b>Frame minimo di una rete CSMA/CD qualsiasi</b>: deve durare almeno 2τ, quindi frame minimo (bit) = 2τ · velocità, con 2τ = 2 · lunghezza della rete / velocità del segnale (più i ritardi dei ripetitori, se ci sono). Esempio: 1 km, segnale a 2 · 10<sup>8</sup> m/s, 1 Gbps → 2τ = 10 µs → almeno 10 µs · 10<sup>9</sup> bit/s = 10 000 bit.</li>
+  </ol>
+</div>
 
 <div class="widget" id="ef-w" aria-labelledby="ef-t">
   <div class="widget-head"><p class="widget-title" id="ef-t">Calcolatrice · frame Ethernet</p></div>
@@ -9584,7 +9630,7 @@ alla fine di ogni evento:
 
 <h3 id="eth-beb" data-toc="Backoff esponenziale binario">CSMA/CD con backoff esponenziale binario</h3>
 <p class="in-questa"><b>In questa sezione:</b> che cosa fa una stazione Ethernet quando vuole trasmettere, come sceglie quanto aspettare dopo una collisione, perché l'attesa cresce in modo esponenziale e perché Ethernet non manda conferme.</p>
-<p>Ethernet classica usa il <b>CSMA/CD 1-persistente</b> dell'argomento <a href="#csma">«CSMA e CSMA/CD»</a>:</p>
+<p>Ethernet classica usa il <b>CSMA/CD 1-persistente</b>. Le tre parti del nome dicono che cosa fa: <b>CSMA</b>, ascolta il canale prima di trasmettere; <b>CD</b>, si accorge delle collisioni mentre trasmette; <b>1-persistente</b>, appena il canale si libera trasmette subito, con probabilità 1. (Le varianti di CSMA sono confrontate nell'argomento <a href="#csma">«CSMA e CSMA/CD»</a>.) Passo per passo:</p>
 <ol>
   <li>la stazione con un frame pronto ascolta il canale e, appena lo sente libero, trasmette (1-persistente: con probabilità 1);</li>
   <li>mentre trasmette continua ad ascoltare: se rileva una collisione, interrompe subito e manda un breve segnale di disturbo <span class="en">(jam)</span> perché tutti se ne accorgano;</li>
@@ -9696,6 +9742,17 @@ alla fine di ogni evento:
   <li><b>Sempre tra 0 e 1.</b> Con due stazioni va benissimo. Ma con 100 stazioni che hanno colliso, la contesa si risolve solo quando una sceglie 0 e tutte le altre 99 scelgono 1: può richiedere anni.</li>
 </ul>
 <p>Il backoff esponenziale binario sta in mezzo e <b>si adatta da solo al numero di stazioni</b>: se sono poche, si risolve in fretta con attese brevi; se sono tante, le collisioni ripetute allargano l'intervallo finché le stazioni si «sparpagliano» abbastanza, e la contesa si risolve in un tempo ragionevole. Il tetto di 1023 impedisce che l'attesa cresca troppo.</p>
+<div class="box ex">
+  <p class="box-label">Metodo · esercizi sul backoff</p>
+  <ol>
+    <li>Conta le collisioni già subite dal frame: <i>i</i>.</li>
+    <li>Se <i>i</i> = 16, la scheda rinuncia: non c'è nessuna attesa da calcolare. Altrimenti prendi <i>k</i> = il più piccolo tra <i>i</i> e 10.</li>
+    <li>La stazione sceglie un intero a caso tra 0 e 2<sup><i>k</i></sup> − 1, estremi compresi: sono 2<sup><i>k</i></sup> scelte possibili.</li>
+    <li>Moltiplica per lo slot, 51,2 µs a 10 Mbps: l'attesa va da 0 a (2<sup><i>k</i></sup> − 1) · 51,2 µs.</li>
+    <li>Controlla l'unità: sono microsecondi.</li>
+  </ol>
+  <p>Esempi: 5 collisioni → <i>k</i> = 5 → da 0 a 31 slot → al massimo 31 · 51,2 µs = <b>1587,2 µs</b>. 12 collisioni → <i>k</i> = 10 → da 0 a 1023 slot → al massimo 1023 · 51,2 µs = <b>52 377,6 µs ≈ 52,4 ms</b>. Due stazioni appena scontrate si scontrano di nuovo con probabilità 1/2<sup><i>k</i></sup>: 1/2 dopo la prima collisione, 1/4 dopo la seconda, 1/8 dopo la terza.</p>
+</div>
 
 <div class="widget beb-w" id="beb-w" aria-labelledby="beb-t">
   <div class="widget-head"><p class="widget-title" id="beb-t">Simulatore · backoff esponenziale binario</p></div>
@@ -9732,7 +9789,26 @@ alla fine di ogni evento:
   <li><i>k</i>: la stazione fortunata può essere una qualunque delle <i>k</i>.</li>
 </ul>
 <p><b>Esempio con i numeri.</b> <i>k</i> = 2 stazioni, <i>p</i> = 1/2: <i>A</i> = 2 · 1/2 · 1/2 = 1/2. Con <i>k</i> = 4 e <i>p</i> = 1/4: <i>A</i> = 4 · 1/4 · (3/4)<sup>3</sup> = 27/64 ≈ 0,42.</p>
-<p><i>A</i> è massima quando <b><i>p</i> = 1/<i>k</i></b> (ogni stazione trasmette in media una volta ogni <i>k</i> slot). In quel caso <i>A</i> = (1 − 1/<i>k</i>)<sup><i>k</i>−1</sup>, che scende verso <b>1/e ≈ 0,368</b> quando le stazioni diventano tantissime. È lo stesso 1/e dello slotted ALOHA, e non per caso: il periodo di contesa del CSMA/CD si comporta come uno slotted ALOHA con slot di 2τ.</p>
+<p><i>A</i> è massima quando <b><i>p</i> = 1/<i>k</i></b>, cioè quando ogni stazione trasmette in media una volta ogni <i>k</i> slot. Lo si vede provando dei valori con <i>k</i> = 4: con <i>p</i> = 0,1 viene <i>A</i> = 4 · 0,1 · 0,9<sup>3</sup> ≈ 0,29; con <i>p</i> = 0,25 = 1/4 viene 0,42; con <i>p</i> = 0,5 viene 4 · 0,5 · 0,5<sup>3</sup> = 0,25. Se <i>p</i> è troppo piccolo, spesso non trasmette nessuno; se è troppo grande, trasmettono in tanti e si scontrano. In mezzo, a 1/<i>k</i>, c'è il massimo. (Con le derivate: la derivata di <i>kp</i>(1 − <i>p</i>)<sup><i>k</i>−1</sup> si annulla proprio a <i>p</i> = 1/<i>k</i>.)</p>
+<p>Con <i>p</i> = 1/<i>k</i> la formula diventa <i>A</i> = <i>k</i> · (1/<i>k</i>) · (1 − 1/<i>k</i>)<sup><i>k</i>−1</sup> = (1 − 1/<i>k</i>)<sup><i>k</i>−1</sup>.</p>
+<div class="box tool">
+  <p class="box-label">Attrezzo matematico · dove va (1 − 1/k)^(k−1)</p>
+  <p>Al crescere di <i>k</i> questo numero scende e si avvicina a <b>1/e ≈ 0,368</b> (e ≈ 2,718 è il numero di Nepero). È un limite noto, legato alla definizione di e; basta vederlo con i numeri:</p>
+  <div class="tbl-wrap" style="max-width:30rem">
+    <table class="tbl">
+      <thead><tr><th><i>k</i></th><th>(1 − 1/<i>k</i>)<sup><i>k</i>−1</sup></th></tr></thead>
+      <tbody>
+        <tr><td class="num">2</td><td class="num">0,5</td></tr>
+        <tr><td class="num">4</td><td class="num">(3/4)<sup>3</sup> ≈ 0,422</td></tr>
+        <tr><td class="num">10</td><td class="num">0,9<sup>9</sup> ≈ 0,387</td></tr>
+        <tr><td class="num">100</td><td class="num">0,99<sup>99</sup> ≈ 0,370</td></tr>
+        <tr><td class="num">molto grande</td><td class="num">→ 1/e ≈ 0,368</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Quindi, anche con tantissime stazioni, uno slot su e (circa uno su 2,7) va bene.</p>
+</div>
+<p>È lo stesso 1/e dello slotted ALOHA (le stazioni trasmettono solo all'inizio di uno slot, e al massimo il 37% degli slot va bene), e non per caso: il periodo di contesa del CSMA/CD si comporta proprio come uno slotted ALOHA con slot di 2τ. La differenza è che qui, quando uno slot va bene, la stazione si tiene il canale per tutto il resto del frame.</p>
 
 <h4>2. Quanti slot dura in media una contesa</h4>
 <p>Ogni slot va bene con probabilità <i>A</i>, indipendentemente dagli altri. La contesa dura esattamente <i>j</i> slot se i primi <i>j</i> − 1 vanno male e il <i>j</i>-esimo va bene: probabilità <i>A</i>(1 − <i>A</i>)<sup><i>j</i>−1</sup>.</p>
@@ -9764,7 +9840,7 @@ alla fine di ogni evento:
   <p><span class="rif">2</span>Il tempo di trasmissione è bit diviso velocità; il tempo di propagazione è distanza diviso velocità del segnale.</p>
   <p><span class="rif">3</span>Il numeratore diventa 1; nel denominatore (2<i>L</i>e/<i>c</i>) / (<i>F</i>/<i>B</i>) = 2<i>L</i>e<i>B</i>/(<i>cF</i>).</p>
 </div>
-<p>Quando il secondo termine del denominatore è grande, l'efficienza è bassa. Per una data lunghezza del frame, <b>aumentare la banda <i>B</i> o la distanza <i>L</i></b> (il prodotto <i>BL</i>) peggiora l'efficienza. È un problema, perché la ricerca sull'hardware punta proprio ad aumentare quel prodotto: si vogliono più velocità su distanze più lunghe. Per questo l'Ethernet classica non è adatta alle reti veloci e lunghe, e l'argomento <a href="#ethveloci">«Fast, Gigabit e 10G Ethernet»</a> mostra come si è usciti dal problema.</p>
+<p>Quando il secondo termine del denominatore è grande, l'efficienza è bassa. Per una data lunghezza del frame, <b>aumentare la banda <i>B</i> o la distanza <i>L</i></b> (il prodotto <i>BL</i>) peggiora l'efficienza. È un problema, perché la ricerca sull'hardware punta proprio ad aumentare quel prodotto: si vogliono più velocità su distanze più lunghe. Per questo l'Ethernet classica non è adatta alle reti veloci e lunghe. La via d'uscita è stata eliminare la contesa: con gli switch e i cavi full duplex non ci sono collisioni, e la lunghezza del cavo non pesa più sull'efficienza (argomenti <a href="#ethswitch">«Ethernet commutata»</a> e <a href="#ethveloci">«Fast, Gigabit e 10G Ethernet»</a>).</p>
 <p><b>L'esempio del libro.</b> 10 Mbps, slot 2τ = 51,2 µs (64 byte), frame da 1024 byte, moltissime stazioni:</p>
 <div class="catena-wrap"><div class="catena">
   <span class="sx"><i>P</i></span><span class="rel">=</span><span class="dx">1024 · 8 bit / 10<sup>7</sup> bit/s = 819,2 µs</span><span class="perche">tempo di trasmissione del frame</span>
@@ -9791,7 +9867,7 @@ alla fine di ogni evento:
 <p>Il grafico usa lo slot dello standard, 51,2 µs, che comprende ripetitori e margine; la calcolatrice usa invece la formula del libro con τ = <i>L</i>/<i>c</i>, cioè solo la propagazione. Con <i>L</i> = 2500 m le due cose differiscono: 2<i>L</i>/<i>c</i> = 25 µs, metà dello slot.</p>
 <div class="box warn">
   <p class="box-label">Da prendere con le pinze</p>
-  <p>Quasi tutte le analisi teoriche assumono traffico di Poisson, ma il traffico vero è a raffiche su molte scale di tempo, e fare la media su periodi lunghi non lo rende più regolare. In più molte analisi studiano carichi anormalmente alti. Esperimenti veri (Boggs e altri, 1988) hanno mostrato che Ethernet funziona bene anche con carichi piuttosto alti.</p>
+  <p>Quasi tutte le analisi teoriche assumono traffico di Poisson (arrivi casuali e indipendenti, come nell'ipotesi del traffico indipendente dell'argomento «Allocazione del canale»), ma il traffico vero è a raffiche su molte scale di tempo, e fare la media su periodi lunghi non lo rende più regolare. In più molte analisi studiano carichi anormalmente alti. Esperimenti veri (Boggs e altri, 1988) hanno mostrato che Ethernet funziona bene anche con carichi piuttosto alti.</p>
 </div>
 
 <h3 id="eth-esercizi" data-toc="Esercizi svolti">Esercizi svolti</h3>
@@ -9953,7 +10029,7 @@ alla fine di ogni evento:
 <ul>
   <li><b>Da fuori</b> assomiglia a un hub: una scatola con da 4 a 48 porte, ognuna con un connettore RJ-45 per il doppino, e ogni cavo collega lo switch a un solo computer. Ha anche gli stessi vantaggi: si aggiunge o toglie una stazione collegando o staccando un cavo, e un cavo o una porta guasti di solito colpiscono una sola stazione. Resta un componente che può rompersi, lo switch stesso; ma se tutte le stazioni perdono la rete, i tecnici sanno che cosa fare: cambiare lo switch.</li>
   <li><b>Dentro</b> è tutt'altra cosa. Quando su una porta arriva un frame, lo switch legge l'<b>indirizzo di destinazione</b> per capire a quale porta va, e lo passa a quella porta attraverso il <b>backplane</b>, un collegamento interno ad alta velocità (in genere molti Gbps) che unisce tutte le porte. Il backplane usa un protocollo proprietario, che non serve standardizzare perché resta nascosto dentro lo switch. La porta di destinazione trasmette il frame sul suo cavo, verso la stazione giusta. <b>Le altre porte non sanno nemmeno che il frame esiste.</b></li>
-  <li>Per farlo, lo switch deve sapere quale porta corrisponde a quale indirizzo. Come lo impara lo vediamo nell'argomento <a href="#bridge">«Bridge, switch e spanning tree»</a>, dove si tratta il caso generale di più switch collegati tra loro. Per ora supponiamo che lo sappia già.</li>
+  <li>Per farlo, lo switch deve sapere quale porta corrisponde a quale indirizzo, e lo impara da solo guardando i frame che passano: se dalla porta 3 arriva un frame il cui mittente è C, lo switch annota «C si raggiunge dalla porta 3». Finché non conosce la porta di una destinazione, manda il frame su tutte le porte tranne quella da cui è arrivato. È il <i>backward learning</i>, spiegato per intero, con un simulatore, nell'argomento <a href="#bridge">«Bridge, switch e spanning tree»</a>.</li>
 </ul>
 
 <h3 id="sw-domini" data-toc="Domini di collisione">Domini di collisione, half duplex e full duplex</h3>
@@ -9969,6 +10045,17 @@ alla fine di ogni evento:
   <li>Nel caso comune di un cavo <b>full duplex</b> (un doppino per direzione), la stazione e la porta possono trasmettere <b>insieme</b> sul cavo, ognuna nella sua direzione, senza preoccuparsi di nessun altro. Le collisioni diventano <b>impossibili</b> e il <b>CSMA/CD non serve più</b>.</li>
   <li>Se il cavo è <b>half duplex</b> (si trasmette in una direzione alla volta), la stazione e la porta si contendono il cavo nel solito modo, con il CSMA/CD. Il dominio di collisione contiene solo loro due.</li>
 </ul>
+
+<div class="box ex">
+  <p class="box-label">Metodo · contare i domini di collisione</p>
+  <ol>
+    <li>Tutto quello che è collegato a un <b>hub</b> o a un cavo condiviso, anche passando per altri hub o ripetitori, è <b>un unico</b> dominio di collisione: hub e ripetitori non separano niente.</li>
+    <li>Ogni porta di uno <b>switch</b> (o di un bridge) è un dominio a sé. Se dietro una porta c'è un hub, il dominio di quella porta comprende tutte le stazioni dell'hub.</li>
+    <li>Anche un <b>router</b> separa i domini di collisione, perché i frame non lo attraversano: si fermano al livello data link.</li>
+    <li>Un collegamento <b>full duplex</b> punto a punto tra stazione e switch conta come un dominio, ma lì le collisioni non avvengono mai.</li>
+  </ol>
+  <p>Esempio: la rete della Figura 4.17, più avanti in questo argomento (uno switch con tre computer, uno per porta, e un hub con altri tre computer sulla quarta porta), ha <b>4</b> domini di collisione: uno per ognuno dei tre computer collegati direttamente e uno per tutto l'hub.</p>
+</div>
 
 <div class="widget hs-w" id="hs-w" aria-labelledby="hs-t">
   <div class="widget-head"><p class="widget-title" id="hs-t">Figura 4.16 · hub e switch a confronto</p></div>
@@ -10111,7 +10198,7 @@ alla fine di ogni evento:
 </div>
 <ul>
   <li><b>100Base-T4</b> esisteva perché quasi ogni ufficio aveva almeno quattro doppini di Categoria 3 verso un armadio telefonico entro 100 m: si poteva passare a fast Ethernet senza ricablare. Ma la Cat 3 non regge 100 Mbps su 100 m con un solo doppino, quindi T4 usa una velocità di segnalazione di <b>25 MHz</b> (solo il 25% più dei 20 MHz di Ethernet classica, che con la Manchester ha due periodi di clock per ciascuno dei suoi 10 milioni di bit al secondo) e <b>tutti e 4 i doppini</b>: uno va sempre verso l'hub, uno viene sempre dall'hub, gli altri due cambiano direzione secondo chi trasmette. Su ogni doppino si inviano cifre ternarie, con tre livelli di tensione. Il prezzo: niente più telefono in ufficio. (La 5ª edizione scrive «20 MHz, solo il 25% più veloce dei 20 MHz»: il primo valore è 25 MHz.)</li>
-  <li><b>100Base-TX</b> ha vinto non appena gli uffici sono stati ricablati in Categoria 5, che regge una frequenza di clock di 125 MHz. Usa due soli doppini per stazione, uno per direzione, ed è <b>full duplex</b>. Niente Manchester: usa la codifica <b>4B/5B</b> dell'argomento <a href="#bandabase">«Trasmissione in banda base»</a>, che manda 5 bit di segnale per ogni 4 bit di dati: 125 Mbit di segnale al secondo · 4/5 = <b>100 Mbps</b> di dati. Ha abbastanza transizioni per il clock e usa bene la banda del cavo.</li>
+  <li><b>100Base-TX</b> ha vinto non appena gli uffici sono stati ricablati in Categoria 5, che regge una frequenza di clock di 125 MHz. Usa due soli doppini per stazione, uno per direzione, ed è <b>full duplex</b>. Niente Manchester (che con due intervalli per bit avrebbe richiesto 200 milioni di intervalli al secondo): usa la codifica <b>4B/5B</b>, che manda 5 bit di segnale per ogni 4 bit di dati, scegliendo gruppi da 5 bit con abbastanza transizioni per il clock. 125 Mbit di segnale al secondo · 4/5 = <b>100 Mbps</b> di dati: costa solo il 25% di banda in più, invece del 100% della Manchester. (La 4B/5B è spiegata nell'argomento <a href="#bandabase">«Trasmissione in banda base»</a>.)</li>
   <li><b>100Base-FX</b> usa due fibre multimodali, una per direzione: full duplex a 100 Mbps per verso, con la stazione fino a 2 km dallo switch.</li>
 </ul>
 
@@ -10123,8 +10210,18 @@ alla fine di ogni evento:
   <span class="sx">2τ ammesso</span><span class="rel">≤</span><span class="dx">5,12 µs</span><span class="perche">il frame deve durare almeno 2τ</span>
   <span class="sx">distanza massima</span><span class="rel">≈</span><span class="dx">2500 m / 10 = <b>250 m</b></span><span class="perche">τ è proporzionale alla distanza</span>
 </div></div>
-<p>Le alternative erano due: allungare il frame minimo o accorciare la rete. Si è scelto di <b>dividere per 10 la distanza</b>, la scelta più facile, perché un hub con cavi da 100 m sta già dentro il nuovo limite. I cavi 100Base-FX da 2 km invece sono troppo lunghi per un hub con il normale algoritmo delle collisioni: vanno collegati a uno <b>switch</b> e usati in <b>full duplex</b>, così le collisioni non esistono.</p>
+<p>Ricordiamo il perché della regola: τ è il tempo che il segnale impiega per attraversare la rete, e il mittente si accorge di una collisione solo se sta ancora trasmettendo quando il disturbo torna indietro, cioè fino a 2τ dopo l'inizio. Le alternative erano due: allungare il frame minimo o accorciare la rete. Si è scelto di <b>dividere per 10 la distanza</b>, la scelta più facile, perché un hub con cavi da 100 m sta già dentro il nuovo limite. I cavi 100Base-FX da 2 km invece sono troppo lunghi per un hub con il normale algoritmo delle collisioni: vanno collegati a uno <b>switch</b> e usati in <b>full duplex</b>, così le collisioni non esistono.</p>
 <p>Gli utenti non buttarono via le vecchie schede da 10 Mbps, quindi quasi tutti gli switch fast Ethernet gestiscono un misto di stazioni a 10 e 100 Mbps. Per facilitare il passaggio, lo standard prevede l'<b>autonegoziazione</b> <span class="en">(autonegotiation)</span>: le due estremità di un cavo si accordano da sole sulla velocità migliore (10 o 100 Mbps) e sul duplex (half o full). Funziona quasi sempre; il problema tipico è il <b>disallineamento del duplex</b> <span class="en">(duplex mismatch)</span>, quando un'estremità negozia e l'altra no ed è impostata a mano in full duplex.</p>
+
+<div class="box ex">
+  <p class="box-label">Metodo · la distanza massima con il CSMA/CD</p>
+  <p>Il frame minimo deve durare almeno 2τ, e 2τ cresce con la lunghezza della rete. Quindi, a parità di tutto il resto, la distanza massima è proporzionale alla <b>durata</b> del frame minimo:</p>
+  <ul>
+    <li>velocità 10 volte più alta, stesso frame minimo → il frame dura 10 volte meno → distanza massima 10 volte più corta;</li>
+    <li>frame minimo 8 volte più lungo (in tempo) → distanza massima 8 volte più lunga.</li>
+  </ul>
+  <p>Partendo da Ethernet classica (512 bit a 10 Mbps = 51,2 µs, circa 2500 m): fast Ethernet, 512 bit a 100 Mbps = 5,12 µs → circa <b>250 m</b>; gigabit, 512 bit a 1 Gbps = 0,512 µs → circa <b>25 m</b>; gigabit con carrier extension, 4096 bit a 1 Gbps = 4,096 µs → circa <b>200 m</b>. Con gli switch in full duplex il vincolo sparisce, perché non ci sono collisioni.</p>
+</div>
 
 <h3 id="fe-giga" data-toc="Gigabit Ethernet">Gigabit Ethernet</h3>
 <p class="in-questa"><b>In questa sezione:</b> gli obiettivi di gigabit Ethernet, i due modi di funzionare (con switch e con hub), perché con un hub il cavo sarebbe lungo solo 25 m e come si arriva a 200 m, i cavi, il controllo di flusso e i jumbo frame.</p>
@@ -10228,7 +10325,7 @@ alla fine di ogni evento:
 </div>
 <ul>
   <li><b>10GBase-CX4</b>: quattro coppie di rame biassiale; ognuna usa la 8B/10B a 3,125 miliardi di simboli al secondo, cioè 3,125 · 8/10 = 2,5 Gbps di dati, e 4 · 2,5 = 10 Gbps. Più economica della fibra, uscì presto sul mercato.</li>
-  <li><b>10GBase-T</b>: doppino di Categoria 6a (sulle distanze brevi anche categorie inferiori, così si riusa parte del cablaggio). Ognuna delle quattro coppie porta 2500 Mbps in entrambe le direzioni, con 800 milioni di simboli al secondo e 16 livelli di tensione; i dati vengono rimescolati e protetti con un codice LDPC.</li>
+  <li><b>10GBase-T</b>: doppino di Categoria 6a (sulle distanze brevi anche categorie inferiori, così si riusa parte del cablaggio). Ognuna delle quattro coppie porta 2500 Mbps in entrambe le direzioni, con 800 milioni di simboli al secondo e 16 livelli di tensione; i dati vengono rimescolati e protetti con un codice LDPC (un codice a correzione d'errore: permette al ricevente di correggere da solo una parte dei bit sbagliati).</li>
 </ul>
 
 <h3 id="fe-100g" data-toc="40 e 100 Gigabit">40 e 100 Gigabit Ethernet</h3>
@@ -10379,7 +10476,7 @@ alla fine di ogni evento:
 
 <h3 id="br-usi" data-toc="Perché unire più LAN">Perché una rete ha più LAN</h3>
 <p class="in-questa"><b>In questa sezione:</b> che cosa fa un bridge e i motivi per cui un'organizzazione si ritrova con più LAN da collegare.</p>
-<p>Molte organizzazioni hanno più LAN e vogliono collegarle. Non sarebbe comodo unirle in un'unica LAN più grande? Si può, con i <b>bridge</b>. Un bridge lavora al <b>livello data link</b>: guarda gli <b>indirizzi del data link</b> (gli indirizzi MAC) per decidere dove inoltrare i frame. Non deve guardare il contenuto dei frame, quindi trasporta pacchetti IP come qualunque altro tipo di pacchetto. Gli switch Ethernet del <a href="#ethswitch">§4.3.4</a> sono il nome moderno dei bridge: da qui in poi «bridge» e «switch» vogliono dire la stessa cosa.</p>
+<p>Molte organizzazioni hanno più LAN e vogliono collegarle. Non sarebbe comodo unirle in un'unica LAN più grande? Si può, con i <b>bridge</b>. Un bridge lavora al <b>livello data link</b>: guarda gli <b>indirizzi del data link</b> (gli indirizzi MAC) per decidere dove inoltrare i frame. Non deve guardare il contenuto dei frame, quindi trasporta pacchetti IP come qualunque altro tipo di pacchetto. Gli switch Ethernet del <a href="#ethswitch">§4.3.4</a> sono il nome moderno dei bridge: da qui in poi «bridge» e «switch» vogliono dire la stessa cosa. Un router invece guarda gli indirizzi dentro i pacchetti (per esempio gli indirizzi IP) e decide in base a quelli, quindi funziona solo con i protocolli per cui è stato progettato.</p>
 <p>Il libro dà tre motivi per cui un'unica organizzazione ha più LAN.</p>
 <ol>
   <li><b>Autonomia.</b> Dipartimenti e uffici diversi hanno ognuno la sua LAN, installata per conto suo; prima o poi devono comunicare, e servono i bridge.</li>
@@ -10450,7 +10547,7 @@ alla fine di ogni evento:
 </figure>
 <p>I bridge nacquero ai tempi dell'Ethernet classica, quindi spesso li si disegna con i cavi condivisi, come nella Figura 4.19 (a). Oggi tutte le topologie sono fatte di collegamenti punto a punto e switch, come nella (b). Il bridge funziona allo stesso modo in entrambi i casi.</p>
 <ul>
-  <li>Tutte le stazioni attaccate alla <b>stessa porta</b> di un bridge sono nello <b>stesso dominio di collisione</b>, diverso da quello delle altre porte. Se su una porta ci sono più stazioni (un cavo condiviso, un hub) o il collegamento è half duplex, lì si usa il CSMA/CD.</li>
+  <li>Tutte le stazioni attaccate alla <b>stessa porta</b> di un bridge sono nello <b>stesso dominio di collisione</b> (l'insieme di stazioni i cui frame, trasmessi insieme, si scontrano), diverso da quello delle altre porte. Se su una porta ci sono più stazioni (un cavo condiviso, un hub) o il collegamento è half duplex, lì si usa il CSMA/CD.</li>
   <li>A un bridge si possono collegare cavi di tipo diverso.</li>
 </ul>
 
@@ -10485,6 +10582,17 @@ alla fine di ogni evento:
 </div>
 <p>Prima di decidere, il bridge <b>impara</b> dalla sorgente (scrive o rinfresca «sorgente → porta di arrivo»). Un frame <b>broadcast</b> (destinazione tutti 1) va sempre in flooding, perché è per tutti.</p>
 <p>Ma la prima regola può servire con i collegamenti punto a punto? Sì, quando c'è un hub. Nella Figura 4.19 (b), se E manda un frame a F, l'hub H1 lo ripete su tutte le sue porte: arriva a F e anche a B2, sulla porta 2. E la porta 2 è proprio quella da cui si raggiunge F: B2 deve solo <b>scartarlo</b>.</p>
+
+<div class="box ex">
+  <p class="box-label">Metodo · esercizi sulle tabelle dei bridge</p>
+  <ol>
+    <li>Per ogni bridge, scrivi le sue porte e che cosa c'è dietro ognuna (stazioni, hub, altri bridge).</li>
+    <li>Per ogni invio, segui il frame dal mittente. Se passa da un <b>hub</b>, l'hub lo ripete su tutte le sue porte (anche verso le stazioni che non c'entrano e verso il bridge).</li>
+    <li>Per ogni bridge che il frame raggiunge, in quest'ordine: (a) <b>impara</b>: scrivi «mittente → porta da cui è arrivato» (o aggiorna la riga); (b) cerca il destinatario nella <b>sua</b> tabella; (c) applica le tre regole: stessa porta → scarta; un'altra porta → inoltra solo lì; sconosciuto o broadcast → flooding su tutte le porte tranne quella di arrivo.</li>
+    <li>Ripeti il punto 3 per i bridge raggiunti dalle copie inoltrate.</li>
+    <li><b>Attenzione</b>: ogni bridge impara solo dai frame che vede. Se un frame viene scartato o inoltrato da una parte sola, gli altri bridge non lo vedono e restano senza quella riga: due bridge possono conoscere cose diverse.</li>
+  </ol>
+</div>
 
 <div class="widget lb-w" id="lb-w" aria-labelledby="lb-t">
   <div class="widget-head"><p class="widget-title" id="lb-t">Figura 4.20 · simulatore del bridge con apprendimento</p></div>
@@ -10641,6 +10749,16 @@ alla fine di ogni evento:
   <li><b>Percorsi.</b> Nei messaggi c'è anche la <b>distanza dalla radice</b>. Ogni bridge ricorda il percorso più breve verso la radice (a parità, quello attraverso il bridge con identificatore più basso) e <b>spegne le porte</b> che non fanno parte dei percorsi più brevi.</li>
   <li>L'albero raggiunge tutti i bridge, ma non tutti i collegamenti sono usati. L'algoritmo continua a girare durante il funzionamento normale, così si accorge dei cambi di topologia e aggiorna l'albero da solo.</li>
 </ol>
+<div class="box ex">
+  <p class="box-label">Metodo · costruire lo spanning tree a mano</p>
+  <ol>
+    <li><b>Radice</b>: il bridge con l'identificatore più basso.</li>
+    <li><b>Distanze</b>: i vicini della radice sono a distanza 1; i loro vicini non ancora contati a distanza 2; e così via, finché tutti i bridge hanno una distanza (è il numero minimo di collegamenti da attraversare per arrivare alla radice).</li>
+    <li><b>Collegamento verso la radice</b>: ogni bridge (tranne la radice) tiene il collegamento verso un vicino che ha distanza uno in meno della sua. Se i vicini possibili sono più di uno, sceglie quello con l'identificatore più basso.</li>
+    <li>I collegamenti scelti formano l'albero; <b>tutti gli altri restano fuori</b>, e le porte corrispondenti vengono spente.</li>
+    <li><b>Controllo</b>: con <i>n</i> bridge l'albero ha esattamente <i>n</i> − 1 collegamenti e nessun ciclo. Nella Figura 4.23: 5 bridge, 4 collegamenti nell'albero, 2 fuori.</li>
+  </ol>
+</div>
 <p>L'algoritmo è stato inventato da <b>Radia Perlman</b>, standardizzato come <b>IEEE 802.1D</b> e usato per molti anni; nel 2001 è stato rivisto per trovare più in fretta un nuovo albero dopo un cambio di topologia.</p>
 <details class="facolt">
   <summary>La poesia di Radia Perlman</summary>
@@ -10693,7 +10811,7 @@ alla fine di ogni evento:
       <tr><th>Ripetitore</th><td>Fisico</td><td>Niente: lavora sui segnali</td><td>Dispositivo analogico tra due cavi: ripulisce il segnale dal rumore, lo amplifica e lo ritrasmette. Non sa niente di frame, pacchetti o intestazioni, conosce solo i simboli che codificano i bit in volt. L'Ethernet classica ne ammetteva 4, per passare da 500 a 2500 m.</td></tr>
       <tr><th>Hub</th><td>Fisico</td><td>Niente</td><td>Molte linee collegate elettricamente: un frame che arriva da una esce da tutte le altre; due frame insieme collidono. Tutte le linee devono andare alla stessa velocità. Di solito non amplifica e ha molte porte, ma le differenze dal ripetitore sono piccole.</td></tr>
       <tr><th>Bridge</th><td>Data link</td><td>Indirizzo MAC di destinazione (48 bit)</td><td>Collega due o più LAN; un bridge moderno ha da 4 a 48 porte. Ogni porta è un dominio di collisione a sé (niente CSMA/CD se il collegamento è full duplex punto a punto). Mette il frame solo sulla porta che serve e manda più frame insieme. Le porte possono andare a velocità diverse: per questo ha un <b>buffer</b>, e se i frame arrivano più in fretta di quanto riesce a ritrasmetterli, lo esaurisce e comincia a scartarli.</td></tr>
-      <tr><th>Switch</th><td>Data link</td><td>Indirizzo MAC di destinazione</td><td>Un bridge moderno con un altro nome (vedi sotto).</td></tr>
+      <tr><th>Switch</th><td>Data link</td><td>Indirizzo MAC di destinazione</td><td>Un bridge moderno con un altro nome: di solito con molte porte e una sola stazione per porta, collegata in full duplex.</td></tr>
       <tr><th>Router</th><td>Rete</td><td>Indirizzo del pacchetto (IP: 32 bit in IPv4, 128 in IPv6)</td><td>Toglie intestazione e coda del frame e passa il pacchetto al software di instradamento. Non vede gli indirizzi del frame e non sa nemmeno se il pacchetto è arrivato da una LAN o da una linea punto a punto. Si usa per collegare reti di tipo diverso. Lo studieremo nel capitolo 5.</td></tr>
       <tr><th>Gateway di trasporto</th><td>Trasporto</td><td>Le connessioni di trasporto</td><td>Collega due computer che usano protocolli di trasporto orientati alla connessione diversi (per esempio TCP e SCTP), copiando i pacchetti da una connessione all'altra e riformattandoli.</td></tr>
       <tr><th>Gateway di applicazione</th><td>Applicazione</td><td>Il formato e il contenuto dei dati</td><td>Traduce i messaggi da un formato all'altro: per esempio un gateway di posta che trasforma email in SMS. Come «switch», anche «gateway» è un termine generico: un inoltro fatto a un livello alto.</td></tr>
@@ -10720,7 +10838,29 @@ alla fine di ogni evento:
 <p>Dopo ripetitori e hub (simili tra loro) e bridge e switch (ancora più simili), i router non hanno niente in comune con i precedenti: lavorano un livello più su.</p>
 
 <h3 id="br-esercizi" data-toc="Esercizi svolti">Esercizi svolti</h3>
-<p>Gli esercizi sui bridge usano la rete della Figura 4.19 (b). Puoi rifarli nel «simulatore del bridge con apprendimento» (Figura 4.20) con i pulsanti delle sequenze.</p>
+<p>I primi tre esercizi usano la rete della Figura 4.19 (b), ripetuta qui per comodità. Puoi rifarli nel «simulatore del bridge con apprendimento» (Figura 4.20) con i pulsanti delle sequenze.</p>
+<figure class="fig">
+  <svg class="dia" style="max-width:30rem" viewBox="0 0 380 200" role="img" aria-label="A, B e C collegate alle porte 1, 2 e 3 del bridge B1; la porta 4 di B1 è collegata alla porta 4 del bridge B2; B2 ha D sulla porta 1, l'hub H1 con E ed F sulla porta 2, G sulla porta 3">
+        <line x1="40" y1="31" x2="106" y2="84" class="lk"/><line x1="40" y1="100" x2="92" y2="100" class="lk"/><line x1="40" y1="169" x2="106" y2="116" class="lk"/>
+        <line x1="148" y1="100" x2="202" y2="100" class="lk"/>
+        <line x1="244" y1="84" x2="300" y2="31" class="lk"/><line x1="258" y1="100" x2="282" y2="100" class="lk"/><line x1="244" y1="116" x2="300" y2="169" class="lk"/>
+        <line x1="318" y1="96" x2="340" y2="73" class="lk"/><line x1="318" y1="104" x2="340" y2="127" class="lk"/>
+        <rect x="10" y="20" width="30" height="22" rx="3" class="pc"/><text x="25" y="35" text-anchor="middle" class="t11">A</text>
+        <rect x="10" y="89" width="30" height="22" rx="3" class="pc"/><text x="25" y="104" text-anchor="middle" class="t11">B</text>
+        <rect x="10" y="158" width="30" height="22" rx="3" class="pc"/><text x="25" y="173" text-anchor="middle" class="t11">C</text>
+        <polygon points="92,100 106,82 134,82 148,100 134,118 106,118" class="hexb"/><text x="120" y="104" text-anchor="middle" class="tb">B1</text>
+        <polygon points="202,100 216,82 244,82 258,100 244,118 216,118" class="hexb"/><text x="230" y="104" text-anchor="middle" class="tb">B2</text>
+        <rect x="300" y="20" width="30" height="22" rx="3" class="pc"/><text x="315" y="35" text-anchor="middle" class="t11">D</text>
+        <rect x="282" y="90" width="36" height="20" rx="3" class="n-soft"/><text x="300" y="104" text-anchor="middle" class="t11">H1</text>
+        <rect x="340" y="62" width="30" height="22" rx="3" class="pc"/><text x="355" y="77" text-anchor="middle" class="t11">E</text>
+        <rect x="340" y="116" width="30" height="22" rx="3" class="pc"/><text x="355" y="131" text-anchor="middle" class="t11">F</text>
+        <rect x="300" y="158" width="30" height="22" rx="3" class="pc"/><text x="315" y="173" text-anchor="middle" class="t11">G</text>
+        <text x="94" y="78" class="tms">1</text><text x="82" y="95" class="tms">2</text><text x="94" y="130" class="tms">3</text>
+        <text x="154" y="95" class="tms">4</text><text x="191" y="95" class="tms">4</text>
+        <text x="250" y="78" class="tms">1</text><text x="262" y="95" class="tms">2</text><text x="250" y="130" class="tms">3</text>
+      </svg>
+  <figcaption><span class="label">Figura 4.19 (b), ripetuta</span>A, B e C sono sulle porte 1, 2 e 3 di B1; la porta 4 di B1 è collegata alla porta 4 di B2; B2 ha D sulla porta 1, l'hub H1 (con E ed F) sulla porta 2 e G sulla porta 3.</figcaption>
+</figure>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 37 del cap. 4</p>
   <p class="ed-note">Numerazione della 5ª edizione; nella 6ª è il problema 42.</p>
@@ -11028,7 +11168,7 @@ alla fine di ogni evento:
 <ul>
   <li>Le VLAN funzionano con switch appositi, detti <b>VLAN-aware</b>. L'amministratore decide quante VLAN fare, quali computer metterci e come chiamarle.</li>
   <li>Di solito, informalmente, alle VLAN si dà il <b>nome di un colore</b>: così si stampano schemi a colori in cui i membri della LAN rossa sono in rosso, quelli della verde in verde, e un solo disegno mostra sia la disposizione fisica sia quella logica.</li>
-  <li>Ogni switch ha una <b>tabella di configurazione</b> che dice quali VLAN si raggiungono da quali porte. Un frame della VLAN grigia va inoltrato su tutte le porte etichettate «G». Questo vale per il traffico unicast per cui il bridge non ha ancora imparato la destinazione, e per il multicast e il broadcast. Una porta può avere <b>più di un colore</b>.</li>
+  <li>Ogni switch ha una <b>tabella di configurazione</b> che dice quali VLAN si raggiungono da quali porte. La regola per le etichette: una porta ha la lettera di una VLAN se dietro di lei, anche passando per altri switch, c'è almeno una macchina di quella VLAN. Un frame della VLAN grigia va inoltrato su tutte le porte etichettate «G». Questo vale per il traffico unicast per cui il bridge non ha ancora imparato la destinazione, e per il multicast e il broadcast. Una porta può avere <b>più di un colore</b>.</li>
 </ul>
 
 <div class="widget stepper" data-steps="2" aria-labelledby="vl2-t">
@@ -11203,7 +11343,7 @@ alla fine di ogni evento:
 
 <div class="widget vt-w" id="vt-w" aria-labelledby="vt-t">
   <div class="widget-head"><p class="widget-title" id="vt-t">Calcolatrice · etichetta 802.1Q</p></div>
-  <p class="w-hint">Scrivi i 4 byte dell'etichetta in esadecimale, come li mostra Wireshark (per esempio <span class="num">81 00 a0 0a</span>), oppure scegli priorità, CFI e VLAN qui sotto: le due parti si aggiornano a vicenda.</p>
+  <p class="w-hint">Scrivi i 4 byte dell'etichetta in esadecimale, come li mostra Wireshark (per esempio <span class="num">81 00 a0 0a</span>), oppure scegli priorità, CFI e VLAN nei tre campi che seguono: le due parti si aggiornano a vicenda.</p>
   <div class="w-row">
     <label class="field grow" for="vt-hex"><span>4 byte dell'etichetta</span><input id="vt-hex" class="vt-hex mono-in" type="text" value="81 00 a0 0a" spellcheck="false" autocomplete="off"></label>
   </div>
@@ -11215,6 +11355,17 @@ alla fine di ogni evento:
   <div class="vt-bits" aria-hidden="true"></div>
   <dl class="w-res vt-res"></dl>
   <p class="w-err vt-err" hidden></p>
+</div>
+
+<div class="box ex">
+  <p class="box-label">Metodo · leggere un'etichetta 802.1Q (per esempio in Wireshark)</p>
+  <ol>
+    <li>L'etichetta sono i 4 byte subito dopo i 12 byte degli indirizzi (6 di destinazione e 6 sorgente).</li>
+    <li>I primi 2 byte devono valere <span class="num">0x8100</span>. Se valgono altro, il frame non è etichettato e quei 2 byte sono il normale campo Tipo/Lunghezza.</li>
+    <li>Scrivi in binario gli altri 2 byte, 16 bit: i primi 3 bit sono la <b>priorità</b>, il quarto è il <b>CFI</b>, gli ultimi 12 sono il <b>VLAN identifier</b>.</li>
+    <li>Subito dopo l'etichetta c'è il campo Tipo/Lunghezza originale.</li>
+  </ol>
+  <p>Esempio: <span class="num">81 00 a0 0a</span> → i 2 byte dopo 0x8100 sono 0xA00A = <span class="num">101 0 0000 0000 1010</span> → priorità 101 = <b>5</b>, CFI <b>0</b>, VLAN 0000 0000 1010 = <b>10</b>.</p>
 </div>
 
 <h4>Da dove vengono le tabelle</h4>
@@ -11236,6 +11387,61 @@ alla fine di ogni evento:
 </details>
 
 <h3 id="vl-esercizi" data-toc="Esercizi svolti">Esercizi svolti</h3>
+<p>Il secondo e il quarto esercizio usano la Figura 4.28, ripetuta qui senza i passi.</p>
+<figure class="fig">
+  <div class="scroll-x">
+    <svg class="dia mid" viewBox="0 0 600 250" role="img" aria-label="Il bridge B1 ha sei stazioni grigie; B2 ha due stazioni nere in alto, un hub con stazioni grigie e nere, e in basso una stazione grigia e due nere. Le etichette G e N sulle porte dicono quali VLAN si raggiungono da ciascuna porta">
+      <line x1="90" y1="44" x2="136" y2="107" class="lk"/>
+      <line x1="150" y1="44" x2="150" y2="107" class="lk"/>
+      <line x1="210" y1="44" x2="164" y2="107" class="lk"/>
+      <line x1="90" y1="206" x2="136" y2="143" class="lk"/>
+      <line x1="150" y1="206" x2="150" y2="143" class="lk"/>
+      <line x1="210" y1="206" x2="164" y2="143" class="lk"/>
+      <line x1="178" y1="125" x2="402" y2="125" class="lk"/>
+      <line x1="370" y1="44" x2="416" y2="107" class="lk"/>
+      <line x1="430" y1="44" x2="430" y2="107" class="lk"/>
+      <line x1="444" y1="107" x2="500" y2="66" class="lk"/>
+      <line x1="534" y1="55" x2="562" y2="25" class="lk"/>
+      <line x1="534" y1="55" x2="562" y2="55" class="lk"/>
+      <line x1="534" y1="55" x2="562" y2="85" class="lk"/>
+      <line x1="370" y1="206" x2="416" y2="143" class="lk"/>
+      <line x1="430" y1="206" x2="430" y2="143" class="lk"/>
+      <line x1="490" y1="206" x2="444" y2="143" class="lk"/>
+      <polygon points="122,125 136,107 164,107 178,125 164,143 136,143" class="hexb"/><text x="150" y="129" text-anchor="middle" class="tb">B1</text>
+      <polygon points="402,125 416,107 444,107 458,125 444,143 416,143" class="hexb"/><text x="430" y="129" text-anchor="middle" class="tb">B2</text>
+      <rect x="77" y="22" width="26" height="22" rx="3" class="vg"/><text x="90" y="37" text-anchor="middle" class="tvg">G</text>
+      <text x="109.6" y="93.5" text-anchor="middle" class="tm">G</text>
+      <rect x="137" y="22" width="26" height="22" rx="3" class="vg"/><text x="150" y="37" text-anchor="middle" class="tvg">G</text>
+      <text x="161.0" y="87.1" text-anchor="middle" class="tm">G</text>
+      <rect x="197" y="22" width="26" height="22" rx="3" class="vg"/><text x="210" y="37" text-anchor="middle" class="tvg">G</text>
+      <text x="190.4" y="93.5" text-anchor="middle" class="tm">G</text>
+      <rect x="77" y="206" width="26" height="22" rx="3" class="vg"/><text x="90" y="221" text-anchor="middle" class="tvg">G</text>
+      <text x="109.6" y="164.5" text-anchor="middle" class="tm">G</text>
+      <rect x="137" y="206" width="26" height="22" rx="3" class="vg"/><text x="150" y="221" text-anchor="middle" class="tvg">G</text>
+      <text x="161.0" y="170.9" text-anchor="middle" class="tm">G</text>
+      <rect x="197" y="206" width="26" height="22" rx="3" class="vg"/><text x="210" y="221" text-anchor="middle" class="tvg">G</text>
+      <text x="190.4" y="164.5" text-anchor="middle" class="tm">G</text>
+      <text x="192" y="118" text-anchor="middle" class="tm">G</text>
+      <text x="388" y="118" text-anchor="middle" class="tm">G</text>
+      <rect x="357" y="22" width="26" height="22" rx="3" class="vn"/><text x="370" y="37" text-anchor="middle" class="tvn">N</text>
+      <rect x="417" y="22" width="26" height="22" rx="3" class="vn"/><text x="430" y="37" text-anchor="middle" class="tvn">N</text>
+      <text x="389.6" y="93.5" text-anchor="middle" class="tm">N</text>
+      <text x="441.0" y="87.1" text-anchor="middle" class="tm">N</text>
+      <rect x="490" y="44" width="44" height="22" rx="3" class="n-soft"/><text x="512" y="59" text-anchor="middle" class="t11">hub</text>
+      <text x="462" y="80" text-anchor="middle" class="tm">GN</text>
+      <rect x="562" y="14" width="26" height="22" rx="3" class="vg"/><text x="575" y="29" text-anchor="middle" class="tvg">G</text>
+      <rect x="562" y="44" width="26" height="22" rx="3" class="vn"/><text x="575" y="59" text-anchor="middle" class="tvn">N</text>
+      <rect x="562" y="74" width="26" height="22" rx="3" class="vg"/><text x="575" y="89" text-anchor="middle" class="tvg">G</text>
+      <rect x="357" y="206" width="26" height="22" rx="3" class="vg"/><text x="370" y="221" text-anchor="middle" class="tvg">G</text>
+      <text x="389.6" y="164.5" text-anchor="middle" class="tm">G</text>
+      <rect x="417" y="206" width="26" height="22" rx="3" class="vn"/><text x="430" y="221" text-anchor="middle" class="tvn">N</text>
+      <text x="441.0" y="170.9" text-anchor="middle" class="tm">N</text>
+      <rect x="477" y="206" width="26" height="22" rx="3" class="vn"/><text x="490" y="221" text-anchor="middle" class="tvn">N</text>
+      <text x="470.4" y="164.5" text-anchor="middle" class="tm">N</text>
+    </svg>
+  </div>
+  <figcaption><span class="label">Figura 4.28, ripetuta</span>B1 ha sei stazioni grigie (G); B2 ha due stazioni nere (N) in alto, un hub con stazioni di entrambe le VLAN, e in basso una grigia e due nere. Le lettere vicino alle porte sono le VLAN raggiungibili da ciascuna porta; il collegamento tra B1 e B2 ha G da entrambe le parti.</figcaption>
+</figure>
 <div class="box calc">
   <p class="box-label">Esercizio svolto · problema 19 del cap. 4</p>
   <p class="ed-note">Numerazione della 5ª edizione; nella 6ª questo problema non c'è.</p>
